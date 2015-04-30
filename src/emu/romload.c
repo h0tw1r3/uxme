@@ -534,6 +534,9 @@ static void display_loading_rom_message(romload_private *romdata, const char *na
 {
 	char buffer[200];
 
+	if (romdata->machine().options().skip_loading())
+		return;
+
 	if (name != NULL)
 		sprintf(buffer, "Loading %s (%d%%)", from_list ? "Software" : emulator_info::get_capstartgamenoun(), (UINT32)(100 * (UINT64)romdata->romsloadedsize / (UINT64)romdata->romstotalsize));
 	else
