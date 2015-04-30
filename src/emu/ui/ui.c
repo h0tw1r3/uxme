@@ -337,6 +337,9 @@ void ui_manager::display_startup_screens(bool first_time, bool show_disclaimer)
 	bool show_warnings = true, show_mandatory_fileman = true;
 	int state;
 
+	if (machine().options().skip_disclaimer())
+		show_disclaimer = false;
+
 	// disable everything if we are using -str for 300 or fewer seconds, or if we're the empty driver,
 	// or if we are debugging
 	if (!first_time || (str > 0 && str < 60*5) || &machine().system() == &GAME_NAME(___empty) || (machine().debug_flags & DEBUG_FLAG_ENABLED) != 0)
@@ -365,11 +368,12 @@ void ui_manager::display_startup_screens(bool first_time, bool show_disclaimer)
 			case 1:
 				if (show_warnings && warnings_string(messagebox_text).length() > 0)
 				{
-					set_handler(handler_messagebox_ok, 0);
 					if (machine().system().flags & (GAME_WRONG_COLORS | GAME_IMPERFECT_COLORS | GAME_REQUIRES_ARTWORK | GAME_IMPERFECT_GRAPHICS | GAME_IMPERFECT_SOUND | GAME_IMPERFECT_KEYBOARD | GAME_NO_SOUND))
 						messagebox_backcolor = UI_YELLOW_COLOR;
 					if (machine().system().flags & (GAME_NOT_WORKING | GAME_UNEMULATED_PROTECTION | GAME_MECHANICAL))
 						messagebox_backcolor = UI_RED_COLOR;
+					if (messagebox_backcolor == UI_RED_COLOR || !machine().options().skip_warnings())
+						set_handler(handler_messagebox_ok, 0);
 				}
 				break;
 
