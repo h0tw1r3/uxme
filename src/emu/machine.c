@@ -84,6 +84,7 @@
 #include "mewui/datfile.h"
 #include "mewui/inifile.h"
 #include "debug/debugvw.h"
+#include "faststart.h"
 
 #include <time.h>
 
@@ -363,6 +364,8 @@ int running_machine::run(bool firstrun)
 
 		// load the configuration settings and NVRAM
 		config_load_settings(*this);
+
+		faststart_init(*this);
 
 		// disallow save state registrations starting here.
 		// Don't do it earlier, config load can create network

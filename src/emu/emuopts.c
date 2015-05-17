@@ -42,6 +42,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_FONTPATH,                                   ".",         OPTION_STRING,     "path to font files" },
 	{ OPTION_CHEATPATH,                                  "cheat",     OPTION_STRING,     "path to cheat files" },
 	{ OPTION_CROSSHAIRPATH,                              "crosshair", OPTION_STRING,     "path to crosshair files" },
+	{ OPTION_DATPATH,                                    ".;dat",     OPTION_STRING,     "path to database files" },
 
 	// output directory options
 	{ NULL,                                              NULL,        OPTION_HEADER,     "CORE OUTPUT DIRECTORY OPTIONS" },
@@ -81,6 +82,8 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SLEEP,                                      "1",         OPTION_BOOLEAN,    "enable sleeping, which gives time back to other applications when idle" },
 	{ OPTION_SPEED "(0.01-100)",                         "1.0",       OPTION_FLOAT,      "controls the speed of gameplay, relative to realtime; smaller numbers are slower" },
 	{ OPTION_REFRESHSPEED ";rs",                         "0",         OPTION_BOOLEAN,    "automatically adjusts the speed of gameplay to keep the refresh rate lower than the screen" },
+	{ OPTION_FASTSTART ";fs(auto,0-1000000)",            "0",         OPTION_STRING,     "fast forward number of frames at machine startup." },
+	{ OPTION_FASTSTART_SKIP ";fss",                      "0",         OPTION_BOOLEAN,    "do not render frames during fast start." },
 
 	// rotation options
 	{ NULL,                                              NULL,        OPTION_HEADER,     "CORE ROTATION OPTIONS" },

@@ -1696,7 +1696,7 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 		machine.video().set_fastforward(true);
 		machine.ui().show_fps_temp(0.5);
 	}
-	else
+	else if (!machine.video().faststart())
 		machine.video().set_fastforward(false);
 
 	return 0;

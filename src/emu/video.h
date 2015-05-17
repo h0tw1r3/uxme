@@ -65,6 +65,7 @@ public:
 	float throttle_rate() const { return m_throttle_rate; }
 	bool fastforward() const { return m_fastforward; }
 	bool is_recording() const { return (m_mng_file != NULL || m_avi_file != NULL); }
+	bool faststart() const { return m_faststart; }
 
 	// setters
 	void set_frameskip(int frameskip);
@@ -72,6 +73,7 @@ public:
 	void set_throttle_rate(float throttle_rate) { m_throttle_rate = throttle_rate; }
 	void set_fastforward(bool ffwd = true) { m_fastforward = ffwd; }
 	void set_output_changed() { m_output_changed = true; }
+	void set_faststart(bool fs = true) { m_faststart = m_fastforward = fs; }
 
 	// misc
 	void toggle_throttle();
@@ -146,6 +148,8 @@ private:
 	bool                m_throttled;                // flag: TRUE if we're currently throttled
 	float               m_throttle_rate;            // target rate for throttling
 	bool                m_fastforward;              // flag: TRUE if we're currently fast-forwarding
+	bool                m_faststart;                // flag: TRUE if we're currently fast-starting
+	bool                m_faststart_skip;           // skip frame rendering
 	UINT32              m_seconds_to_run;           // number of seconds to run before quitting
 	bool                m_auto_frameskip;           // flag: TRUE if we're automatically frameskipping
 	UINT32              m_speed;                    // overall speed (*1000)
