@@ -87,6 +87,8 @@ video_manager::video_manager(running_machine &machine)
 		m_throttled(machine.options().throttle()),
 		m_throttle_rate(1.0f),
 		m_fastforward(false),
+		m_faststart(false),
+		m_faststart_skip(machine.options().fast_start_skip()),
 		m_seconds_to_run(machine.options().seconds_to_run()),
 		m_auto_frameskip(machine.options().auto_frameskip()),
 		m_speed(original_speed_setting()),
@@ -204,7 +206,12 @@ void video_manager::frame_update(bool debug)
 	bool skipped_it = m_skipping_this_frame;
 	if (phase == MACHINE_PHASE_RUNNING && (!machine().paused() || machine().options().update_in_pause()))
 	{
-		bool anything_changed = finish_screen_updates();
+		bool anything_changed = false;
+
+		if (m_faststart && m_faststart_skip)
+			anything_changed = true;
+		else
+			anything_changed = finish_screen_updates();
 
 		// if none of the screens changed and we haven't skipped too many frames in a row,
 		// mark this frame as skipped to prevent throttling; this helps for games that

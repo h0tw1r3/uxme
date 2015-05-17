@@ -56,6 +56,7 @@ enum
 #define OPTION_FONTPATH             "fontpath"
 #define OPTION_CHEATPATH            "cheatpath"
 #define OPTION_CROSSHAIRPATH        "crosshairpath"
+#define OPTION_DATPATH              "datpath"
 
 // core directory options
 #define OPTION_CFG_DIRECTORY        "cfg_directory"
@@ -92,6 +93,8 @@ enum
 #define OPTION_SLEEP                "sleep"
 #define OPTION_SPEED                "speed"
 #define OPTION_REFRESHSPEED         "refreshspeed"
+#define OPTION_FASTSTART            "faststart"
+#define OPTION_FASTSTART_SKIP       "faststart_skip"
 
 // core rotation options
 #define OPTION_ROTATE               "rotate"
@@ -233,6 +236,7 @@ public:
 	const char *font_path() const { return value(OPTION_FONTPATH); }
 	const char *cheat_path() const { return value(OPTION_CHEATPATH); }
 	const char *crosshair_path() const { return value(OPTION_CROSSHAIRPATH); }
+	const char *dat_path() const { return value(OPTION_DATPATH); }
 
 	// core directory options
 	const char *cfg_directory() const { return value(OPTION_CFG_DIRECTORY); }
@@ -269,6 +273,8 @@ public:
 	bool sleep() const { return bool_value(OPTION_SLEEP); }
 	float speed() const { return float_value(OPTION_SPEED); }
 	bool refresh_speed() const { return bool_value(OPTION_REFRESHSPEED); }
+	const char *fast_start() const { return value(OPTION_FASTSTART); }
+	bool fast_start_skip() const { return bool_value(OPTION_FASTSTART_SKIP); }
 
 	// core rotation options
 	bool rotate() const { return bool_value(OPTION_ROTATE); }

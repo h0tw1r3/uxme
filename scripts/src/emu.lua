@@ -112,6 +112,8 @@ files {
 	MAME_DIR .. "src/emu/emuopts.h",
 	MAME_DIR .. "src/emu/emupal.c",
 	MAME_DIR .. "src/emu/emupal.h",
+	MAME_DIR .. "src/emu/faststart.c",
+	MAME_DIR .. "src/emu/faststart.h",
 	MAME_DIR .. "src/emu/fileio.c",
 	MAME_DIR .. "src/emu/fileio.h",
 	MAME_DIR .. "src/emu/hash.c",
