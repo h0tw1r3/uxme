@@ -104,6 +104,8 @@ private:
 	static int l_emu_set_hook(lua_State *L);
 
 	// "emu.machine" namespace
+	static luabridge::LuaRef l_machine_get_cheats(const running_machine *r);
+	static luabridge::LuaRef l_cheat_entry_get_state(const cheat_entry *c);
 	static luabridge::LuaRef l_machine_get_devices(const running_machine *r);
 	static luabridge::LuaRef devtree_dfs(device_t *root, luabridge::LuaRef dev_table);
 	static luabridge::LuaRef l_dev_get_states(const device_t *d);

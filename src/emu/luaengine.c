@@ -368,6 +368,43 @@ void lua_engine::emu_set_hook(lua_State *L)
 	}
 }
 
+//
+// machine_get_cheats - return table of cheats
+// -> manager:machine().cheats[0]
+//
+luabridge::LuaRef lua_engine::l_machine_get_cheats(const running_machine *r)
+{
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef cheats_table = luabridge::LuaRef::newTable(L);
+
+	int cheatnum = 0;
+	for (cheat_entry *curcheat = r->cheat().first(); curcheat != NULL; curcheat = curcheat->next())
+	{
+		cheats_table[cheatnum] = curcheat;
+		cheatnum++;
+	}
+
+	return cheats_table;
+}
+
+//
+// -> manager:machine().cheats[0].state
+//
+luabridge::LuaRef lua_engine::l_cheat_entry_get_state(const cheat_entry *c)
+{
+	lua_State *L = luaThis->m_lua_state;
+	cheat_entry *e = const_cast<cheat_entry *>(c);
+
+	std::string text;
+	std::string subtext;
+	UINT32 flags;
+	e->menu_text(text, subtext, flags);
+
+	luabridge::LuaRef t (L, subtext);
+
+	return t;
+}
+
 //-------------------------------------------------
 //  machine_get_screens - return table of available screens userdata
 //  -> manager:machine().screens[":screen"]
@@ -961,6 +998,30 @@ void lua_engine::initialize()
 				.addFunction ("system", &running_machine::system)
 				.addProperty <luabridge::LuaRef, void> ("devices", &lua_engine::l_machine_get_devices)
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
+				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
+			.endClass ()
+			.beginClass <cheat_entry> ("cheat_entry")
+				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_cheat_entry_get_state)
+				.addFunction ("description", &cheat_entry::description)
+				.addFunction ("comment", &cheat_entry::comment)
+				.addFunction ("has_run_script", &cheat_entry::has_run_script)
+				.addFunction ("has_on_script", &cheat_entry::has_on_script)
+				.addFunction ("has_off_script", &cheat_entry::has_off_script)
+				.addFunction ("has_change_script", &cheat_entry::has_change_script)
+				.addFunction ("execute_off_script", &cheat_entry::execute_off_script)
+				.addFunction ("execute_on_script", &cheat_entry::execute_on_script)
+				.addFunction ("execute_run_script", &cheat_entry::execute_run_script)
+				.addFunction ("execute_change_script", &cheat_entry::execute_change_script)
+				.addFunction ("is_text_only", &cheat_entry::is_text_only)
+				.addFunction ("is_oneshot", &cheat_entry::is_oneshot)
+				.addFunction ("is_onoff", &cheat_entry::is_onoff)
+				.addFunction ("is_value_parameter", &cheat_entry::is_value_parameter)
+				.addFunction ("is_itemlist_parameter", &cheat_entry::is_itemlist_parameter)
+				.addFunction ("is_oneshot_parameter", &cheat_entry::is_oneshot_parameter)
+				.addFunction ("activate", &cheat_entry::activate)
+				.addFunction ("select_default_state", &cheat_entry::select_default_state)
+				.addFunction ("select_previous_state", &cheat_entry::select_previous_state)
+				.addFunction ("select_next_state", &cheat_entry::select_next_state)
 			.endClass ()
 			.beginClass <game_driver> ("game_driver")
 				.addData ("name", &game_driver::name)
