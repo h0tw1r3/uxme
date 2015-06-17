@@ -59,16 +59,14 @@ public:
 
 	// getters
 	_Type *live() const { return m_spriteram; }
-	_Type *buffer() { return &m_buffered[0]; }
+	_Type *buffer() { return &m_spriteram[0]; }
 	UINT32 bytes() const { return m_spriteram.bytes(); }
 
 	// operations
 	_Type *copy(UINT32 srcoffset = 0, UINT32 srclength = 0x7fffffff)
 	{
 		assert(m_spriteram != NULL);
-		if (m_spriteram != NULL)
-			memcpy(&m_buffered[0], m_spriteram + srcoffset, MIN(srclength, m_spriteram.bytes() / sizeof(_Type) - srcoffset) * sizeof(_Type));
-		return &m_buffered[0];
+		return &m_spriteram[0];
 	}
 
 	// read/write handlers
