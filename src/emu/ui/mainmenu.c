@@ -57,6 +57,8 @@ void ui_menu_main::populate()
 	strprintf(menu_text, "Input (this %s)", emulator_info::get_capstartgamenoun());
 	item_append(menu_text.c_str(), NULL, 0, (void *)INPUT_SPECIFIC);
 
+	item_append("Autofire Settings", NULL, 0, (void *)AUTOFIRE_MENU);
+
 	/* add optional input-related menus */
 	if (machine().ioport().has_analog())
 		item_append("Analog Controls", NULL, 0, (void *)ANALOG);
@@ -157,6 +159,10 @@ void ui_menu_main::handle()
 
 		case INPUT_SPECIFIC:
 			ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_input_specific(machine(), container)));
+			break;
+
+		case AUTOFIRE_MENU:
+			ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_autofire(machine(), container)));
 			break;
 
 		case SETTINGS_DIP_SWITCHES:
