@@ -1,9 +1,48 @@
 <?xml version="1.0"?>
 <mamelayout version="2">
+	<element name="backdrop43">
+		<image file="vertical_43.png" />
+	</element>
+
+	<element name="backdrop169">
+		<image file="vertical_169.png" />
+	</element>
+
+	<element name="backdrop1610">
+		<image file="vertical_1610.png" />
+	</element>
+
 	<view name="Standard (3:4)">
 		<screen index="0">
 			<bounds left="0" top="0" right="3" bottom="4" />
 		</screen>
+	</view>
+
+	<view name="Generic Backdrop (4:3)">
+		<screen index="0">
+			<bounds x="700" y="0" width="1800" height="2400" />
+		</screen>
+		<backdrop element="backdrop43">
+			<bounds x="0" y="0" width="3200" height="2400" />
+		</backdrop>
+	</view>
+
+	<view name="Generic Backdrop (16:9)">
+		<screen index="0">
+			<bounds x="1110" y="0" width="1620" height="2160" />
+		</screen>
+		<backdrop element="backdrop169">
+			<bounds x="0" y="0" width="3840" height="2160" />
+		</backdrop>
+	</view>
+
+	<view name="Generic Backdrop (16:10)">
+		<screen index="0">
+			<bounds x="1020" y="0" width="1800" height="2400" />
+		</screen>
+		<backdrop element="backdrop1610">
+			<bounds x="0" y="0" width="3840" height="2400" />
+		</backdrop>
 	</view>
 
 	<view name="Pixel Aspect (~scr0nativeyaspect~:~scr0nativexaspect~)">
