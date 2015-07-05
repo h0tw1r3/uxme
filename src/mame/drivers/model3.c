@@ -1554,7 +1554,7 @@ WRITE64_MEMBER(model3_state::model3_sys_w)
 			}
 			else
 			{
-				logerror("Unknown 0x18/8 write %" I64FMT "x mask %" I64FMT"x\n", data, mem_mask);
+				logerror("Unknown 0x18/8 write %s mask %s\n", I64_to_hex_unpadded(data), I64_to_hex_unpadded(mem_mask));
 			}
 			break;
 		case 0x08/8:

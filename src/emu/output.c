@@ -9,8 +9,10 @@
 
 #include "emu.h"
 #include <zlib.h>
-
-
+#include <cstring>
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 /***************************************************************************
     CONSTANTS
@@ -369,4 +371,69 @@ const char *output_id_to_name(UINT32 id)
 
 	/* nothing found, return NULL */
 	return NULL;
+}
+
+// convert 'long long' into decimal or hex
+// 4 per conversion call, make round robin bigger if needed
+// as thread safe as I64FMT calls being replaced
+// assumes unsigned. A quick glance at all I64FMT being replaced
+// yielded nothing but positive values
+
+
+char *I64_to_hex_unpadded(UINT64 i) {
+	static int which = 0;
+	static char retstring[4][24];
+	static char *r;
+	static char lowhalf[10];
+	UINT64 t;
+	t = i&0xffffffff00000000LL;
+	which = (which+1) & 3;
+	r = (char *)&retstring[which];
+	if (t == 0) {
+		sprintf(r,"%x",(int)(i&0xffffffffLL));
+		return r;
+	} else {
+		sprintf(r,"%x",(int)(t>>32LL));
+		sprintf(lowhalf,"%08x",(int)(i&0xffffffffLL));
+		strcat(r,lowhalf);
+		return r;
+	}
+}
+
+char *I64_to_hex_padded(UINT64 i) {
+	static int which = 0;
+	static char retstring[4][24];
+	static char *r;
+	static char lowhalf[10];
+	UINT64 t;
+	t = i&0xffffffff00000000LL;
+	which = (which+1) & 3;
+	r = (char *)&retstring[which];
+	if (t == 0) {
+		sprintf(r,"%016x",(int)(i&0xffffffffLL));
+		return r;
+	} else {
+		sprintf(r,"%08x",(int)(t>>32LL));
+		sprintf(lowhalf,"%08x",(int)(i&0xffffffffLL));
+		strcat(r,lowhalf);
+		return r;
+	}
+}
+
+
+char *I64_to_base10(UINT64 i) {
+	static int which = 0;
+	static char retstring[4][24];
+	static char *r;
+	static std::string temp;
+	static std::ostringstream s;
+ // reset static stream to first char. \0 required because some versions of VS
+ // can't seekp until a char has been inserted into string
+	s << '\0'; s.seekp(std::ios::beg);
+	s << i;
+	which = (which+1) & 3;
+	r = (char *) &retstring[which];
+	temp = s.str();
+	std::strcpy(r, temp.c_str());
+	return r;
 }

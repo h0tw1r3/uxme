@@ -61,7 +61,8 @@ DISCRETE_STEP( dso_csvlog )
 	int nodenum;
 
 	/* Dump any csv logs */
-	fprintf(m_csv_file, "%" I64FMT "d", ++m_sample_num);
+	++m_sample_num;
+	fprintf(m_csv_file, "%s", I64_to_base10(m_sample_num));
 	for (nodenum = 0; nodenum < this->active_inputs(); nodenum++)
 	{
 		fprintf(m_csv_file, ", %f", *this->m_input[nodenum]);

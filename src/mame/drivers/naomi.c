@@ -1863,7 +1863,7 @@ WRITE64_MEMBER(naomi_state::aw_modem_w )
 		aw_ctrl_type = dat & 0xFF;
 	}
 
-	osd_printf_verbose("MODEM: [%08x=%x] write %" I64FMT "x to %x, mask %" I64FMT "x\n", 0x600000+reg*4, dat, data, offset, mem_mask);
+	osd_printf_verbose("MODEM: [%08x=%x] write %s to %x, mask %s\n", 0x600000+reg*4, dat, I64_to_hex_unpadded(data), offset, I64_to_hex_unpadded(mem_mask));
 }
 
 static ADDRESS_MAP_START( aw_map, AS_PROGRAM, 64, naomi_state )

@@ -56,6 +56,17 @@ UINT32 output_name_to_id(const char *outname);
 /* map a unique ID back to a name */
 const char *output_id_to_name(UINT32 id);
 
+/* convert unsigned 64 bit value to string */
+
+char *I64_to_base10(UINT64 i);
+
+/* convert unsigned 64 bit value to unpadded lowercase hex string */
+
+char *I64_to_hex_unpadded(UINT64 i);
+
+/* convert unsigned 64 bit value to padded lowercase hex string */
+
+char *I64_to_hex_padded(UINT64 i);
 
 
 /***************************************************************************
