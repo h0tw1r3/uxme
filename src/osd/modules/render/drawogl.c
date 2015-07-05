@@ -1921,7 +1921,7 @@ static void drawogl_exit(void)
 	{
 		if ( NULL!=video_config.glsl_shader_mamebm[i])
 		{
-			free(video_config.glsl_shader_mamebm[i]);
+			osd_free(video_config.glsl_shader_mamebm[i]);
 			video_config.glsl_shader_mamebm[i] = NULL;
 		}
 	}
@@ -1929,7 +1929,7 @@ static void drawogl_exit(void)
 	{
 		if ( NULL!=video_config.glsl_shader_scrn[i])
 		{
-			free(video_config.glsl_shader_scrn[i]);
+			osd_free(video_config.glsl_shader_scrn[i]);
 			video_config.glsl_shader_scrn[i] = NULL;
 		}
 	}
