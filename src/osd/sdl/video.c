@@ -642,6 +642,8 @@ void sdl_osd_interface::extract_video_config()
 		if ( video_config.glsl )
 		{
 			int i;
+			const char *glsl_dir = options().gl_glsl_dir();
+			int glsl_dir_l = strlen(glsl_dir) + strlen(PATH_SEPARATOR);
 
 			video_config.glsl_filter = options().glsl_filter();
 
@@ -652,8 +654,11 @@ void sdl_osd_interface::extract_video_config()
 				stemp = options().shader_mame(i);
 				if (stemp && strcmp(stemp, OSDOPTVAL_NONE) != 0 && strlen(stemp)>0)
 				{
-					video_config.glsl_shader_mamebm[i] = (char *) malloc(strlen(stemp)+1);
-					strcpy(video_config.glsl_shader_mamebm[i], stemp);
+					video_config.glsl_shader_mamebm[i] = (char *) osd_malloc(strlen(stemp)+glsl_dir_l+1);
+					if (glsl_dir && strcmp(glsl_dir, OSDOPTVAL_NONE) != 0 && strlen(glsl_dir) > 0)
+						sprintf(video_config.glsl_shader_mamebm[i], "%s%s%s", glsl_dir, PATH_SEPARATOR, stemp);
+					else
+						sprintf(video_config.glsl_shader_mamebm[i], "%s", stemp);
 					video_config.glsl_shader_mamebm_num++;
 				} else {
 					video_config.glsl_shader_mamebm[i] = NULL;
@@ -667,8 +672,11 @@ void sdl_osd_interface::extract_video_config()
 				stemp = options().shader_screen(i);
 				if (stemp && strcmp(stemp, OSDOPTVAL_NONE) != 0 && strlen(stemp)>0)
 				{
-					video_config.glsl_shader_scrn[i] = (char *) malloc(strlen(stemp)+1);
-					strcpy(video_config.glsl_shader_scrn[i], stemp);
+					video_config.glsl_shader_scrn[i] = (char *) osd_malloc(strlen(stemp)+glsl_dir_l+1);
+					if (glsl_dir && strcmp(glsl_dir, OSDOPTVAL_NONE) != 0 && strlen(glsl_dir) > 0)
+						sprintf(video_config.glsl_shader_scrn[i], "%s%s%s", glsl_dir, PATH_SEPARATOR, stemp);
+					else
+						sprintf(video_config.glsl_shader_scrn[i], "%s", stemp);
 					video_config.glsl_shader_scrn_num++;
 				} else {
 					video_config.glsl_shader_scrn[i] = NULL;

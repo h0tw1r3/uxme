@@ -59,6 +59,7 @@
 #define OSDOPTION_FILTER                "filter"
 #define OSDOPTION_PRESCALE              "prescale"
 
+#define OSDOPTION_GLSLPATH              "glslpath"
 #define OSDOPTION_SHADER_MAME           "glsl_shader_mame"
 #define OSDOPTION_SHADER_SCREEN         "glsl_shader_screen"
 #define OSDOPTION_GLSL_FILTER           "gl_glsl_filter"
@@ -131,6 +132,7 @@ public:
 	int prescale() const { return int_value(OSDOPTION_PRESCALE); }
 
 	// OpenGL specific options
+	const char *gl_glsl_dir() const { return value(OSDOPTION_GLSLPATH); }
 	bool gl_force_pow2_texture() const { return bool_value(OSDOPTION_GL_FORCEPOW2TEXTURE); }
 	bool gl_no_texture_rect() const { return bool_value(OSDOPTION_GL_NOTEXTURERECT); }
 	bool gl_vbo() const { return bool_value(OSDOPTION_GL_VBO); }
