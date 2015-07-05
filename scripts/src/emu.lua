@@ -39,6 +39,8 @@ files {
 	MAME_DIR .. "src/emu/gamedrv.h",
 	MAME_DIR .. "src/emu/hashfile.c",
 	MAME_DIR .. "src/emu/hashfile.h",
+	MAME_DIR .. "src/emu/hiscore.c",
+	MAME_DIR .. "src/emu/hiscore.h",
 	MAME_DIR .. "src/emu/addrmap.c",
 	MAME_DIR .. "src/emu/addrmap.h",
 	MAME_DIR .. "src/emu/attotime.c",

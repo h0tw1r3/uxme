@@ -66,6 +66,7 @@ enum
 #define OPTION_SNAPSHOT_DIRECTORY   "snapshot_directory"
 #define OPTION_DIFF_DIRECTORY       "diff_directory"
 #define OPTION_COMMENT_DIRECTORY    "comment_directory"
+#define OPTION_HISCORE_DIRECTORY    "hiscore_directory"
 
 // core state/playback options
 #define OPTION_STATE                "state"
@@ -197,6 +198,7 @@ enum
 #define OPTION_HTTP_PORT            "http_port"
 #define OPTION_HTTP_PATH            "http_path"
 #define OPTION_CONSOLE              "console"
+#define OPTION_HISCORE              "hiscore"
 
 //**************************************************************************
 //  TYPE DEFINITIONS
@@ -249,6 +251,7 @@ public:
 	const char *snapshot_directory() const { return value(OPTION_SNAPSHOT_DIRECTORY); }
 	const char *diff_directory() const { return value(OPTION_DIFF_DIRECTORY); }
 	const char *comment_directory() const { return value(OPTION_COMMENT_DIRECTORY); }
+	const char *hiscore_directory() const { return value(OPTION_HISCORE_DIRECTORY); }
 
 	// core state/playback options
 	const char *state() const { return value(OPTION_STATE); }
@@ -378,6 +381,7 @@ public:
 	const char *http_port() const { return value(OPTION_HTTP_PORT); }
 	const char *http_path() const { return value(OPTION_HTTP_PATH); }
 	bool console() const { return bool_value(OPTION_CONSOLE); }
+	bool hiscore() const { return bool_value(OPTION_HISCORE); }
 
 	// FIXME: Couriersud: This should be in image_device_exit
 	void remove_device_options();

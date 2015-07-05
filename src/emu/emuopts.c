@@ -53,10 +53,12 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SNAPSHOT_DIRECTORY,                         "snap",      OPTION_STRING,     "directory to save screenshots" },
 	{ OPTION_DIFF_DIRECTORY,                             "diff",      OPTION_STRING,     "directory to save hard drive image difference files" },
 	{ OPTION_COMMENT_DIRECTORY,                          "comments",  OPTION_STRING,     "directory to save debugger comments" },
+	{ OPTION_HISCORE_DIRECTORY,                          "hi",        OPTION_STRING,     "directory to save high score files" },
 
 	// state/playback options
 	{ NULL,                                              NULL,        OPTION_HEADER,     "CORE STATE/PLAYBACK OPTIONS" },
 	{ OPTION_STATE,                                      NULL,        OPTION_STRING,     "saved state to load" },
+	{ OPTION_HISCORE,                                    "0",         OPTION_BOOLEAN,    "enable high score support" },
 	{ OPTION_AUTOSAVE,                                   "0",         OPTION_BOOLEAN,    "enable automatic restore at startup, and automatic save at exit time" },
 	{ OPTION_PLAYBACK ";pb",                             NULL,        OPTION_STRING,     "playback an input file" },
 	{ OPTION_RECORD ";rec",                              NULL,        OPTION_STRING,     "record an input file" },
