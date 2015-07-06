@@ -665,6 +665,9 @@ BUSES["ZORRO"] = true
 -- the list of drivers
 --------------------------------------------------
 function linkProjects_mame_mess(_target, _subtarget)
+	configuration { }
+		targetname("uxme" .. _subtarget)
+
 	links {
 		"acorn",
 		"act",

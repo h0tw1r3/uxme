@@ -10,18 +10,19 @@
 
 #include "emu.h"
 
-#define APPNAME                 "MESS"
-#define APPNAME_LOWER           "mess"
-#define CONFIGNAME              "mess"
-#define APPLONGNAME             "M.E.S.S."
-#define FULLLONGNAME            "Multi Emulator Super System"
+#define APPNAME                 "UXSS"
+#define APPNAME_LOWER           "uxss"
+#define CONFIGNAME              "uxss"
+#define APPLONGNAME             "U.X.S.S."
+#define FULLLONGNAME            "Unofficial eXtended Super System"
 #define CAPGAMENOUN             "MACHINE"
 #define CAPSTARTGAMENOUN        "Machine"
 #define GAMENOUN                "machine"
 #define GAMESNOUN               "machines"
 #define COPYRIGHT               "Copyright Nicola Salmoria\nand the MAME team\nhttp://mamedev.org"
 #define COPYRIGHT_INFO          "Copyright Nicola Salmoria and the MAME team"
-#define DISCLAIMER              "This software reproduces, more or less faithfully, the behaviour of a wide range\n" \
+#define DISCLAIMER              "** UNOFFICIAL RELEASE **\nDo NOT report bugs in this software to the MAME team.\n\n" \
+								"This software reproduces, more or less faithfully, the behaviour of a wide range\n" \
 								"of machines. But hardware is useless without software, so images of the ROMs and\n" \
 								"other media which run on that hardware are also required.\n"
 #define USAGE                   "Usage:  %s [%s] [media] [software] [options]"

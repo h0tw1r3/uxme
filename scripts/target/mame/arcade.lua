@@ -657,6 +657,9 @@ BUSES["VECTREX"] = true
 --------------------------------------------------
 
 function linkProjects_mame_arcade(_target, _subtarget)
+	configuration { }
+		targetname("uxme" .. _subtarget)
+
 	links {
 		"acorn",
 		"alba",

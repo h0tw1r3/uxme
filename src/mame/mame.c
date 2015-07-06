@@ -2,7 +2,7 @@
 // copyright-holders:Aaron Giles
 /***************************************************************************
 
-    mame.c
+    mess.c
 
     Specific (per target) constants
 
@@ -10,18 +10,19 @@
 
 #include "emu.h"
 
-#define APPNAME                 "MAME"
-#define APPNAME_LOWER           "mame"
-#define CONFIGNAME              "mame"
-#define APPLONGNAME             "M.A.M.E."
-#define FULLLONGNAME            "Multiple Arcade Machine Emulator"
+#define APPNAME                 "UXME"
+#define APPNAME_LOWER           "uxme"
+#define CONFIGNAME              "uxme"
+#define APPLONGNAME             "U.X.M.E."
+#define FULLLONGNAME            "Unofficial eXtended Machine Emulator"
 #define CAPGAMENOUN             "MACHINE"
 #define CAPSTARTGAMENOUN        "Machine"
 #define GAMENOUN                "machine"
 #define GAMESNOUN               "machines"
 #define COPYRIGHT               "Copyright Nicola Salmoria\nand the MAME team\nhttp://mamedev.org"
 #define COPYRIGHT_INFO          "Copyright Nicola Salmoria and the MAME team"
-#define DISCLAIMER              "This software reproduces, more or less faithfully, the behaviour of a wide range\n" \
+#define DISCLAIMER              "** UNOFFICIAL RELEASE **\nDo NOT report bugs in this software to the MAME team.\n\n" \
+								"This software reproduces, more or less faithfully, the behaviour of a wide range\n" \
 								"of machines. But hardware is useless without software, so images of the ROMs and\n" \
 								"other media which run on that hardware are also required.\n"
 #define USAGE                   "Usage:  %s [%s] [media] [software] [options]"
