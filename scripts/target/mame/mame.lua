@@ -20,4 +20,7 @@ end
 function linkProjects_mame_mame(_target, _subtarget)
 	linkProjects_mame_arcade(_target, _subtarget)
 	linkProjects_mame_mess(_target, _subtarget)
+
+	configuration { }
+		targetname("uxme")
 end

@@ -88,22 +88,22 @@ else:
 if build == "mess":
     # MESS
     author = "MESS Team"
-    comments = "Multi Emulation Super System"
-    company_name = "MESS Team"
-    file_description = "Multi Emulation Super System"
-    internal_name = "MESS"
-    original_filename = "MESS"
-    product_name = "MESS"
+    comments = "Unofficial eXtended Super System"
+    company_name = "UXSS Team"
+    file_description = "Unofficial eXtended Super System"
+    internal_name = "UXSS"
+    original_filename = "UXSS"
+    product_name = "UXSS"
     bundle_identifier = "org.mamedev.mess"
 else:
     # MAME
     author = "Nicola Salmoria and the MAME Team"
-    comments = "Multiple Arcade Machine Emulator"
-    company_name = "MAME Team"
-    file_description = "Multiple Arcade Machine Emulator"
-    internal_name = "MAME" if build == "mame" else build
-    original_filename = "MAME" if build == "mame" else build
-    product_name = "MAME" if build == "mame" else build
+    comments = "Unofficial eXtended Machine Emulator"
+    company_name = "UXME Team"
+    file_description = "Unofficial eXtended Machine Emulator"
+    internal_name = "UXME" if build == "mame" else build
+    original_filename = "UXME" if build == "mame" else build
+    product_name = "UXME" if build == "mame" else build
     bundle_identifier = "org.mamedev." + build
 
 legal_copyright = "Copyright Nicola Salmoria and the MAME team"
