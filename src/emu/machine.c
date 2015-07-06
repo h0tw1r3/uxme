@@ -209,7 +209,15 @@ const char *running_machine::describe_context()
 
 TIMER_CALLBACK_MEMBER(running_machine::autoboot_callback)
 {
-	if (strlen(options().autoboot_script())!=0) {
+	file_error filerr;
+	emu_file f(options().lua_path(), OPEN_FLAG_READ);
+	filerr = f.open(system().name, ".lua");
+	if(filerr == FILERR_NONE)
+	{
+		manager().lua()->load_script(f.fullpath());
+		f.close();
+	}
+	else if (strlen(options().autoboot_script())!=0) {
 		manager().lua()->load_script(options().autoboot_script());
 	}
 	else if (strlen(options().autoboot_command())!=0) {
