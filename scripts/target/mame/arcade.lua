@@ -757,7 +757,6 @@ function linkProjects_mame_arcade(_target, _subtarget)
 		"yunsung",
 		"zaccaria",
 		"misc",
-		"pinball",
 		"shared",
 	}
 end
