@@ -57,6 +57,7 @@ enum
 #define OPTION_CHEATPATH            "cheatpath"
 #define OPTION_CROSSHAIRPATH        "crosshairpath"
 #define OPTION_DATPATH              "datpath"
+#define OPTION_LUAPATH              "luapath"
 
 // core directory options
 #define OPTION_CFG_DIRECTORY        "cfg_directory"
@@ -242,6 +243,7 @@ public:
 	const char *cheat_path() const { return value(OPTION_CHEATPATH); }
 	const char *crosshair_path() const { return value(OPTION_CROSSHAIRPATH); }
 	const char *dat_path() const { return value(OPTION_DATPATH); }
+	const char *lua_path() const { return value(OPTION_LUAPATH); }
 
 	// core directory options
 	const char *cfg_directory() const { return value(OPTION_CFG_DIRECTORY); }
