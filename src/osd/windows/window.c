@@ -1330,9 +1330,7 @@ LRESULT CALLBACK win_window_info::video_window_proc(HWND wnd, UINT message, WPAR
 
 		case WM_MOUSEWHEEL:
 		{
-			UINT ucNumLines = 3; // default
-			SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &ucNumLines, 0);
-			ui_input_push_mouse_scroll_event(window->machine(), window->m_target, GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam), GET_WHEEL_DELTA_WPARAM(wparam), ucNumLines);
+			ui_input_push_mouse_scroll_event(window->machine(), window->m_target, GET_X_LPARAM(lparam), GET_Y_LPARAM(lparam), GET_WHEEL_DELTA_WPARAM(wparam), 1);
 			break;
 		}
 

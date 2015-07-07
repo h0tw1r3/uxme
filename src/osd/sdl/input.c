@@ -1876,7 +1876,7 @@ void sdlinput_poll(running_machine &machine)
 				sdl_window_info *window = GET_FOCUS_WINDOW(&event.button);
 				if (window != NULL && window->xy_to_render_target(event.button.x,event.button.y, &cx, &cy) )
 				{
-					ui_input_push_mouse_scroll_event(machine, window->target(), cx, cy, 120, 3);
+					ui_input_push_mouse_scroll_event(machine, window->target(), cx, cy, 120, 1);
 				}
 			}
 
@@ -1886,7 +1886,7 @@ void sdlinput_poll(running_machine &machine)
 				sdl_window_info *window = GET_FOCUS_WINDOW(&event.button);
 				if (window != NULL && window->xy_to_render_target(event.button.x,event.button.y, &cx, &cy) )
 				{
-					ui_input_push_mouse_scroll_event(machine, window->target(), cx, cy, -120, 3);
+					ui_input_push_mouse_scroll_event(machine, window->target(), cx, cy, -120, 1);
 				}
 			}
 #endif
@@ -1902,7 +1902,7 @@ void sdlinput_poll(running_machine &machine)
 			{
 				sdl_window_info *window = GET_FOCUS_WINDOW(&event.wheel);
 				if (window != NULL)
-					ui_input_push_mouse_scroll_event(machine, window->target(), 0, 0, event.wheel.y, 3);
+					ui_input_push_mouse_scroll_event(machine, window->target(), 0, 0, event.wheel.y, 1);
 			}
 			break;
 #endif
