@@ -12,13 +12,17 @@ Features
 
 * Extended LUA engine with cheat support
 * Auto load machine specific LUA script on start
-* High score support
-* Autofire support
-* Skip nag messages
-* Fast startup for unthrottled emulation (dat support)
-* Generic background layouts (16:9, 16:10, 4:3)
+* High score support (MKCHAMP)
+* Autofire support (??)
+* Optional message skipping
+* Fast startup for unthrottled emulation
+* Generic background layouts (Mr. Do!)
 * Configurable GLSL path
-* No sprite buffering
+* No sprite buffering (??)
+* OSD mouse wheel support (MEWUI)
+* In-game clock (mameuifx)
+* Mechanical / pinball devices disabled
 
-*Most/all would never be accepted into the official MAME.*
-
+*Most features that came from other projects have been refactored for
+cleanliness and easy cherry-picking.*
+*Applicable credits are designated in ().*
