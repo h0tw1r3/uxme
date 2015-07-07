@@ -4,6 +4,7 @@
 --
 
 local naclToolchain = ""
+local mingwToolchain = ""
 
 newoption {
 	trigger = "gcc",
@@ -192,11 +193,14 @@ function toolchain(_buildDir, _subDir)
 			if not os.getenv("MINGW32") or not os.getenv("MINGW32") then
 				print("Set MINGW32 envrionment variable.")
 			end		
-			premake.gcc.cc  = "$(MINGW32)/bin/i686-w64-mingw32-gcc"
-			premake.gcc.cxx = "$(MINGW32)/bin/i686-w64-mingw32-g++"
-			premake.gcc.ar  = "$(MINGW32)/bin/ar"
--- lto docs say to use gcc-ar so that plugin is completely setup, but this doesn't work in windows with the current build tools' copy of gcc-ar.exe
---			premake.gcc.ar  = "$(MINGW32)/bin/gcc-ar"
+
+			mingwToolchain = "$(MINGW32)/bin/i686-w64-mingw32-"
+			if _OPTIONS['CROSS_PREFIX'] then
+				mingwToolchain = "$(MINGW32)/bin/" .. _OPTIONS['CROSS_PREFIX']
+			end
+			premake.gcc.cc  = mingwToolchain .. "gcc"
+			premake.gcc.cxx = mingwToolchain .. "g++"
+			premake.gcc.ar  = mingwToolchain .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw32-gcc")
 		end
 
@@ -204,14 +208,15 @@ function toolchain(_buildDir, _subDir)
 			if not os.getenv("MINGW64") or not os.getenv("MINGW64") then
 				print("Set MINGW64 envrionment variable.")
 			end				
-			premake.gcc.cc  = "$(MINGW64)/bin/x86_64-w64-mingw32-gcc"
-			premake.gcc.cxx = "$(MINGW64)/bin/x86_64-w64-mingw32-g++"
-			premake.gcc.ar  = "$(MINGW64)/bin/ar"
--- lto docs say to use gcc-ar so that plugin is completely setup, but this doesn't work in windows with the current build tools' copy of gcc-ar.exe
---			premake.gcc.ar  = "$(MINGW64)/bin/gcc-ar"
+			mingwToolchain = "$(MINGW64)/bin/x86_64-w64-mingw32-"
+			if _OPTIONS['CROSS_PREFIX'] then
+				mingwToolchain = "$(MINGW64)/bin/" .. _OPTIONS['CROSS_PREFIX']
+			end
+			premake.gcc.cc  = mingwToolchain .. "gcc"
+			premake.gcc.cxx = mingwToolchain .. "g++"
+			premake.gcc.ar  = mingwToolchain .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw64-gcc")
 		end
-
 
 		if "mingw-clang" == _OPTIONS["gcc"] then
 			premake.gcc.cc   = "$(CLANG)/bin/clang"
@@ -891,13 +896,12 @@ function strip()
 	configuration { "mingw*", "x64", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) $(MINGW64)/bin/strip -s \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW64)") .. "strip -s \"$(TARGET)\"",
 		}
-
 	configuration { "mingw*", "x32", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) $(MINGW32)/bin/strip -s \"$(TARGET)\""
+			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW32)") .. "strip -s \"$(TARGET)\"",
 		}
 
 	configuration { "pnacl" }

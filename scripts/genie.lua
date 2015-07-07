@@ -174,6 +174,11 @@ newoption {
 }
 
 newoption {
+	trigger = "CROSS_PREFIX",
+	description = "Cross compile toolchain prefix"
+}
+
+newoption {
 	trigger = "PROFILE",
 	description = "Enable profiling.",
 }

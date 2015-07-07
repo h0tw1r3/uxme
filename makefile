@@ -71,6 +71,7 @@
 
 # TARGETOS = windows
 # CROSS_BUILD = 1
+# CROSS_PREFIX = 
 # OVERRIDE_CC = cc
 # OVERRIDE_CXX = c++
 # OVERRIDE_LD = ld
@@ -225,6 +226,7 @@ ARCHITECTURE := _x86
 endif
 endif
 
+ifndef CROSS_PREFIX
 ifeq ($(OS),windows)
 ifeq ($(ARCHITECTURE),_x64)
 WINDRES  := $(MINGW64)/bin/windres
@@ -237,6 +239,9 @@ WINDRES  := x86_64-w64-mingw32-windres
 else
 WINDRES  := i686-w64-mingw32-windres
 endif
+endif
+else
+WINDRES  := $(CROSS_PREFIX)windres
 endif
 
 ifeq ($(findstring arm,$(UNAME)),arm)
@@ -361,6 +366,9 @@ endif
 
 PARAMS+= --distro=$(DISTRO)
 
+ifdef CROSS_PREFIX
+PARAMS += --CROSS_PREFIX='$(CROSS_PREFIX)'
+endif
 ifdef OVERRIDE_CC
 PARAMS += --CC='$(OVERRIDE_CC)'
 ifndef CROSS_BUILD

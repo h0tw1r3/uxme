@@ -146,4 +146,6 @@ function linkProjects_mame_tiny(_target, _subtarget)
 	links {
 		"mame_tiny",
 	}
+	configuration { }
+		targetname("uxme" .. _subtarget)
 end
