@@ -24,7 +24,7 @@
 #include "ui/sliders.h"
 #include "ui/viewgfx.h"
 #include "imagedev/cassette.h"
-
+#include <time.h>
 
 /***************************************************************************
     CONSTANTS
@@ -239,6 +239,7 @@ ui_manager::ui_manager(running_machine &machine)
 	m_popup_text_end = 0;
 	m_use_natural_keyboard = false;
 	m_mouse_arrow_texture = NULL;
+	m_show_clock = false;
 
 	// more initialization
 	set_handler(handler_messagebox, 0);
@@ -932,6 +933,29 @@ bool ui_manager::show_fps_counter()
 	return result;
 }
 
+bool ui_manager::show_clock() const
+{
+	return m_show_clock;
+}
+
+void ui_manager::set_show_clock(bool show)
+{
+	m_show_clock = show;
+}
+
+void ui_manager::show_clock_display(render_container *container)
+{
+       char buf[20];
+       time_t ltime;
+       struct tm *today;
+       float line_height = get_line_height();
+
+       time(&ltime);
+       today = localtime(&ltime);
+
+       sprintf(buf, "%02d:%02d:%02d", today->tm_hour, today->tm_min, today->tm_sec);
+       draw_text_full(container, buf, 0.0f, 1.0f - line_height, 1.0f, JUSTIFY_RIGHT, WRAP_WORD, DRAW_OPAQUE, ARGB_WHITE, ARGB_BLACK, NULL, NULL);
+}
 
 //-------------------------------------------------
 //  set_show_profiler - show/hide the profiler
@@ -1480,6 +1504,11 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 					JUSTIFY_RIGHT, WRAP_WORD, DRAW_OPAQUE, ARGB_WHITE, ARGB_BLACK, NULL, NULL);
 	}
 
+	if (machine.ui().show_clock())
+	{
+		machine.ui().show_clock_display(container);
+	}
+
 	// draw the profiler if visible
 	if (machine.ui().show_profiler())
 	{
@@ -1639,6 +1668,10 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 	// toggle FPS display
 	if (ui_input_pressed(machine, IPT_UI_SHOW_FPS))
 		machine.ui().set_show_fps(!machine.ui().show_fps());
+
+	// toggle clock display
+	if (ui_input_pressed(machine, IPT_UI_SHOW_CLOCK))
+		machine.ui().set_show_clock(!machine.ui().show_clock());
 
 	// increment frameskip?
 	if (ui_input_pressed(machine, IPT_UI_FRAMESKIP_INC))

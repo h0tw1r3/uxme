@@ -144,6 +144,9 @@ public:
 	void set_show_fps(bool show);
 	bool show_fps() const;
 	bool show_fps_counter();
+	void set_show_clock(bool show);
+	bool show_clock() const;
+	void show_clock_display(render_container *container);
 	void set_show_profiler(bool show);
 	bool show_profiler() const;
 	void show_menu();
@@ -182,6 +185,7 @@ private:
 	UINT8 *                 m_non_char_keys_down;
 	render_texture *        m_mouse_arrow_texture;
 	bool                    m_mouse_show;
+	bool                    m_show_clock;
 
 	// text generators
 	std::string &disclaimer_string(std::string &buffer);
