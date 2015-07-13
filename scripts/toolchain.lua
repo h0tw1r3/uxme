@@ -197,10 +197,12 @@ function toolchain(_buildDir, _subDir)
 			mingwToolchain = "$(MINGW32)/bin/i686-w64-mingw32-"
 			if _OPTIONS['CROSS_PREFIX'] then
 				mingwToolchain = "$(MINGW32)/bin/" .. _OPTIONS['CROSS_PREFIX']
+				premake.gcc.cxx = mingwToolchain .. "ar"
+			else
+				premake.gcc.ar  = "$(MINGW32)/bin/ar"
 			end
 			premake.gcc.cc  = mingwToolchain .. "gcc"
 			premake.gcc.cxx = mingwToolchain .. "g++"
-			premake.gcc.ar  = mingwToolchain .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw32-gcc")
 		end
 
@@ -211,10 +213,12 @@ function toolchain(_buildDir, _subDir)
 			mingwToolchain = "$(MINGW64)/bin/x86_64-w64-mingw32-"
 			if _OPTIONS['CROSS_PREFIX'] then
 				mingwToolchain = "$(MINGW64)/bin/" .. _OPTIONS['CROSS_PREFIX']
+				premake.gcc.cxx = mingwToolchain .. "ar"
+			else
+				premake.gcc.ar  = "$(MINGW32)/bin/ar"
 			end
 			premake.gcc.cc  = mingwToolchain .. "gcc"
 			premake.gcc.cxx = mingwToolchain .. "g++"
-			premake.gcc.ar  = mingwToolchain .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw64-gcc")
 		end
 
@@ -896,12 +900,12 @@ function strip()
 	configuration { "mingw*", "x64", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW64)") .. "strip -s \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW64)/bin/") .. "strip -s \"$(TARGET)\"",
 		}
 	configuration { "mingw*", "x32", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW32)") .. "strip -s \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW32)/bin/") .. "strip -s \"$(TARGET)\"",
 		}
 
 	configuration { "pnacl" }
