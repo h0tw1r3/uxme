@@ -197,7 +197,7 @@ function toolchain(_buildDir, _subDir)
 			mingwToolchain = "$(MINGW32)/bin/i686-w64-mingw32-"
 			if _OPTIONS['CROSS_PREFIX'] then
 				mingwToolchain = "$(MINGW32)/bin/" .. _OPTIONS['CROSS_PREFIX']
-				premake.gcc.cxx = mingwToolchain .. "ar"
+				premake.gcc.ar = mingwToolchain .. "ar"
 			else
 				premake.gcc.ar  = "$(MINGW32)/bin/ar"
 			end
@@ -213,7 +213,7 @@ function toolchain(_buildDir, _subDir)
 			mingwToolchain = "$(MINGW64)/bin/x86_64-w64-mingw32-"
 			if _OPTIONS['CROSS_PREFIX'] then
 				mingwToolchain = "$(MINGW64)/bin/" .. _OPTIONS['CROSS_PREFIX']
-				premake.gcc.cxx = mingwToolchain .. "ar"
+				premake.gcc.ar = mingwToolchain .. "ar"
 			else
 				premake.gcc.ar  = "$(MINGW32)/bin/ar"
 			end
