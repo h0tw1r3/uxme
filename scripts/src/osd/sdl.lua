@@ -247,7 +247,7 @@ if BASE_TARGETOS=="unix" then
 				}
 			end
 		else
-			local str = backtick(sdlconfigcmd() .. " --libs | sed 's/-lSDLmain//'")
+			local str = backtick(sdlconfigcmd() .. " --static-libs | sed 's/-lSDLmain//'")
 			addlibfromstring(str)
 			addoptionsfromstring(str)
 		end
