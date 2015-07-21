@@ -11,7 +11,9 @@
 #include <zlib.h>
 #include <cstring>
 #include <string>
+#undef realloc
 #include <sstream>
+#define realloc(x,y)    __error_realloc_is_dangerous__
 #include <iomanip>
 
 /***************************************************************************
