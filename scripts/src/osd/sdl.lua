@@ -46,14 +46,20 @@ function maintargetosdoptions(_target,_subtarget)
 	end
 
 	if _OPTIONS["targetos"]=="windows" then
-		if _OPTIONS["SDL_LIBVER"]=="sdl2" then
-			links {
-				"SDL2.dll",
-			}
+		if _OPTIONS["USE_LIBSDL"]~="1" then
+			if _OPTIONS["SDL_LIBVER"]=="sdl2" then
+				links {
+					"SDL2.dll",
+				}
+			else
+				links {
+					"SDL.dll",
+				}
+			end
 		else
-			links {
-				"SDL.dll",
-			}
+			local str = backtick(sdlconfigcmd() .. " --libs | sed 's/ -lSDLmain//'")
+			addlibfromstring(str)
+			addoptionsfromstring(str)
 		end
 
 		configuration { "mingw*-gcc" }
@@ -89,9 +95,9 @@ end
 
 function sdlconfigcmd()
 	if not _OPTIONS["SDL_INSTALL_ROOT"] then
-		return _OPTIONS["SDL_LIBVER"] .. "-config"
+		return _OPTIONS['CROSS_PREFIX'] .. _OPTIONS["SDL_LIBVER"] .. "-config"
 	else
-		return path.join(_OPTIONS["SDL_INSTALL_ROOT"],"bin",_OPTIONS["SDL_LIBVER"]) .. "-config"
+		return path.join(_OPTIONS["SDL_INSTALL_ROOT"],"bin",_OPTIONS['CROSS_PREFIX'] .. _OPTIONS["SDL_LIBVER"]) .. "-config"
 	end
 end
 
@@ -181,16 +187,16 @@ if not _OPTIONS["SDL_FRAMEWORK_PATH"] then
 end
 
 newoption {
-	trigger = "MACOSX_USE_LIBSDL",
-	description = "Use SDL library on OS (rather than framework)",
+	trigger = "USE_LIBSDL",
+	description = "Use SDL library on OS (rather than framework/dll)",
 	allowed = {
-		{ "0",  "Use framework"  },
+		{ "0",  "Use framework/dll"  },
 		{ "1",  "Use library" },
 	},
 }
 
-if not _OPTIONS["MACOSX_USE_LIBSDL"] then
-	_OPTIONS["MACOSX_USE_LIBSDL"] = "0"
+if not _OPTIONS["USE_LIBSDL"] then
+	_OPTIONS["USE_LIBSDL"] = "0"
 end
 
 
@@ -233,7 +239,7 @@ if BASE_TARGETOS=="unix" then
 		links {
 			"Cocoa.framework",
 		}
-		if _OPTIONS["MACOSX_USE_LIBSDL"]~="1" then
+		if _OPTIONS["USE_LIBSDL"]~="1" then
 			linkoptions {
 				"-F" .. _OPTIONS["SDL_FRAMEWORK_PATH"],
 			}
@@ -457,14 +463,20 @@ if _OPTIONS["with-tools"] then
 		}
 
 		if _OPTIONS["targetos"] == "windows" then
-			if _OPTIONS["SDL_LIBVER"] == "sdl2" then
-				links {
-					"SDL2.dll",
-				}
+			if _OPTIONS["USE_LIBSDL"]~="1" then
+				if _OPTIONS["SDL_LIBVER"] == "sdl2" then
+					links {
+						"SDL2.dll",
+					}
+				else
+					links {
+						"SDL.dll",
+					}
+				end
 			else
-				links {
-					"SDL.dll",
-				}
+				local str = backtick(sdlconfigcmd() .. " --libs | sed 's/ -lSDLmain//'")
+				addlibfromstring(str)
+				addoptionsfromstring(str)
 			end
 			linkoptions{
 				"-municode",
