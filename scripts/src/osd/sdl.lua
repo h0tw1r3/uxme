@@ -434,6 +434,9 @@ if _OPTIONS["with-tools"] then
 		uuid ("744cec21-c3b6-4d69-93cb-6811fed0ffe3")
 		kind "ConsoleApp"
 
+		configuration { "mingw*" or "vs*" }
+			targetextension ".exe"
+
 		options {
 			"ForceCPP",
 		}
