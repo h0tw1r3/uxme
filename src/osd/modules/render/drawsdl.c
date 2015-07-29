@@ -75,7 +75,7 @@ public:
 	/* virtual */ void destroy();
 	/* virtual */ render_primitive_list *get_primitives()
 	{
-		osd_dim nd = window().blit_surface_size();
+		osd_dim nd = window().get_size();
 		if (nd != m_blit_dim)
 		{
 			m_blit_dim = nd;
