@@ -412,6 +412,10 @@ if(_OPTIONS["USE_BGFX"]~=nil) then
 	USE_BGFX = tonumber(_OPTIONS["USE_BGFX"])
 end
 
+if(_OPTIONS["CROSS_PREFIX"] == nil) then
+	_OPTIONS['CROSS_PREFIX'] = ""
+end
+
 GEN_DIR = MAME_BUILD_DIR .. "generated/"
 
 if (_OPTIONS["target"] == nil) then return false end
