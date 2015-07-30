@@ -30,19 +30,23 @@ function maintargetosdoptions(_target,_subtarget)
 		}
 	end
 
-	if BASE_TARGETOS=="unix" and _OPTIONS["targetos"]~="macosx" then
-		if _OPTIONS["SDL_LIBVER"]=="sdl2" then
-			links {
-				"SDL2_ttf",
-			}
-		else
-			links {
-				"SDL_ttf",
-			}
+	if BASE_TARGETOS=="unix" then
+		if _OPTIONS["USE_LIBSDL"] or _OPTIONS["targetos"]~="macosx" then
+			if _OPTIONS["SDL_LIBVER"]=="sdl2" then
+				links {
+					"SDL2_ttf",
+				}
+			else
+				links {
+					"SDL_ttf",
+				}
+			end
+			if _OPTIONS['targetos']~="macosx" then
+				local str = backtick("pkg-config --libs fontconfig")
+				addlibfromstring(str)
+				addoptionsfromstring(str)
+			end
 		end
-		local str = backtick("pkg-config --libs fontconfig")
-		addlibfromstring(str)
-		addoptionsfromstring(str)
 	end
 
 	if _OPTIONS["targetos"]=="windows" then
