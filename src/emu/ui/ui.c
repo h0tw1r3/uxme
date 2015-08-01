@@ -1731,7 +1731,9 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 	// toggle autofire
 	if (ui_input_pressed(machine, IPT_UI_TOGGLE_AUTOFIRE))
 	{
+		int autofire_toggle = machine.ioport().get_autofire_toggle();
 		autofire_toggle ^= 1;
+		machine.ioport().set_autofire_toggle(autofire_toggle);
 		popmessage("Autofire %s", autofire_toggle ? "Disabled" : "Enabled");
 	}
 

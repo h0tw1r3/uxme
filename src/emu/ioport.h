@@ -1052,8 +1052,7 @@ public:
 	bool analog_invert() const { return ((m_flags & ANALOG_FLAG_INVERT) != 0); }
 
 	UINT8 impulse() const { return m_impulse; }
-	int autofire() const { return m_autofire; }
-	int autopressed() const { return m_autopressed; }
+	UINT8 autofire() const { return m_autofire; }
 	const char *name() const;
 	const char *specific_name() const { return m_name; }
 	const input_seq &seq(input_seq_type seqtype = SEQ_TYPE_STANDARD) const;
@@ -1104,8 +1103,7 @@ public:
 	{
 		ioport_value    value;                  // for DIP switches
 		input_seq       seq[SEQ_TYPE_TOTAL];    // sequences of all types
-		int		autofire;		// autofire
-		int		autopressed;		// autofire
+		UINT8		autofire;		// autofire enable bit
 		INT32           sensitivity;            // for analog controls
 		INT32           delta;                  // for analog controls
 		INT32           centerdelta;            // for analog controls
@@ -1147,8 +1145,8 @@ private:
 	// data relevant to analog control types
 	ioport_value                m_min;              // minimum value for absolute axes
 	ioport_value                m_max;              // maximum value for absolute axes
-	int                         m_autofire;         // autofire
-	int                         m_autopressed;      // autofire
+	UINT8                       m_autofire;         // autofire
+	UINT8                       m_autopressed;      // autofire pressed
 	INT32                       m_sensitivity;      // sensitivity (100=normal)
 	INT32                       m_delta;            // delta to apply each frame a digital inc/dec key is pressed
 	INT32                       m_centerdelta;      // delta to apply each frame no digital inputs are pressed
@@ -1424,6 +1422,12 @@ public:
 	ioport_type token_to_input_type(const char *string, int &player) const;
 	const char *input_type_to_token(std::string &str, ioport_type type, int player);
 
+	// autofire
+	UINT8 get_autofire_delay() const { return m_autofire_delay; }
+	void set_autofire_delay(UINT8 delay) { m_autofire_delay = delay; }
+	UINT8 get_autofire_toggle() const { return m_autofire_toggle; }
+	void set_autofire_toggle(UINT8 toggle) { m_autofire_toggle = toggle; }
+
 private:
 	// internal helpers
 	void init_port_types();
@@ -1482,6 +1486,10 @@ private:
 	emu_file                m_playback_file;        // playback file (NULL if not recording)
 	UINT64                  m_playback_accumulated_speed; // accumulated speed during playback
 	UINT32                  m_playback_accumulated_frames; // accumulated frames during playback
+
+	// autofire
+	UINT8                   m_autofire_delay;       // autofire delay in Hz
+	UINT8                   m_autofire_toggle;      // autofire toggle
 
 	// has...
 	bool                    m_has_configs;
@@ -1861,8 +1869,5 @@ inline running_machine &ioport_field::machine() const { return m_port.machine();
 
 inline device_t &ioport_setting::device() const { return m_field.device(); }
 inline running_machine &ioport_setting::machine() const { return m_field.machine(); }
-
-extern int autofire_delay;
-extern int autofire_toggle;
 
 #endif  // __INPTPORT_H__ */
