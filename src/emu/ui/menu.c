@@ -290,7 +290,7 @@ const ui_menu_event *ui_menu::process(UINT32 flags)
 	else if ((item[0].flags & MENU_FLAG_MEWUI_PALETTE ) != 0)
 		draw_palette_menu();
 	else
-		draw(flags & UI_MENU_PROCESS_CUSTOM_ONLY);
+		draw(flags & UI_MENU_PROCESS_CUSTOM_ONLY, flags & UI_MENU_PROCESS_NOIMAGE, flags & UI_MENU_PROCESS_NOINPUT);
 
 	// process input
 	if (!(flags & UI_MENU_PROCESS_NOKEYS))
@@ -403,7 +403,7 @@ void ui_menu::set_selection(void *selected_itemref)
 //  draw - draw a menu
 //-------------------------------------------------
 
-void ui_menu::draw(bool customonly)
+void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 {
 	float line_height = machine().ui().get_line_height();
 	float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
@@ -498,7 +498,7 @@ void ui_menu::draw(bool customonly)
 	// locate mouse
 	mouse_hit = false;
 	mouse_button = false;
-	if (!customonly)
+	if (!customonly && !noinput)
 	{
 		mouse_target = ui_input_find_mouse(machine(), &mouse_target_x, &mouse_target_y, &mouse_button);
 		if (mouse_target != NULL)
