@@ -13,7 +13,9 @@
 #include "mewui/inifile.h"
 #include "sound/samples.h"
 #include "audit.h"
+#undef realloc
 #include <fstream>
+#define realloc(x,y)    __error_realloc_is_dangerous__
 
 // Years index
 UINT16 c_year::actual = 0;

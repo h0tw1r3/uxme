@@ -27,7 +27,9 @@
 #include "unzip.h"
 #include "mewui/custmenu.h"
 #include "info.h"
+#undef realloc
 #include <fstream>
+#define realloc(x,y)    __error_realloc_is_dangerous__
 #include "mewui/utils.h"
 #include "mewui/auditmenu.h"
 

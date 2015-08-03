@@ -13,7 +13,9 @@
 #include "drivenum.h"
 #include "mewui/inifile.h"
 #include "mewui/utils.h"
+#undef realloc
 #include <fstream>
+#define realloc(x,y)    __error_realloc_is_dangerous__
 
 //-------------------------------------------------
 //  GLOBAL VARIABLES
