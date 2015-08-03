@@ -816,12 +816,12 @@ void ui_menu::handle_events()
 			case UI_EVENT_MOUSE_SCROLL:
 				if (local_menu_event.zdelta > 0)
 				{
-					selected = (selected + numitems - local_menu_event.num_lines) % numitems;
+					selected = (selected + item.size() - local_menu_event.num_lines) % item.size();
 					validate_selection(-1);
 				}
 				else
 				{
-					selected = (selected + local_menu_event.num_lines) % numitems;
+					selected = (selected + local_menu_event.num_lines) % item.size();
 					validate_selection(1);
 				}
 				break;
