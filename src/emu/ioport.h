@@ -1870,4 +1870,5 @@ inline running_machine &ioport_field::machine() const { return m_port.machine();
 inline device_t &ioport_setting::device() const { return m_field.device(); }
 inline running_machine &ioport_setting::machine() const { return m_field.machine(); }
 
+
 #endif  // __INPTPORT_H__ */

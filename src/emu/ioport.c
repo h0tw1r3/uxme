@@ -484,6 +484,8 @@ static const char_info charinfo[] =
 	{ UCHAR_MAMEKEY(CANCEL),    "Break",        NULL }      // Break/Pause key
 };
 
+
+
 //**************************************************************************
 //  COMMON SHARED STRINGS
 //**************************************************************************

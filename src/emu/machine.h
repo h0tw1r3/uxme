@@ -97,6 +97,7 @@ class osd_interface;
 class datfile_manager;
 class inifile_manager;
 class favorite_manager;
+
 struct romload_private;
 struct ui_input_private;
 struct debugcpu_private;
@@ -372,5 +373,6 @@ private:
 	auto_pointer<inifile_manager>   m_inifile;      // internal data from inifile.c for INIs
 	auto_pointer<favorite_manager>  m_favorite;     // internal data from inifile.c for favorites
 };
+
 
 #endif  /* __MACHINE_H__ */

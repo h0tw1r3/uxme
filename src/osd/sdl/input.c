@@ -2021,8 +2021,8 @@ void sdlinput_poll(running_machine &machine)
 #endif
 					{
 						//printf("event data1,data2 %d x %d %ld\n", event.window.data1, event.window.data2, sizeof(SDL_Event));
-							window->resize(event.window.data1, event.window.data2);
-				}
+						window->resize(event.window.data1, event.window.data2);
+					}
 				}
 				focus_window = window;
 				break;

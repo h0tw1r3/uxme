@@ -2,9 +2,9 @@
 // copyright-holders:Nicola Salmoria, Aaron Giles, Nathan Woods
 /*********************************************************************
 
-	ui/menu.c
+    ui/menu.c
 
-	Internal MAME menus for the user interface.
+    Internal MAME menus for the user interface.
 
 *********************************************************************/
 
@@ -22,13 +22,13 @@
 
 
 /***************************************************************************
-	CONSTANTS
+    CONSTANTS
 ***************************************************************************/
 
-#define UI_MENU_POOL_SIZE  65536
+#define UI_MENU_POOL_SIZE       65536
 
 /***************************************************************************
-	GLOBAL VARIABLES
+    GLOBAL VARIABLES
 ***************************************************************************/
 
 ui_menu *ui_menu::menu_stack;
@@ -38,7 +38,7 @@ render_texture *ui_menu::hilight_texture;
 render_texture *ui_menu::arrow_texture;
 
 /***************************************************************************
-	INLINE FUNCTIONS
+    INLINE FUNCTIONS
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -71,7 +71,7 @@ inline bool ui_menu::exclusive_input_pressed(int key, int repeat)
 
 
 /***************************************************************************
-	CORE SYSTEM MANAGEMENT
+    CORE SYSTEM MANAGEMENT
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -80,12 +80,14 @@ inline bool ui_menu::exclusive_input_pressed(int key, int repeat)
 
 void ui_menu::init(running_machine &machine)
 {
+	int x;
+
 	// initialize the menu stack
 	ui_menu::stack_reset(machine);
 
 	// create a texture for hilighting items
 	hilight_bitmap = auto_bitmap_rgb32_alloc(machine, 256, 1);
-	for (int x = 0; x < 256; x++)
+	for (x = 0; x < 256; x++)
 	{
 		int alpha = 0xff;
 		if (x < 25) alpha = 0xff * x / 25;
@@ -137,7 +139,7 @@ void ui_menu::exit(running_machine &machine)
 
 
 /***************************************************************************
-	CORE MENU MANAGEMENT
+    CORE MENU MANAGEMENT
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -380,8 +382,10 @@ void *ui_menu::get_selection()
 
 void ui_menu::set_selection(void *selected_itemref)
 {
+	int itemnum;
+
 	selected = -1;
-	for (int itemnum = 0; itemnum < item.size(); itemnum++)
+	for (itemnum = 0; itemnum < item.size(); itemnum++)
 		if (item[itemnum].ref == selected_itemref)
 		{
 			selected = itemnum;
@@ -392,7 +396,7 @@ void ui_menu::set_selection(void *selected_itemref)
 
 
 /***************************************************************************
-	INTERNAL MENU PROCESSING
+    INTERNAL MENU PROCESSING
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -405,10 +409,19 @@ void ui_menu::draw(bool customonly)
 	float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
 	float ud_arrow_width = line_height * machine().render().ui_aspect();
 	float gutter_width = lr_arrow_width * 1.3f;
+	float x1, y1, x2, y2;
 
+	float effective_width, effective_left;
+	float visible_width, visible_main_menu_height;
+	float visible_extra_menu_height = 0;
+	float visible_top, visible_left;
 	int selected_subitem_too_big = FALSE;
+	int visible_lines;
+	int top_line;
 	int itemnum, linenum;
 	bool mouse_hit, mouse_button;
+	render_target *mouse_target;
+	INT32 mouse_target_x, mouse_target_y;
 	float mouse_x = -1, mouse_y = -1;
 	bool history_flag = ((item[0].flags & MENU_FLAG_MEWUI_HISTORY) != 0);
 
@@ -416,8 +429,8 @@ void ui_menu::draw(bool customonly)
 		container->add_quad(0.0f, 0.0f, 1.0f, 1.0f, ARGB_WHITE, bgrnd_texture, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
 
 	// compute the width and height of the full menu
-	float visible_width = 0;
-	float visible_main_menu_height = 0;
+	visible_width = 0;
+	visible_main_menu_height = 0;
 	for (itemnum = 0; itemnum < item.size(); itemnum++)
 	{
 		const ui_menu_item &pitem = item[itemnum];
@@ -439,7 +452,7 @@ void ui_menu::draw(bool customonly)
 	}
 
 	// account for extra space at the top and bottom
-	float visible_extra_menu_height = customtop + custombottom;
+	visible_extra_menu_height = customtop + custombottom;
 
 	// add a little bit of slop for rounding
 	visible_width += 0.01f;
@@ -453,42 +466,41 @@ void ui_menu::draw(bool customonly)
 	if (visible_main_menu_height + visible_extra_menu_height + 2.0f * UI_BOX_TB_BORDER > 1.0f)
 		visible_main_menu_height = 1.0f - 2.0f * UI_BOX_TB_BORDER - visible_extra_menu_height;
 
-	int visible_lines = floor(visible_main_menu_height / line_height);
+	visible_lines = floor(visible_main_menu_height / line_height);
 	visible_main_menu_height = (float)visible_lines * line_height;
 
 	// compute top/left of inner menu area by centering
-	float visible_left = (1.0f - visible_width) * 0.5f;
-	float visible_top = (1.0f - (visible_main_menu_height + visible_extra_menu_height)) * 0.5f;
+	visible_left = (1.0f - visible_width) * 0.5f;
+	visible_top = (1.0f - (visible_main_menu_height + visible_extra_menu_height)) * 0.5f;
 
 	// if the menu is at the bottom of the extra, adjust
 	visible_top += customtop;
 
 	// first add us a box
-	float x1 = visible_left - UI_BOX_LR_BORDER;
-	float y1 = visible_top - UI_BOX_TB_BORDER;
-	float x2 = visible_left + visible_width + UI_BOX_LR_BORDER;
-	float y2 = visible_top + visible_main_menu_height + UI_BOX_TB_BORDER;
+	x1 = visible_left - UI_BOX_LR_BORDER;
+	y1 = visible_top - UI_BOX_TB_BORDER;
+	x2 = visible_left + visible_width + UI_BOX_LR_BORDER;
+	y2 = visible_top + visible_main_menu_height + UI_BOX_TB_BORDER;
 	if (!customonly)
 		machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
 
 	// determine the first visible line based on the current selection
-	int top_line = selected - visible_lines / 2;
+	top_line = selected - visible_lines / 2;
 	if (top_line < 0)
 		top_line = 0;
 	if (top_line + visible_lines >= item.size())
 		top_line = item.size() - visible_lines;
 
 	// determine effective positions taking into account the hilighting arrows
-	float effective_width = visible_width - 2.0f * gutter_width;
-	float effective_left = visible_left + gutter_width;
+	effective_width = visible_width - 2.0f * gutter_width;
+	effective_left = visible_left + gutter_width;
 
 	// locate mouse
 	mouse_hit = false;
 	mouse_button = false;
 	if (!customonly)
 	{
-		INT32 mouse_target_x, mouse_target_y;
-		render_target *mouse_target = ui_input_find_mouse(machine(), &mouse_target_x, &mouse_target_y, &mouse_button);
+		mouse_target = ui_input_find_mouse(machine(), &mouse_target_x, &mouse_target_y, &mouse_button);
 		if (mouse_target != NULL)
 			if (mouse_target->map_point_container(mouse_target_x, mouse_target_y, *container, mouse_x, mouse_y))
 				mouse_hit = true;
@@ -541,7 +553,8 @@ void ui_menu::draw(bool customonly)
 			// if we're on the top line, display the up arrow
 			if (linenum == 0 && top_line != 0)
 			{
-				draw_arrow(container,
+				draw_arrow(
+									container,
 									0.5f * (x1 + x2) - 0.5f * ud_arrow_width,
 									line_y + 0.25f * line_height,
 									0.5f * (x1 + x2) + 0.5f * ud_arrow_width,
@@ -555,7 +568,8 @@ void ui_menu::draw(bool customonly)
 			// if we're on the bottom line, display the down arrow
 			else if (linenum == visible_lines - 1 && itemnum != item.size() - 1)
 			{
-				draw_arrow(container,
+				draw_arrow(
+									container,
 									0.5f * (x1 + x2) - 0.5f * ud_arrow_width,
 									line_y + 0.25f * line_height,
 									0.5f * (x1 + x2) + 0.5f * ud_arrow_width,
@@ -578,7 +592,7 @@ void ui_menu::draw(bool customonly)
 			// if we don't have a subitem, just draw the string centered
 			else if (pitem.subtext == NULL)
 				machine().ui().draw_text_full(container, itemtext, effective_left, line_y, effective_width,
-				                              JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, NULL, NULL);
+							JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, NULL, NULL);
 
 			// otherwise, draw the item on the left and the subitem text on the right
 			else
@@ -589,7 +603,7 @@ void ui_menu::draw(bool customonly)
 
 				// draw the left-side text
 				machine().ui().draw_text_full(container, itemtext, effective_left, line_y, effective_width,
-				                              JUSTIFY_LEFT, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, &item_width, NULL);
+							JUSTIFY_LEFT, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, &item_width, NULL);
 
 				// give 2 spaces worth of padding
 				item_width += 2.0f * gutter_width;
@@ -614,12 +628,13 @@ void ui_menu::draw(bool customonly)
 
 				// draw the subitem right-justified
 				machine().ui().draw_text_full(container, subitem_text, effective_left + item_width, line_y, effective_width - item_width,
-				                              JUSTIFY_RIGHT, WRAP_TRUNCATE, DRAW_NORMAL, subitem_invert ? fgcolor3 : fgcolor2, bgcolor, &subitem_width, NULL);
+							JUSTIFY_RIGHT, WRAP_TRUNCATE, DRAW_NORMAL, subitem_invert ? fgcolor3 : fgcolor2, bgcolor, &subitem_width, NULL);
 
 				// apply arrows
 				if (itemnum == selected && (pitem.flags & MENU_FLAG_LEFT_ARROW))
 				{
-					draw_arrow(container,
+					draw_arrow(
+										container,
 										effective_left + effective_width - subitem_width - gutter_width,
 										line_y + 0.1f * line_height,
 										effective_left + effective_width - subitem_width - gutter_width + lr_arrow_width,
@@ -629,7 +644,8 @@ void ui_menu::draw(bool customonly)
 				}
 				if (itemnum == selected && (pitem.flags & MENU_FLAG_RIGHT_ARROW))
 				{
-					draw_arrow(container,
+					draw_arrow(
+										container,
 										effective_left + effective_width + gutter_width - lr_arrow_width,
 										line_y + 0.1f * line_height,
 										effective_left + effective_width + gutter_width,
@@ -652,7 +668,7 @@ void ui_menu::draw(bool customonly)
 
 		// compute the multi-line target width/height
 		machine().ui().draw_text_full(container, pitem.subtext, 0, 0, visible_width * 0.75f,
-		                              JUSTIFY_RIGHT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
+					JUSTIFY_RIGHT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
 
 		// determine the target location
 		target_x = visible_left + visible_width - target_width - UI_BOX_LR_BORDER;
@@ -664,10 +680,9 @@ void ui_menu::draw(bool customonly)
 		machine().ui().draw_outlined_box(container, target_x - UI_BOX_LR_BORDER,
 							target_y - UI_BOX_TB_BORDER,
 							target_x + target_width + UI_BOX_LR_BORDER,
-										 target_y + target_height + UI_BOX_TB_BORDER,
-										 subitem_invert ? UI_SELECTED_BG_COLOR : UI_BACKGROUND_COLOR);
+							target_y + target_height + UI_BOX_TB_BORDER, subitem_invert ? UI_SELECTED_BG_COLOR : UI_BACKGROUND_COLOR);
 		machine().ui().draw_text_full(container, pitem.subtext, target_x, target_y, target_width,
-		                              JUSTIFY_RIGHT, WRAP_WORD, DRAW_NORMAL, UI_SELECTED_COLOR, UI_SELECTED_BG_COLOR, NULL, NULL);
+					JUSTIFY_RIGHT, WRAP_WORD, DRAW_NORMAL, UI_SELECTED_COLOR, UI_SELECTED_BG_COLOR, NULL, NULL);
 	}
 
 	// if there is something special to add, do it by calling the virtual method
@@ -701,7 +716,7 @@ void ui_menu::draw_text_box()
 
 	// compute the multi-line target width/height
 	machine().ui().draw_text_full(container, text, 0, 0, 1.0f - 2.0f * UI_BOX_LR_BORDER - 2.0f * gutter_width,
-	                              JUSTIFY_LEFT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
+				JUSTIFY_LEFT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
 	target_height += 2.0f * line_height;
 	if (target_height > 1.0f - 2.0f * UI_BOX_TB_BORDER)
 		target_height = floorf((1.0f - 2.0f * UI_BOX_TB_BORDER) / line_height) * line_height;
@@ -726,22 +741,22 @@ void ui_menu::draw_text_box()
 
 	// add a box around that
 	machine().ui().draw_outlined_box(container, target_x - UI_BOX_LR_BORDER - gutter_width,
-                                     target_y - UI_BOX_TB_BORDER,
-                                     target_x + target_width + gutter_width + UI_BOX_LR_BORDER,
-                                     target_y + target_height + UI_BOX_TB_BORDER,
-                                     (item[0].flags & MENU_FLAG_REDTEXT) ?  UI_RED_COLOR : UI_BACKGROUND_COLOR);
+						target_y - UI_BOX_TB_BORDER,
+						target_x + target_width + gutter_width + UI_BOX_LR_BORDER,
+						target_y + target_height + UI_BOX_TB_BORDER, (item[0].flags & MENU_FLAG_REDTEXT) ?  UI_RED_COLOR : UI_BACKGROUND_COLOR);
 	machine().ui().draw_text_full(container, text, target_x, target_y, target_width,
-	                              JUSTIFY_LEFT, WRAP_WORD, DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
+				JUSTIFY_LEFT, WRAP_WORD, DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
 
 	// draw the "return to prior menu" text with a hilight behind it
-	highlight(container,
-              target_x + 0.5f * UI_LINE_WIDTH,
-              target_y + target_height - line_height,
-              target_x + target_width - 0.5f * UI_LINE_WIDTH,
-              target_y + target_height,
-              UI_SELECTED_BG_COLOR);
+	highlight(
+						container,
+						target_x + 0.5f * UI_LINE_WIDTH,
+						target_y + target_height - line_height,
+						target_x + target_width - 0.5f * UI_LINE_WIDTH,
+						target_y + target_height,
+						UI_SELECTED_BG_COLOR);
 	machine().ui().draw_text_full(container, backtext, target_x, target_y + target_height - line_height, target_width,
-	                              JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, UI_SELECTED_COLOR, UI_SELECTED_BG_COLOR, NULL, NULL);
+				JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, UI_SELECTED_COLOR, UI_SELECTED_BG_COLOR, NULL, NULL);
 
 	// artificially set the hover to the last item so a double-click exits
 	hover = item.size() - 1;
@@ -1004,7 +1019,7 @@ void ui_menu::clear_free_list(running_machine &machine)
 
 
 /***************************************************************************
-	MENU STACK MANAGEMENT
+    MENU STACK MANAGEMENT
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -1074,7 +1089,7 @@ void ui_menu::do_handle()
 
 
 /***************************************************************************
-	UI SYSTEM INTERACTION
+    UI SYSTEM INTERACTION
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -1103,7 +1118,7 @@ UINT32 ui_menu::ui_handler(running_machine &machine, render_container *container
 }
 
 /***************************************************************************
-	MENU HELPERS
+    MENU HELPERS
 ***************************************************************************/
 
 //-------------------------------------------------
@@ -1167,7 +1182,8 @@ void ui_menu::render_triangle(bitmap_argb32 &dest, bitmap_argb32 &source, const 
 
 void ui_menu::highlight(render_container *container, float x0, float y0, float x1, float y1, rgb_t bgcolor)
 {
-	container->add_quad(x0, y0, x1, y1, bgcolor, hilight_texture, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
+	container->add_quad(x0, y0, x1, y1, bgcolor, hilight_texture,
+						PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
 }
 
 
@@ -1177,5 +1193,12 @@ void ui_menu::highlight(render_container *container, float x0, float y0, float x
 
 void ui_menu::draw_arrow(render_container *container, float x0, float y0, float x1, float y1, rgb_t fgcolor, UINT32 orientation)
 {
-	container->add_quad(x0, y0, x1, y1, fgcolor, arrow_texture, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXORIENT(orientation));
+	container->add_quad(
+		x0,
+		y0,
+		x1,
+		y1,
+		fgcolor,
+		arrow_texture,
+		PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXORIENT(orientation));
 }

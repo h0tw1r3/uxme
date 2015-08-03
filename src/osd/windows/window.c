@@ -1416,9 +1416,9 @@ LRESULT CALLBACK win_window_info::video_window_proc(HWND wnd, UINT message, WPAR
 		case WM_DESTROY:
 			if (!(window->m_renderer == NULL))
 			{
-			window->m_renderer->destroy();
-			global_free(window->m_renderer);
-			window->m_renderer = NULL;
+				window->m_renderer->destroy();
+				global_free(window->m_renderer);
+				window->m_renderer = NULL;
 			}
 			window->m_hwnd = NULL;
 			return DefWindowProc(wnd, message, wparam, lparam);
