@@ -19,11 +19,13 @@ public:
 	nixieclock_state(const machine_config &mconfig, device_type type, const char *tag)
 		: driver_device(mconfig, type, tag),
 		m_maincpu(*this, "maincpu"),
-		m_dac(*this, "dac")
+		m_dac(*this, "dac"),
+		m_input(*this, "INPUT")
 		{ }
 
 	required_device<i4004_cpu_device> m_maincpu;
 	required_device<dac_device> m_dac;
+	required_ioport m_input;
 	DECLARE_READ8_MEMBER( data_r );
 	DECLARE_WRITE8_MEMBER( nixie_w );
 	DECLARE_WRITE8_MEMBER( neon_w );
@@ -39,7 +41,7 @@ public:
 
 READ8_MEMBER(nixieclock_state::data_r)
 {
-	return ioport("INPUT")->read() & 0x0f;
+	return m_input->read() & 0x0f;
 }
 
 UINT8 nixieclock_state::nixie_to_num(UINT16 val)
@@ -189,4 +191,4 @@ ROM_END
 /* Driver */
 
 /*    YEAR  NAME      PARENT  COMPAT   MACHINE    INPUT    INIT    COMPANY               FULLNAME            FLAGS */
-SYST( 2008, 4004clk,  0,      0,       4004clk,   4004clk, driver_device, 0,      "John L. Weinrich",   "4004 Nixie Clock", GAME_SUPPORTS_SAVE)
+SYST( 2008, 4004clk,  0,      0,       4004clk,   4004clk, driver_device, 0,      "John L. Weinrich",   "4004 Nixie Clock", MACHINE_SUPPORTS_SAVE)
