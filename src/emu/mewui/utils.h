@@ -32,8 +32,6 @@
 #define MAX_ICONS_RENDER         40
 #define MEWUI_TOOLBAR_BUTTONS    7
 
-#define MEWUI_VERSION_TAG        "# MEWUI INFO "
-
 // GLOBAL ENUMERATORS
 enum
 {

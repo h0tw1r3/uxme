@@ -691,11 +691,11 @@ void ui_mewui_select_game::custom_render(void *selectedref, float top, float bot
 	bool isstar = false;
 
 	if (mewui_globals::ume_system == MEWUI_MAME)
-		strprintf(tempbuf[0], "MEWUI %s ( %d / %d machines (%d BIOS) )", mewui_version, visible_items, (driver_list::total() - 1), m_isabios + m_issbios);
+		strprintf(tempbuf[0], "%s %s ( %d / %d machines (%d BIOS) )", emulator_info::get_appname(), build_version, visible_items, (driver_list::total() - 1), m_isabios + m_issbios);
 	else if (mewui_globals::ume_system == MEWUI_ARCADES)
-		strprintf(tempbuf[0], "MEWUI %s ( %d / %d arcades (%d BIOS) )", mewui_version, visible_items, m_isarcades, m_isabios);
+		strprintf(tempbuf[0], "%s %s ( %d / %d arcades (%d BIOS) )", emulator_info::get_appname(), build_version, visible_items, m_isarcades, m_isabios);
 	else if (mewui_globals::ume_system == MEWUI_SYSTEMS)
-		strprintf(tempbuf[0], "MEWUI %s ( %d / %d systems (%d BIOS) )", mewui_version, visible_items, m_issystems, m_issbios);
+		strprintf(tempbuf[0], "%s %s ( %d / %d systems (%d BIOS) )", emulator_info::get_appname(), build_version, visible_items, m_issystems, m_issbios);
 
 	std::string filtered;
 
@@ -1517,7 +1517,7 @@ void ui_mewui_select_game::save_cache_info()
 		std::ofstream myfile(filename.c_str());
 
 		// generate header
-		std::string buffer = std::string("#\n").append(MEWUI_VERSION_TAG).append(mewui_version).append("\n#\n\n");
+		std::string buffer = std::string("#\n").append(build_version).append("\n#\n\n");
 		myfile << buffer;
 
 		// generate full list
@@ -1628,7 +1628,7 @@ void ui_mewui_select_game::load_cache_info()
 	std::string readbuf;
 	std::getline(myfile, readbuf);
 	std::getline(myfile, readbuf);
-	std::string a_rev = std::string(MEWUI_VERSION_TAG).append(mewui_version);
+	std::string a_rev = std::string(build_version);
 
 	// version not matching ? save and exit
 	if (a_rev != readbuf)
@@ -1684,7 +1684,7 @@ void ui_mewui_select_game::save_available_machines()
 		UINT8 space = 0;
 
 		// generate header
-		std::string buffer = std::string("#\n").append(MEWUI_VERSION_TAG).append(mewui_version).append("\n#\n\n");
+		std::string buffer = std::string("#\n").append(build_version).append("\n#\n\n");
 		myfile << buffer;
 		myfile << (int)m_availablelist.size() << space;
 		myfile << (int)m_unavailablelist.size() << space;
@@ -1732,7 +1732,7 @@ bool ui_mewui_select_game::load_available_machines()
 	std::string readbuf;
 	std::getline(myfile, readbuf);
 	std::getline(myfile, readbuf);
-	std::string a_rev = std::string(MEWUI_VERSION_TAG).append(mewui_version);
+	std::string a_rev = std::string(build_version);
 
 	// version not matching ? exit
 	if (a_rev != readbuf)

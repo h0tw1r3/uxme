@@ -19,7 +19,7 @@
 const options_entry mewui_options::s_option_entries[] =
 {
 	// seach path options
-	{ NULL,                                 NULL,  OPTION_HEADER,  "MEWUI SEARCH PATH OPTIONS" },
+	{ NULL,                                 NULL,  OPTION_HEADER,  "SEARCH PATH OPTIONS" },
 	{ OPTION_HISTORY_PATH,             "history",  OPTION_STRING,  "path to history files" },
 	{ OPTION_EXTRAINI_PATH,            "folders",  OPTION_STRING,  "path to extra ini files" },
 	{ OPTION_CABINETS_PATH,   "cabinets;cabdevs",  OPTION_STRING,  "path to cabinets / devices image" },
@@ -37,10 +37,10 @@ const options_entry mewui_options::s_option_entries[] =
 	{ OPTION_HOWTO_PATH,                 "howto",  OPTION_STRING,  "path to howto image" },
 	{ OPTION_SELECT_PATH,               "select",  OPTION_STRING,  "path to select image" },
 	{ OPTION_ICONS_PATH,                 "icons",  OPTION_STRING,  "path to ICOns image" },
-	{ OPTION_MEWUI_PATH,                 "mewui",  OPTION_STRING,  "path to MEWUI files" },
+	{ OPTION_MEWUI_PATH,                    "ui",  OPTION_STRING,  "path to UI files" },
 
 	// misc options
-	{ NULL,                                 NULL,   OPTION_HEADER, "MEWUI MISC OPTIONS" },
+	{ NULL,                                 NULL,   OPTION_HEADER, "MISC OPTIONS" },
 	{ OPTION_DATS_ENABLED,                   "1",  OPTION_BOOLEAN, "enable DATs support" },
 	{ OPTION_REMEMBER_LAST,                  "1",  OPTION_BOOLEAN, "reselect in main menu last played game" },
 	{ OPTION_ENLARGE_SNAPS,                  "1",  OPTION_BOOLEAN, "enlarge arts (snapshot, title, etc...) in right panel (keeping aspect ratio)" },
@@ -49,7 +49,7 @@ const options_entry mewui_options::s_option_entries[] =
 	{ OPTION_START_FILTER,                   "0",  OPTION_INTEGER, "startup filter (0 = ALL, 1 = ARCADES, 2 = SYSTEMS)" },
 
 	// UI options
-	{ NULL,                                 NULL,   OPTION_HEADER, "MEWUI UI OPTIONS" },
+	{ NULL,                                 NULL,   OPTION_HEADER, "UI OPTIONS" },
 	{ OPTION_INFOS_SIZE "(0.05-1.00)",    "0.75",    OPTION_FLOAT, "UI right panel infos text size (0.05 - 1.00)" },
 	{ OPTION_FONT_ROWS "(25-40)",           "30",  OPTION_INTEGER, "UI font text size (25 - 40)" },
 	{ OPTION_UI_BORDER_COLOR,         "ffffffff",   OPTION_STRING, "UI border color (ARGB)" },
