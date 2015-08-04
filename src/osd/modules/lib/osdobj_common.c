@@ -121,7 +121,7 @@ const options_entry osd_options::s_option_entries[] =
 
 	{ NULL,                                   NULL,             OPTION_HEADER,    "OSD SOUND OPTIONS" },
 	{ OSDOPTION_SOUND,                        OSDOPTVAL_AUTO,   OPTION_STRING,    "sound output method: " },
-	{ OSDOPTION_AUDIO_LATENCY "(1-5)",        "2",              OPTION_INTEGER,   "set audio latency (increase to reduce glitches, decrease for responsiveness)" },
+	{ OSDOPTION_AUDIO_LATENCY "(0.1-5.0)",    "2.0",            OPTION_FLOAT,     "set audio latency (increase to reduce glitches, decrease for responsiveness)" },
 
 #ifdef SDLMAME_MACOSX
 	{ NULL,                                   NULL,             OPTION_HEADER,    "CoreAudio-SPECIFIC OPTIONS" },

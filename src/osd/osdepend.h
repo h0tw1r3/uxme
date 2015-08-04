@@ -49,6 +49,7 @@ public:
 	// general overridables
 	virtual void init(running_machine &machine) = 0;
 	virtual void update(bool skip_redraw) = 0;
+	virtual void poll_input(void) = 0;
 
 	// debugger overridables
 	virtual void init_debugger() = 0;

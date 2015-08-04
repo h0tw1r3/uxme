@@ -144,7 +144,7 @@ public:
 
 	// sound options
 	const char *sound() const { return value(OSDOPTION_SOUND); }
-	int audio_latency() const { return int_value(OSDOPTION_AUDIO_LATENCY); }
+	float audio_latency() const { return float_value(OSDOPTION_AUDIO_LATENCY); }
 
 	// CoreAudio specific options
 	const char *audio_output() const { return value(OSDOPTION_AUDIO_OUTPUT); }
