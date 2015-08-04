@@ -194,7 +194,7 @@ void ui_menu_audit::save_available_machines()
 		UINT8 space = 0;
 
 		// generate header
-		std::string buffer = std::string("#\n").append(MEWUI_VERSION_TAG).append(mewui_version).append("\n#\n\n");
+		std::string buffer = std::string("#\n").append(build_version).append("\n#\n\n");
 		myfile << buffer;
 		myfile << (int)m_available.size() << space;
 		myfile << (int)m_unavailable.size() << space;
