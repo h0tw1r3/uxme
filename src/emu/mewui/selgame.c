@@ -618,7 +618,7 @@ void ui_mewui_select_game::populate()
 void ui_mewui_select_game::build_available_list()
 {
 	int m_total = driver_list::total();
-	std::vector<UINT8> m_included(m_total, 0);
+	std::vector<bool> m_included(m_total, false);
 
 	// open a path to the ROMs and find them in the array
 	file_enumerator path(machine().options().media_path());
@@ -642,7 +642,7 @@ void ui_mewui_select_game::build_available_list()
 		if (drivnum != -1 && !m_included[drivnum])
 		{
 			m_availablelist.push_back(&driver_list::driver(drivnum));
-			m_included[drivnum] = 1;
+			m_included[drivnum] = true;
 		}
 	}
 
@@ -657,7 +657,7 @@ void ui_mewui_select_game::build_available_list()
 			if (ROMENTRY_ISREGION(rom) && ROMENTRY_ISEND(++rom))
 			{
 				m_availablelist.push_back(&driver_list::driver(x));
-				m_included[x] = 1;
+				m_included[x] = true;
 			}
 		}
 
