@@ -599,7 +599,6 @@ void ui_mewui_select_game::populate()
 	{
 		selected = old_item_selected;
 		top_line = selected - (mewui_globals::visible_main_lines / 2);
-
 		if (reselect_last::software.empty())
 			mewui_globals::force_reselect_software = false;
 	}
@@ -961,9 +960,20 @@ void ui_mewui_select_game::inkey_select(const ui_menu_event *menu_event)
 		// if everything looks good, schedule the new driver
 		if (summary == media_auditor::CORRECT || summary == media_auditor::BEST_AVAILABLE || summary == media_auditor::NONE_NEEDED)
 		{
+			bool has_swlist = false;
 			if ((driver->flags & MACHINE_TYPE_ARCADE) == 0)
-				ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_select_software(machine(), container, driver)));
-			else
+			{
+				software_list_device_iterator iter(enumerator.config().root_device());
+				for (software_list_device *swlistdev = iter.first(); swlistdev != NULL; swlistdev = iter.next())
+					if (swlistdev->first_software_info() != NULL)
+					{
+						ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_select_software(machine(), container, driver)));
+						has_swlist = true;
+						break;
+					}
+
+			}
+			if ((driver->flags & MACHINE_TYPE_ARCADE) != 0 || !has_swlist)
 			{
 				std::vector<std::string> biosname;
 				int bios_count = 0;
@@ -976,7 +986,7 @@ void ui_mewui_select_game::inkey_select(const ui_menu_event *menu_event)
 					}
 
 				if (bios_count > 1)
-					ui_menu::stack_push(auto_alloc_clear(machine(), ui_mewui_bios_selection(machine(), container, biosname, menu_event->itemref, false)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), ui_mewui_bios_selection(machine(), container, biosname, menu_event->itemref, false, false)));
 				else
 				{
 					reselect_last::driver.assign(driver->name);
@@ -1024,9 +1034,29 @@ void ui_mewui_select_game::inkey_select_favorite(const ui_menu_event *menu_event
 		// if everything looks good, schedule the new driver
 		if (summary == media_auditor::CORRECT || summary == media_auditor::BEST_AVAILABLE || summary == media_auditor::NONE_NEEDED)
 		{
-			machine().manager().schedule_new_driver(*ui_swinfo->driver);
-			machine().schedule_hard_reset();
-			ui_menu::stack_reset(machine());
+			std::vector<std::string> biosname;
+			int bios_count = 0;
+			const game_driver *driver = ui_swinfo->driver;
+			for (const rom_entry *rom = driver->rom; !ROMENTRY_ISEND(rom); ++rom)
+				if (ROMENTRY_ISSYSTEM_BIOS(rom))
+				{
+					std::string name(ROM_GETHASHDATA(rom));
+					biosname.push_back(name);
+					bios_count++;
+				}
+
+			if (bios_count > 1)
+				ui_menu::stack_push(auto_alloc_clear(machine(), ui_mewui_bios_selection(machine(), container, biosname, (void *)driver, false, false)));
+			else
+			{
+				reselect_last::driver.assign(ui_swinfo->driver->name);
+				reselect_last::software.clear();
+				reselect_last::swlist.clear();
+				mewui_globals::force_reselect_software = true;
+				machine().manager().schedule_new_driver(*ui_swinfo->driver);
+				machine().schedule_hard_reset();
+				ui_menu::stack_reset(machine());
+			}
 		}
 
 		// otherwise, display an error
