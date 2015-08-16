@@ -60,11 +60,28 @@ public:
 	virtual ~ui_mewui_software_parts();
 	virtual void populate();
 	virtual void handle();
+	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2);
 
 private:
 
 	std::vector<std::string> m_nameparts, m_descpart;
 	ui_software_info *m_uiinfo;
+};
+
+class ui_mewui_bios_selection : public ui_menu
+{
+public:
+	ui_mewui_bios_selection(running_machine &machine, render_container *container, std::vector<std::string> biosname, void *driver, bool software);
+	virtual ~ui_mewui_bios_selection();
+	virtual void populate();
+	virtual void handle();
+	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2);
+
+private:
+
+	std::vector<std::string> m_bios;
+	void *driver;
+	bool software;
 };
 
 #endif /* __MEWUI_SELSOFT_H__ */
