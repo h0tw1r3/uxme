@@ -45,6 +45,7 @@ private:
 	};
 
 	bool m_options[LAST_MOPTION];
+	static const char *description[];
 };
 
 #endif /* __MEWUI_MISCMENU_H__ */
