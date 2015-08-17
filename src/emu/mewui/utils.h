@@ -239,6 +239,14 @@ struct c_sw_type
 	void set(const char *str);
 };
 
+// Software device type
+struct c_sw_list
+{
+	std::vector<std::string> name;
+	std::vector<std::string> description;
+	UINT16 actual;
+};
+
 // Software years
 struct c_sw_year
 {
@@ -280,6 +288,7 @@ struct sw_custfltr
 	static UINT16  year[MAX_CUST_FILTER];
 	static UINT16  region[MAX_CUST_FILTER];
 	static UINT16  type[MAX_CUST_FILTER];
+	static UINT16  list[MAX_CUST_FILTER];
 };
 
 // GLOBAL FUNCTIONS
@@ -299,8 +308,8 @@ void load_custom_filters(running_machine &machine);
 void save_custom_filters(running_machine &machine);
 
 // custom software filter load and save
-void load_sw_custom_filters(running_machine &machine, const game_driver *driver, c_sw_region &_region, c_sw_publisher &_publisher, c_sw_year &_year, c_sw_type &_type);
-void save_sw_custom_filters(running_machine &machine, const game_driver *driver, c_sw_region &_region, c_sw_publisher &_publisher, c_sw_year &_year, c_sw_type &_type);
+void load_sw_custom_filters(running_machine &machine, const game_driver *driver, c_sw_region &_region, c_sw_publisher &_publisher, c_sw_year &_year, c_sw_type &_type, c_sw_list &_list);
+void save_sw_custom_filters(running_machine &machine, const game_driver *driver, c_sw_region &_region, c_sw_publisher &_publisher, c_sw_year &_year, c_sw_type &_type, c_sw_list &_list);
 
 // jpeg loader
 template <typename _T>
