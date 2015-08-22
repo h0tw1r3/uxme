@@ -41,11 +41,9 @@ function maintargetosdoptions(_target,_subtarget)
 					"SDL_ttf",
 				}
 			end
-			if _OPTIONS['targetos']~="macosx" then
-				local str = backtick("pkg-config --libs fontconfig")
-				addlibfromstring(str)
-				addoptionsfromstring(str)
-			end
+			local str = backtick("pkg-config --libs fontconfig")
+			addlibfromstring(str)
+			addoptionsfromstring(str)
 		end
 	end
 
@@ -99,7 +97,7 @@ end
 
 function sdlconfigcmd()
 	if not _OPTIONS["SDL_INSTALL_ROOT"] then
-		return _OPTIONS['CROSS_PREFIX'] .. _OPTIONS["SDL_LIBVER"] .. "-config"
+		return _OPTIONS['CROSS_PREFIX'] .. "pkg-config"
 	else
 		return path.join(_OPTIONS["SDL_INSTALL_ROOT"],"bin",_OPTIONS['CROSS_PREFIX'] .. _OPTIONS["SDL_LIBVER"]) .. "-config"
 	end
@@ -257,7 +255,7 @@ if BASE_TARGETOS=="unix" then
 				}
 			end
 		else
-			local str = backtick(sdlconfigcmd() .. " --static-libs | sed 's/-lSDLmain//'")
+			local str = backtick(sdlconfigcmd() .. " --libs sdl2 --static | sed 's/-lSDLmain//'")
 			addlibfromstring(str)
 			addoptionsfromstring(str)
 		end

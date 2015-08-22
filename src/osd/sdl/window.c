@@ -1338,7 +1338,7 @@ OSDWORK_CALLBACK( sdl_window_info::draw_video_contents_wt )
 	ASSERT_REDRAW_THREAD();
 
 	// Some configurations require events to be polled in the worker thread
-	sdlinput_process_events_buf();
+	//sdlinput_process_events_buf();
 
 	// Check whether window has vector screens
 

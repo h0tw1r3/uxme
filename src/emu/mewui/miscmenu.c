@@ -29,6 +29,9 @@ ui_menu_misc_options::ui_menu_misc_options(running_machine &machine, render_cont
 	m_options[MOUSE_ENABLED] = machine.options().ui_mouse();
 	m_options[CONFIRM_QUIT_ENABLED] = machine.options().confirm_quit();
 	m_options[SKIP_GAMEINFO_ENABLED] = machine.options().skip_gameinfo();
+	m_options[SKIP_DISCLAIMER_ENABLED] = machine.options().skip_disclaimer();
+	m_options[SKIP_WARNINGS_ENABLED] = machine.options().skip_warnings();
+	m_options[SKIP_LOADING_ENABLED] = machine.options().skip_loading();
 	m_options[FORCED_4X3] = machine.options().forced_4x3_snapshot();
 	m_options[USE_BGRND] = machine.options().use_background_image();
 }
@@ -43,6 +46,9 @@ ui_menu_misc_options::~ui_menu_misc_options()
 	machine().options().set_value(OPTION_UI_MOUSE, m_options[MOUSE_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
 	machine().options().set_value(OPTION_CONFIRM_QUIT, m_options[CONFIRM_QUIT_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
 	machine().options().set_value(OPTION_SKIP_GAMEINFO, m_options[SKIP_GAMEINFO_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
+	machine().options().set_value(OPTION_SKIP_DISCLAIMER, m_options[SKIP_DISCLAIMER_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
+	machine().options().set_value(OPTION_SKIP_WARNINGS, m_options[SKIP_WARNINGS_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
+	machine().options().set_value(OPTION_SKIP_LOADING, m_options[SKIP_LOADING_ENABLED], OPTION_PRIORITY_CMDLINE, error_string);
 	machine().options().set_value(OPTION_FORCED4X3, m_options[FORCED_4X3], OPTION_PRIORITY_CMDLINE, error_string);
 	machine().options().set_value(OPTION_USE_BACKGROUND, m_options[USE_BGRND], OPTION_PRIORITY_CMDLINE, error_string);
 	mewui_globals::force_reset_main = true;
@@ -101,6 +107,15 @@ void ui_menu_misc_options::populate()
 
 	item_append("Skip displaying information's screen at startup", m_options[SKIP_GAMEINFO_ENABLED] ? "On" : "Off",
 				m_options[SKIP_GAMEINFO_ENABLED] ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)SKIP_GAMEINFO_ENABLED);
+
+	item_append("Skip displaying disclaimer screen at startup", m_options[SKIP_DISCLAIMER_ENABLED] ? "On" : "Off",
+				m_options[SKIP_DISCLAIMER_ENABLED] ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)SKIP_DISCLAIMER_ENABLED);
+
+	item_append("Skip displaying warning screen at startup", m_options[SKIP_WARNINGS_ENABLED] ? "On" : "Off",
+				m_options[SKIP_WARNINGS_ENABLED] ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)SKIP_WARNINGS_ENABLED);
+
+	item_append("Skip displaying loading messages at startup", m_options[SKIP_LOADING_ENABLED] ? "On" : "Off",
+				m_options[SKIP_LOADING_ENABLED] ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)SKIP_LOADING_ENABLED);
 
 	item_append("Force Min 4:3 appearance for snapshot", m_options[FORCED_4X3] ? "On" : "Off",
 				m_options[FORCED_4X3] ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)FORCED_4X3);

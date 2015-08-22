@@ -5,6 +5,7 @@
 
 local naclToolchain = ""
 local mingwToolchain = ""
+local osxToolchain = ""
 
 newoption {
 	trigger = "gcc",
@@ -270,7 +271,7 @@ function toolchain(_buildDir, _subDir)
 
 		if "osx" == _OPTIONS["gcc"] then
 			if os.is("linux") then
-				local osxToolchain = "x86_64-apple-darwin13-"
+				osxToolchain = _OPTIONS["CROSS_PREFIX"]
 				premake.gcc.cc  = osxToolchain .. "clang"
 				premake.gcc.cxx = osxToolchain .. "clang++"
 				premake.gcc.ar  = osxToolchain .. "ar"
@@ -279,9 +280,12 @@ function toolchain(_buildDir, _subDir)
 		end
 
 		if "osx-clang" == _OPTIONS["gcc"] then
-			premake.gcc.cc  = "clang"
-			premake.gcc.cxx = "clang++"
-			premake.gcc.ar  = "ar"
+			if _OPTIONS['CROSS_PREFIX'] then
+				osxToolchain = _OPTIONS["CROSS_PREFIX"]
+			end
+			premake.gcc.cc  = osxToolchain .. "clang"
+			premake.gcc.cxx = osxToolchain .. "clang++"
+			premake.gcc.ar  = osxToolchain .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-osx-clang")
 		end
 
