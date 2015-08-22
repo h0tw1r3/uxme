@@ -21,11 +21,11 @@
 //-------------------------------------------------
 
 
-std::string datfile_manager::history_revision;
-std::string datfile_manager::mame_revision;
-std::string datfile_manager::mess_revision;
-std::string datfile_manager::sysinfo_revision;
-std::string datfile_manager::story_revision;
+std::string datfile_manager::m_history_rev;
+std::string datfile_manager::m_mame_rev;
+std::string datfile_manager::m_mess_rev;
+std::string datfile_manager::m_sysinfo_rev;
+std::string datfile_manager::m_story_rev;
 
 // Tags
 static const char *TAG_BIO = "$bio";
@@ -78,7 +78,7 @@ void datfile_manager::init_sysinfo()
 	int swcount = 0;
 	int count = index_datafile(sysi_idx, swcount);
 	osd_printf_verbose("Sysinfo.dat games found = %i\n", count);
-	osd_printf_verbose("Rev = %s\n", sysinfo_revision.c_str());
+	osd_printf_verbose("Rev = %s\n", m_sysinfo_rev.c_str());
 }
 
 //-------------------------------------------------
@@ -102,7 +102,7 @@ void datfile_manager::init_history()
 	int count = index_datafile(hist_idx, swcount);
 	osd_printf_verbose("History.dat games found = %i\n", count);
 	osd_printf_verbose("History.dat softwares found = %i\n", swcount);
-	osd_printf_verbose("Rev = %s\n", history_revision.c_str());
+	osd_printf_verbose("Rev = %s\n", m_history_rev.c_str());
 }
 
 //-------------------------------------------------
@@ -115,7 +115,7 @@ void datfile_manager::init_mameinfo()
 	int count = index_mame_mess_info(mame_idx, drv_idx, drvcount);
 	osd_printf_verbose("Mameinfo.dat games found = %i\n", count);
 	osd_printf_verbose("Mameinfo.dat drivers found = %d\n", drvcount);
-	osd_printf_verbose("Rev = %s\n", mame_revision.c_str());
+	osd_printf_verbose("Rev = %s\n", m_mame_rev.c_str());
 }
 
 //-------------------------------------------------
@@ -128,7 +128,7 @@ void datfile_manager::init_messinfo()
 	int count = index_mame_mess_info(mess_idx, drvmess_idx, drvcount);
 	osd_printf_verbose("Messinfo.dat games found = %i\n", count);
 	osd_printf_verbose("Messinfo.dat drivers found = %d\n", drvcount);
-	osd_printf_verbose("Rev = %s\n", mess_revision.c_str());
+	osd_printf_verbose("Rev = %s\n", m_mess_rev.c_str());
 }
 
 //-------------------------------------------------
@@ -170,7 +170,7 @@ void datfile_manager::load_software_info(const char *soft_list, std::string &buf
 			if (!found)
 				return;
 
-			std::ifstream myfile(fullpath.c_str());
+			std::ifstream myfile(m_fullpath.c_str());
 			myfile.seekg(s_offset, myfile.beg);
 			while (myfile.good())
 			{
@@ -265,7 +265,7 @@ void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer
 	}
 
 	std::string readbuf;
-	std::ifstream myfile(fullpath.c_str());
+	std::ifstream myfile(m_fullpath.c_str());
 
 	myfile.seekg(idx[x].offset, myfile.beg);
 	while (myfile.good())
@@ -303,7 +303,7 @@ void datfile_manager::load_driver_text(const game_driver *drv, std::string &buff
 		return;
 
 	std::string readbuf;
-	std::ifstream myfile(fullpath.c_str());
+	std::ifstream myfile(m_fullpath.c_str());
 
 	myfile.seekg(idx[index].offset, myfile.beg);
 	buffer.append("--- DRIVER INFO ---\n\0").append("Driver: ").append(s).append("\n\n");
@@ -341,7 +341,7 @@ int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, st
 	int          t_info = strlen(TAG_INFO);
 	std::string  carriage("\r\n");
 
-	std::ifstream myfile(fullpath.c_str(), std::ifstream::binary);
+	std::ifstream myfile(m_fullpath.c_str(), std::ifstream::binary);
 	if (myfile.is_open())
 	{
 		// loop through datafile
@@ -349,15 +349,15 @@ int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, st
 		{
 			std::getline(myfile, readbuf);
 
-			if (mame_revision.empty() && readbuf.compare(0, t_mame, TAG_MAMEINFO_R) == 0)
+			if (m_mame_rev.empty() && readbuf.compare(0, t_mame, TAG_MAMEINFO_R) == 0)
 			{
 				size_t found = readbuf.find(" ", t_mame + 1);
-				mame_revision = readbuf.substr(t_mame + 1, found - t_mame);
+				m_mame_rev = readbuf.substr(t_mame + 1, found - t_mame);
 			}
-			else if (mess_revision.empty() && readbuf.compare(0, t_mess, TAG_MESSINFO_R) == 0)
+			else if (m_mess_rev.empty() && readbuf.compare(0, t_mess, TAG_MESSINFO_R) == 0)
 			{
 				size_t found = readbuf.find(" ", t_mess + 1);
-				mess_revision = readbuf.substr(t_mess + 1, found - t_mess);
+				m_mess_rev = readbuf.substr(t_mess + 1, found - t_mess);
 			}
 			// TAG_INFO
 			else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
@@ -415,7 +415,7 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 	int          t_bio = strlen(TAG_BIO);
 	std::string  carriage("\r\n");
 
-	std::ifstream myfile(fullpath.c_str(), std::ifstream::binary);
+	std::ifstream myfile(m_fullpath.c_str(), std::ifstream::binary);
 	if (myfile.is_open())
 	{
 		// loop through datafile
@@ -423,20 +423,20 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 		{
 			std::getline(myfile, readbuf);
 
-			if (history_revision.empty() && readbuf.compare(0, t_hist, TAG_HISTORY_R) == 0)
+			if (m_history_rev.empty() && readbuf.compare(0, t_hist, TAG_HISTORY_R) == 0)
 			{
 				size_t found = readbuf.find(" ", t_hist + 1);
-				history_revision = readbuf.substr(t_hist + 1, found - t_hist);
+				m_history_rev = readbuf.substr(t_hist + 1, found - t_hist);
 			}
-			else if (sysinfo_revision.empty() && readbuf.compare(0, t_sysinfo, TAG_SYSINFO_R) == 0)
+			else if (m_sysinfo_rev.empty() && readbuf.compare(0, t_sysinfo, TAG_SYSINFO_R) == 0)
 			{
 				size_t found = readbuf.find(".", t_sysinfo + 1);
-				sysinfo_revision = readbuf.substr(t_sysinfo + 1, found - t_sysinfo);
+				m_sysinfo_rev = readbuf.substr(t_sysinfo + 1, found - t_sysinfo);
 			}
-			else if (story_revision.empty() && readbuf.compare(0, t_story, TAG_STORY_R) == 0)
+			else if (m_story_rev.empty() && readbuf.compare(0, t_story, TAG_STORY_R) == 0)
 			{
 				size_t found = readbuf.find_first_of(carriage, t_story + 1);
-				story_revision.assign(readbuf.substr(t_story + 1, found - t_story));
+				m_story_rev.assign(readbuf.substr(t_story + 1, found - t_story));
 			}
 			// TAG_INFO identifies the driver
 			else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
@@ -603,7 +603,7 @@ bool datfile_manager::ParseOpen(const char *filename)
 
 	if (fp.open(filename) == FILERR_NONE)
 	{
-		fullpath.assign(fp.fullpath());
+		m_fullpath.assign(fp.fullpath());
 		fp.close();
 		return true;
 	}
@@ -636,7 +636,7 @@ void datfile_manager::index_menuidx(const game_driver *drv, std::vector<tDatafil
 	}
 
 	// seek to correct point in datafile
-	std::ifstream myfile(fullpath.c_str(), std::ifstream::binary);
+	std::ifstream myfile(m_fullpath.c_str(), std::ifstream::binary);
 	myfile.seekg(d_idx[x].offset, myfile.beg);
 	while (std::getline(myfile, readbuf))
 	{
@@ -665,7 +665,7 @@ void datfile_manager::load_command_text(std::string &buffer, std::vector<tMenuIn
 	std::string readbuf;
 
 	// open and seek to correct point in datafile
-	std::ifstream myfile(fullpath.c_str());
+	std::ifstream myfile(m_fullpath.c_str());
 	myfile.seekg(m_idx[menu_sel].offset, myfile.beg);
 
 	while (myfile.good())
