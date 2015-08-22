@@ -143,13 +143,13 @@ protected:
 	//virtual void device_debug_setup();
 	virtual void device_clock_changed();
 
-	UINT32              m_div;
+	netlist::netlist_time m_div;
 
 private:
 	void save_state();
 
 	/* timing support here - so sound can hijack it ... */
-	UINT32              m_rem;
+	netlist::netlist_time        m_rem;
 	netlist::netlist_time        m_old;
 
 	netlist_mame_t *    m_netlist;
@@ -648,9 +648,9 @@ public:
 
 		for (int i = 0; i < MAX_INPUT_CHANNELS; i++)
 		{
-			register_param(pstring::sprintf("CHAN%d", i), m_param_name[i], "");
-			register_param(pstring::sprintf("MULT%d", i), m_param_mult[i], 1.0);
-			register_param(pstring::sprintf("OFFSET%d", i), m_param_offset[i], 0.0);
+			register_param(pformat("CHAN%1")(i), m_param_name[i], "");
+			register_param(pformat("MULT%1")(i), m_param_mult[i], 1.0);
+			register_param(pformat("OFFSET%1")(i), m_param_offset[i], 0.0);
 		}
 		m_num_channel = 0;
 	}

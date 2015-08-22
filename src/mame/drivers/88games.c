@@ -285,10 +285,7 @@ void _88games_state::machine_start()
 	save_item(NAME(m_videobank));
 	save_item(NAME(m_zoomreadroms));
 	save_item(NAME(m_speech_chip));
-	save_item(NAME(m_layer_colorbase));
 	save_item(NAME(m_k88games_priority));
-	save_item(NAME(m_sprite_colorbase));
-	save_item(NAME(m_zoom_colorbase));
 }
 
 void _88games_state::machine_reset()
@@ -297,11 +294,6 @@ void _88games_state::machine_reset()
 	m_zoomreadroms = 0;
 	m_speech_chip = 0;
 	m_k88games_priority = 0;
-	m_layer_colorbase[0] = 64;
-	m_layer_colorbase[1] = 0;
-	m_layer_colorbase[2] = 16;
-	m_sprite_colorbase = 32;
-	m_zoom_colorbase = 48;
 }
 
 static MACHINE_CONFIG_START( 88games, _88games_state )
@@ -336,6 +328,7 @@ static MACHINE_CONFIG_START( 88games, _88games_state )
 
 	MCFG_DEVICE_ADD("k051960", K051960, 0)
 	MCFG_GFX_PALETTE("palette")
+	MCFG_K051960_SCREEN_TAG("screen")
 	MCFG_K051960_CB(_88games_state, sprite_callback)
 
 	MCFG_DEVICE_ADD("k051316", K051316, 0)

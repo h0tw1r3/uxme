@@ -1,3 +1,6 @@
+
+/* € */ // ABC
+
 #include "netlist/devices/net_lib.h"
 #include "netlist/devices/nld_system.h"
 #include "netlist/analog/nld_bjt.h"
@@ -33,13 +36,15 @@ NETLIST_START(dummy)
 // IGNORED O_AUDIO0: O_AUDIO0  64 0
 // .END
 
-	SOLVER(Solver, 24000)
+	/* €€ */ SOLVER(Solver, 24000)
 	PARAM(Solver.ACCURACY, 1e-8)
-	PARAM(Solver.NR_LOOPS, 150)
+	PARAM(Solver.NR_LOOPS, 9000)
 	PARAM(Solver.SOR_FACTOR, 0.001)
 	PARAM(Solver.GS_LOOPS, 1)
 	//PARAM(Solver.GS_THRESHOLD, 99)
 	PARAM(Solver.ITERATIVE, "SOR")
+	PARAM(Solver.PARALLEL, 0)
+	PARAM(Solver.PIVOT, 0)
 
 	LOCAL_SOURCE(congob_lib)
 	INCLUDE(congob_lib)
@@ -96,6 +101,7 @@ NETLIST_START(dummy)
 	PARAM(XU13.D.MODEL, "MB3614(TYPE=1)")
 #endif
 
+#if 1
 	OPTIMIZE_FRONTIER(C51.1, RES_K(20), 50)
 	OPTIMIZE_FRONTIER(R77.2, RES_K(20), 50)
 
@@ -106,7 +112,7 @@ NETLIST_START(dummy)
 
 	OPTIMIZE_FRONTIER(R90.2, RES_K(100), 50)
 	OPTIMIZE_FRONTIER(R92.2, RES_K(15), 50)
-
+#endif
 NETLIST_END()
 
 NETLIST_START(CongoBongo_schematics)

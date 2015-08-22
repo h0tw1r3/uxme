@@ -513,14 +513,16 @@ static MACHINE_CONFIG_START( aussiebyte, aussiebyte_state )
 	MCFG_Z80DART_OUT_DTRA_CB(DEVWRITELINE("rs232", rs232_port_device, write_dtr))
 	MCFG_Z80DART_OUT_RTSA_CB(DEVWRITELINE("rs232", rs232_port_device, write_rts))
 
-	MCFG_RS232_PORT_ADD("rs232", default_rs232_devices, "terminal")
+	MCFG_RS232_PORT_ADD("rs232", default_rs232_devices, "keyboard")
 	MCFG_RS232_RXD_HANDLER(DEVWRITELINE("sio2", z80sio0_device, rxa_w))
 
 	MCFG_WD2797_ADD("fdc", XTAL_16MHz / 16)
 	MCFG_WD_FDC_INTRQ_CALLBACK(WRITELINE(aussiebyte_state, fdc_intrq_w))
 	MCFG_WD_FDC_DRQ_CALLBACK(WRITELINE(aussiebyte_state, fdc_drq_w))
 	MCFG_FLOPPY_DRIVE_ADD("fdc:0", aussiebyte_floppies, "drive0", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 	MCFG_FLOPPY_DRIVE_ADD("fdc:1", aussiebyte_floppies, "drive1", floppy_image_device::default_floppy_formats)
+	MCFG_FLOPPY_DRIVE_SOUND(true)
 
 	/* devices */
 	MCFG_MC6845_ADD("crtc", SY6545_1, "screen", XTAL_16MHz / 8)

@@ -303,8 +303,8 @@ enum
 std::string mfm_harddisk_device::tts(const attotime &t)
 {
 	char buf[256];
-	int nsec = t.attoseconds / ATTOSECONDS_PER_NANOSECOND;
-	sprintf(buf, "%4d.%03d,%03d,%03d", int(t.seconds), nsec/1000000, (nsec/1000)%1000, nsec % 1000);
+	int nsec = t.attoseconds() / ATTOSECONDS_PER_NANOSECOND;
+	sprintf(buf, "%4d.%03d,%03d,%03d", int(t.seconds()), nsec/1000000, (nsec/1000)%1000, nsec % 1000);
 	return buf;
 }
 
@@ -319,7 +319,7 @@ mfm_harddisk_device::mfm_harddisk_device(const machine_config &mconfig, device_t
 	m_max_heads = 0;
 	m_cell_size = 100;
 	m_rpm = 3600;           // MFM drives have a revolution rate of 3600 rpm (i.e. 60/sec)
-	m_trackimage_size = (int)((60000000000L / (m_rpm * m_cell_size)) / 16 + 1);
+	m_trackimage_size = (int)((60000000000ULL / (m_rpm * m_cell_size)) / 16 + 1);
 	m_cache = NULL;
 	// We will calculate default values from the time specs later.
 	m_seeknext_time = 0;

@@ -5,7 +5,6 @@
  *
  */
 
-#include <cstdio>
 #include <cstdarg>
 
 #include "pparser.h"
@@ -32,7 +31,7 @@ pstring ptokenizer::currentline_str()
 
 void ptokenizer::skipeol()
 {
-	char c = getc();
+	pstring::code_t c = getc();
 	while (c)
 	{
 		if (c == 10)
@@ -47,19 +46,19 @@ void ptokenizer::skipeol()
 }
 
 
-unsigned char ptokenizer::getc()
+pstring::code_t ptokenizer::getc()
 {
 	if (m_px >= m_cur_line.len())
 	{
-		if (!m_strm.eof())
+		if (m_strm.readline(m_cur_line))
 		{
-			m_cur_line = m_strm.readline() + "\n";
+			m_cur_line += "\n";
 			m_px = 0;
 		}
 		else
 			return 0;
 	}
-	return m_cur_line[m_px++];
+	return m_cur_line.code_at(m_px++);
 }
 
 void ptokenizer::ungetc()
@@ -76,7 +75,7 @@ void ptokenizer::require_token(const token_t tok, const token_id_t &token_num)
 {
 	if (!tok.is(token_num))
 	{
-		error("Error: expected token <%s> got <%s>\n", m_tokens[token_num.id()].cstr(), tok.str().cstr());
+		error(pformat("Expected token <%1> got <%2>")(m_tokens[token_num.id()])(tok.str()) );
 	}
 }
 
@@ -85,7 +84,7 @@ pstring ptokenizer::get_string()
 	token_t tok = get_token();
 	if (!tok.is_type(STRING))
 	{
-		error("Error: expected a string, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected a string, got <%1>")(tok.str()) );
 	}
 	return tok.str();
 }
@@ -95,7 +94,7 @@ pstring ptokenizer::get_identifier()
 	token_t tok = get_token();
 	if (!tok.is_type(IDENTIFIER))
 	{
-		error("Error: expected an identifier, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected an identifier, got <%1>")(tok.str()) );
 	}
 	return tok.str();
 }
@@ -105,7 +104,7 @@ pstring ptokenizer::get_identifier_or_number()
 	token_t tok = get_token();
 	if (!(tok.is_type(IDENTIFIER) || tok.is_type(NUMBER)))
 	{
-		error("Error: expected an identifier, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected an identifier, got <%1>")(tok.str()) );
 	}
 	return tok.str();
 }
@@ -115,12 +114,12 @@ double ptokenizer::get_number_double()
 	token_t tok = get_token();
 	if (!tok.is_type(NUMBER))
 	{
-		error("Error: expected a number, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected a number, got <%1>")(tok.str()) );
 	}
 	bool err = false;
 	double ret = tok.str().as_double(&err);
 	if (err)
-		error("Error: expected a number, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected a number, got <%1>")(tok.str()) );
 	return ret;
 }
 
@@ -129,12 +128,12 @@ long ptokenizer::get_number_long()
 	token_t tok = get_token();
 	if (!tok.is_type(NUMBER))
 	{
-		error("Error: expected a long int, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected a long int, got <%1>")(tok.str()) );
 	}
 	bool err = false;
 	long ret = tok.str().as_long(&err);
 	if (err)
-		error("Error: expected a long int, got <%s>\n", tok.str().cstr());
+		error(pformat("Expected a long int, got <%1>")(tok.str()) );
 	return ret;
 }
 
@@ -161,14 +160,16 @@ ptokenizer::token_t ptokenizer::get_token()
 			skipeol();
 		}
 		else
+		{
 			return ret;
+		}
 	}
 }
 
 ptokenizer::token_t ptokenizer::get_token_internal()
 {
 	/* skip ws */
-	char c = getc();
+	pstring::code_t c = getc();
 	while (m_whitespace.find(c)>=0)
 	{
 		c = getc();
@@ -251,16 +252,9 @@ ptokenizer::token_t ptokenizer::get_token_internal()
 
 }
 
-ATTR_COLD void ptokenizer::error(const char *format, ...)
+ATTR_COLD void ptokenizer::error(const pstring &errs)
 {
-	va_list ap;
-	va_start(ap, format);
-
-	pstring errmsg1 = pstring(format).vprintf(ap);
-	va_end(ap);
-
-	verror(errmsg1, currentline_no(), currentline_str());
-
+	verror("Error: " + errs, currentline_no(), currentline_str());
 	//throw error;
 }
 
@@ -287,7 +281,7 @@ ppreprocessor::ppreprocessor()
 
 void ppreprocessor::error(const pstring &err)
 {
-	fprintf(stderr, "PREPRO ERROR: %s\n", err.cstr());
+	throw pexception("PREPRO ERROR: " + err);
 }
 
 
@@ -383,7 +377,7 @@ pstring ppreprocessor::replace_macros(const pstring &line)
 		else
 			ret.cat(elems[i]);
 	}
-	return pstring(ret.cstr());
+	return ret;
 }
 
 static pstring catremainder(const pstring_list_t &elems, std::size_t start, pstring sep)
@@ -454,17 +448,15 @@ pstring  ppreprocessor::process_line(const pstring &line)
 			if (m_ifflag == 0)
 			{
 				if (lti.size() != 3)
-					error(pstring::sprintf("PREPRO: only simple defines allowed: %s", line.cstr()));
+					error("PREPRO: only simple defines allowed: %s" + line);
 				m_defines.add(lti[1], define_t(lti[1], lti[2]));
 			}
 		}
 		else
-			error(pstring::sprintf("unknown directive on line %d: %s\n", m_lineno, line.cstr()));
+			error(pformat("unknown directive on line %1: %2")(m_lineno)(line));
 	}
 	else
 	{
-		//if (ifflag == 0 && level > 0)
-		//  fprintf(stderr, "conditional: %s\n", line.cstr());
 		lt = replace_macros(lt);
 		if (m_ifflag == 0)
 		{
@@ -478,9 +470,10 @@ pstring  ppreprocessor::process_line(const pstring &line)
 
 postream & ppreprocessor::process_i(pistream &istrm, postream &ostrm)
 {
-	while (!istrm.eof())
+	pstring line;
+	while (istrm.readline(line))
 	{
-		pstring line = process_line(istrm.readline());
+		line = process_line(line);
 		ostrm.writeline(line);
 	}
 	return ostrm;

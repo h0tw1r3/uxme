@@ -123,9 +123,6 @@
 #define PALETTE_FORMAT_BBGGGRRR_inverted raw_to_rgb_converter(1, &raw_to_rgb_converter::inverted_rgb_decoder<3,3,2, 0,3,6>)
 #define PALETTE_FORMAT_RRRGGGBB_inverted raw_to_rgb_converter(1, &raw_to_rgb_converter::inverted_rgb_decoder<3,3,2, 5,2,0>)
 
-// standard 2-2-2-2 formats
-#define PALETTE_FORMAT_BBGGRRII raw_to_rgb_converter(1, &raw_to_rgb_converter::BBGGRRII_decoder)
-
 // standard 3-3-3 formats
 #define PALETTE_FORMAT_xxxxxxxBBBGGGRRR raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<3,3,3, 0,3,6>)
 #define PALETTE_FORMAT_xxxxxxxRRRBBBGGG raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<3,3,3, 6,0,3>)
@@ -149,8 +146,9 @@
 #define PALETTE_FORMAT_xRRRRRGGGGGBBBBB raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 10,5,0>)
 #define PALETTE_FORMAT_xGGGGGRRRRRBBBBB raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 5,10,0>)
 #define PALETTE_FORMAT_xGGGGGBBBBBRRRRR raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 0,10,5>)
-#define PALETTE_FORMAT_RRRRRGGGGGBBBBBx raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 11,6,1>)
+#define PALETTE_FORMAT_BBBBBRRRRRGGGGGx raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 6,1,11>)
 #define PALETTE_FORMAT_GGGGGRRRRRBBBBBx raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 6,11,1>)
+#define PALETTE_FORMAT_RRRRRGGGGGBBBBBx raw_to_rgb_converter(2, &raw_to_rgb_converter::standard_rgb_decoder<5,5,5, 11,6,1>)
 #define PALETTE_FORMAT_RRRRGGGGBBBBRGBx raw_to_rgb_converter(2, &raw_to_rgb_converter::RRRRGGGGBBBBRGBx_decoder)
 #define PALETTE_FORMAT_xRGBRRRRGGGGBBBB_bit0 raw_to_rgb_converter(2, &raw_to_rgb_converter::xRGBRRRRGGGGBBBB_bit0_decoder)
 #define PALETTE_FORMAT_xRGBRRRRGGGGBBBB_bit4 raw_to_rgb_converter(2, &raw_to_rgb_converter::xRGBRRRRGGGGBBBB_bit4_decoder)
@@ -352,7 +350,6 @@ public:
 	}
 
 	// other standard decoders
-	static rgb_t BBGGRRII_decoder(UINT32 raw);
 	static rgb_t IRRRRRGGGGGBBBBB_decoder(UINT32 raw);
 	static rgb_t RRRRGGGGBBBBRGBx_decoder(UINT32 raw);  // bits 3/2/1 are LSb
 	static rgb_t xRGBRRRRGGGGBBBB_bit0_decoder(UINT32 raw);  // bits 14/13/12 are LSb

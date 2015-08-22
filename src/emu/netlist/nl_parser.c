@@ -25,7 +25,7 @@ namespace netlist
 // A netlist parser
 // ----------------------------------------------------------------------------------------
 
-ATTR_COLD void parser_t::verror(pstring msg, int line_num, pstring line)
+ATTR_COLD void parser_t::verror(const pstring &msg, int line_num, const pstring &line)
 {
 	m_setup.netlist().error("line %d: error: %s\n\t\t%s\n", line_num,
 			msg.cstr(), line.cstr());
@@ -297,7 +297,7 @@ void parser_t::net_c()
 		if (n.is(m_tok_param_right))
 			break;
 		if (!n.is(m_tok_comma))
-			error("expected a comma, found <%s>", n.str().cstr());
+			error(pformat("expected a comma, found <%1>")(n.str()) );
 	}
 
 }
@@ -317,15 +317,15 @@ void parser_t::dippins()
 		if (n.is(m_tok_param_right))
 			break;
 		if (!n.is(m_tok_comma))
-			error("expected a comma, found <%s>", n.str().cstr());
+			error(pformat("expected a comma, found <%1>")(n.str()) );
 	}
 	if ((pins.size() % 2) == 1)
 		error("You must pass an equal number of pins to DIPPINS");
 	unsigned n = pins.size();
 	for (unsigned i = 0; i < n / 2; i++)
 	{
-		m_setup.register_alias(pstring::sprintf("%d", i+1), pins[i*2]);
-		m_setup.register_alias(pstring::sprintf("%d", n-i), pins[i*2 + 1]);
+		m_setup.register_alias(pformat("%1")(i+1), pins[i*2]);
+		m_setup.register_alias(pformat("%1")(n-i), pins[i*2 + 1]);
 	}
 }
 
