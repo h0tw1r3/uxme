@@ -3334,6 +3334,7 @@ files {
 	MAME_DIR .. "src/mame/machine/cdicdic.c",
 	MAME_DIR .. "src/mame/drivers/cesclass.c",
 	MAME_DIR .. "src/mame/drivers/chance32.c",
+	MAME_DIR .. "src/mame/drivers/chexx.c",
 	MAME_DIR .. "src/mame/drivers/chicago.c",
 	MAME_DIR .. "src/mame/drivers/chsuper.c",
 	MAME_DIR .. "src/mame/drivers/cidelsa.c",

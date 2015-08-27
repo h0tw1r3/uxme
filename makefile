@@ -145,6 +145,10 @@ endif
 ifeq ($(firstword $(filter Haiku,$(UNAME))),Haiku)
 OS := haiku
 endif
+ifeq ($(firstword $(filter OS/2,$(UNAME))),OS/2)
+OS := os2
+GENIEOS := os2
+endif
 ifndef OS
 $(error Unable to detect OS from uname -a: $(UNAME))
 endif
@@ -311,6 +315,10 @@ OSD := sdl
 endif
 
 ifeq ($(TARGETOS),macosx)
+OSD := sdl
+endif
+
+ifeq ($(TARGETOS),os2)
 OSD := sdl
 endif
 endif
@@ -684,6 +692,9 @@ endif
 ifeq (/bin,$(findstring /bin,$(SHELL)))
   SHELLTYPE := posix
 endif
+ifeq (/bin,$(findstring /bin,$(MAKESHELL)))
+  SHELLTYPE := posix
+endif
 
 ifeq (posix,$(SHELLTYPE))
   MKDIR = $(SILENT) mkdir -p "$(1)"
@@ -1036,6 +1047,22 @@ netbsd: netbsd_x86
 .PHONY: netbsd_x86
 netbsd_x86: generate $(PROJECTDIR)/gmake-netbsd/Makefile
 	$(SILENT) $(MAKE) -C $(PROJECTDIR)/gmake-netbsd config=$(CONFIG)32
+
+
+#-------------------------------------------------
+# gmake-os2
+#-------------------------------------------------
+
+
+$(PROJECTDIR)/gmake-os2/Makefile: makefile $(SCRIPTS) $(GENIE)
+	$(SILENT) $(GENIE) $(PARAMS) --gcc=os2 --gcc_version=$(GCC_VERSION) gmake
+
+.PHONY: os2
+os2: os2_x86
+
+.PHONY: os2_x86
+os2_x86: generate $(PROJECTDIR)/gmake-os2/Makefile
+	$(SILENT) $(MAKE) -C $(PROJECTDIR)/gmake-os2 config=$(CONFIG)32
 
 
 #-------------------------------------------------
