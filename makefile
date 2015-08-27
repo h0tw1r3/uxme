@@ -245,7 +245,11 @@ WINDRES  := i686-w64-mingw32-windres
 endif
 endif
 else
-WINDRES  := $(CROSS_PREFIX)windres
+ifeq ($(ARCHITECTURE),_x64)
+WINDRES  := $(MINGW64)/bin/$(CROSS_PREFIX)windres
+else
+WINDRES  := $(MINGW32)/bin/$(CROSS_PREFIX)windres
+endif
 endif
 
 ifeq ($(findstring arm,$(UNAME)),arm)

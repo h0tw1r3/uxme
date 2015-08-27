@@ -844,20 +844,6 @@ void ui_menu::handle_events(UINT32 flags)
 				}
 				break;
 
-			// caught scroll event
-			case UI_EVENT_MOUSE_SCROLL:
-				if (local_menu_event.zdelta > 0)
-				{
-					selected = (selected + item.size() - local_menu_event.num_lines) % item.size();
-					validate_selection(-1);
-				}
-				else
-				{
-					selected = (selected + local_menu_event.num_lines) % item.size();
-					validate_selection(1);
-				}
-				break;
-
 			// translate CHAR events into specials
 			case UI_EVENT_CHAR:
 				menu_event.iptkey = IPT_SPECIAL;
