@@ -286,14 +286,14 @@ const ui_menu_event *ui_menu::process(UINT32 flags)
 	if (item.size() > 1 && (item[0].flags & MENU_FLAG_MULTILINE) != 0)
 		draw_text_box();
 	else if ((item[0].flags & MENU_FLAG_MEWUI ) != 0 || (item[0].flags & MENU_FLAG_MEWUI_SWLIST ) != 0)
-		draw_select_game();
+		draw_select_game(flags & UI_MENU_PROCESS_NOINPUT);
 	else if ((item[0].flags & MENU_FLAG_MEWUI_PALETTE ) != 0)
 		draw_palette_menu();
 	else
 		draw(flags & UI_MENU_PROCESS_CUSTOM_ONLY, flags & UI_MENU_PROCESS_NOIMAGE, flags & UI_MENU_PROCESS_NOINPUT);
 
 	// process input
-	if (!(flags & UI_MENU_PROCESS_NOKEYS))
+	if (!(flags & UI_MENU_PROCESS_NOKEYS) && !(flags & UI_MENU_PROCESS_NOINPUT))
 	{
 		// read events
 		if ((item[0].flags & MENU_FLAG_MEWUI ) != 0 || (item[0].flags & MENU_FLAG_MEWUI_SWLIST ) != 0)
@@ -425,7 +425,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 	float mouse_x = -1, mouse_y = -1;
 	bool history_flag = ((item[0].flags & MENU_FLAG_MEWUI_HISTORY) != 0);
 
-	if (machine().options().use_background_image() && machine().options().system() == NULL && bgrnd_bitmap->valid())
+	if (machine().options().use_background_image() && machine().options().system() == NULL && bgrnd_bitmap->valid() && !noimage)
 		container->add_quad(0.0f, 0.0f, 1.0f, 1.0f, ARGB_WHITE, bgrnd_texture, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
 
 	// compute the width and height of the full menu

@@ -63,7 +63,7 @@ private:
 	int totallines;
 
 	// draw game list
-	void draw_select_game();
+	void draw_select_game(bool noinput);
 
 	// draw game list
 	void draw_palette_menu();
