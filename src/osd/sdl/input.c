@@ -1452,9 +1452,6 @@ void sdl_osd_interface::input_exit()
 	device_list_free_devices(&keyboard_list);
 	device_list_free_devices(&mouse_list);
 	device_list_free_devices(&joystick_list);
-#if (USE_XINPUT)
-	device_list_free_devices(&lightgun_list);
-#endif
 }
 
 

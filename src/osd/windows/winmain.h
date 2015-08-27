@@ -240,7 +240,6 @@ public:
 	// general overridables
 	virtual void init(running_machine &machine);
 	virtual void update(bool skip_redraw);
-	virtual void poll_input(void);
 
 	// video overridables
 	virtual void *get_slider_list();

@@ -293,16 +293,6 @@ float osd_monitor_info::aspect()
 }
 
 
-//============================================================
-//  poll input
-//============================================================
-void sdl_osd_interface::poll_input(void)
-{
-	// poll the joystick values here
-	sdlinput_process_events_buf();
-	sdlinput_poll(machine());
-	check_osd_inputs(machine());
-}
 
 
 //============================================================
