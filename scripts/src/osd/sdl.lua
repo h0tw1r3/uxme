@@ -97,7 +97,7 @@ end
 
 function sdlconfigcmd()
 	if not _OPTIONS["SDL_INSTALL_ROOT"] then
-		return _OPTIONS['CROSS_PREFIX'] .. "pkg-config"
+		return _OPTIONS['CROSS_PREFIX'] .. "pkg-config " .. _OPTIONS["SDL_LIBVER"]
 	else
 		return path.join(_OPTIONS["SDL_INSTALL_ROOT"],"bin",_OPTIONS['CROSS_PREFIX'] .. _OPTIONS["SDL_LIBVER"]) .. "-config"
 	end
@@ -255,7 +255,7 @@ if BASE_TARGETOS=="unix" then
 				}
 			end
 		else
-			local str = backtick(sdlconfigcmd() .. " --libs sdl2 --static | sed 's/-lSDLmain//'")
+			local str = backtick(sdlconfigcmd() .. " --libs --static | sed 's/-lSDLmain//'")
 			addlibfromstring(str)
 			addoptionsfromstring(str)
 		end
