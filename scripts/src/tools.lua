@@ -12,6 +12,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -59,6 +61,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -121,6 +125,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -168,6 +174,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -233,6 +241,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -292,6 +302,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -353,6 +365,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -400,6 +414,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -449,6 +465,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -496,6 +514,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -556,6 +576,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -603,6 +625,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -701,6 +725,8 @@ kind "ConsoleApp"
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
 
+configuration { }
+
 options {
 	"ForceCPP",
 }
@@ -761,6 +787,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",
@@ -823,6 +851,8 @@ kind "ConsoleApp"
 
 configuration { "mingw*" or "vs*" }
 	targetextension ".exe"
+
+configuration { }
 
 options {
 	"ForceCPP",

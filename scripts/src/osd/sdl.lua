@@ -30,21 +30,19 @@ function maintargetosdoptions(_target,_subtarget)
 		}
 	end
 
-	if BASE_TARGETOS=="unix" then
-		if _OPTIONS["USE_LIBSDL"] or _OPTIONS["targetos"]~="macosx" then
-			if _OPTIONS["SDL_LIBVER"]=="sdl2" then
-				links {
-					"SDL2_ttf",
-				}
-			else
-				links {
-					"SDL_ttf",
-				}
-			end
-			local str = backtick("pkg-config --libs fontconfig")
-			addlibfromstring(str)
-			addoptionsfromstring(str)
+	if BASE_TARGETOS=="unix" and _OPTIONS["targetos"]~="macosx" then
+		if _OPTIONS["SDL_LIBVER"]=="sdl2" then
+			links {
+				"SDL2_ttf",
+			}
+		else
+			links {
+				"SDL_ttf",
+			}
 		end
+		local str = backtick("pkg-config --libs fontconfig")
+		addlibfromstring(str)
+		addoptionsfromstring(str)
 	end
 
 	if _OPTIONS["targetos"]=="windows" then
@@ -436,9 +434,6 @@ if _OPTIONS["with-tools"] then
 		uuid ("744cec21-c3b6-4d69-93cb-6811fed0ffe3")
 		kind "ConsoleApp"
 
-		configuration { "mingw*" or "vs*" }
-			targetextension ".exe"
-
 		options {
 			"ForceCPP",
 		}
@@ -495,6 +490,11 @@ if _OPTIONS["with-tools"] then
 				MAME_DIR .. "src/osd/sdl/SDLMain_tmpl.m",
 			}
 		end
+
+		configuration { "mingw*" or "vs*" }
+			targetextension "exe"
+
+		configuration { }
 end
 
 
