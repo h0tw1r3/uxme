@@ -57,7 +57,7 @@ OPTIMIZE = 3
 
 TARGETOS = windows
 # CROSS_BUILD = 1
-CROSS_PREFIX = i386-w64-mingw32.static-
+CROSS_PREFIX = i686-w64-mingw32.static-
 # OVERRIDE_CC = cc
 # OVERRIDE_CXX = c++
 # OVERRIDE_LD = ld
