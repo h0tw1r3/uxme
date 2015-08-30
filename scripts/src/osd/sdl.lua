@@ -495,6 +495,8 @@ if _OPTIONS["with-tools"] then
 			targetextension "exe"
 
 		configuration { }
+
+		strip()
 end
 
 

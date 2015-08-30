@@ -93,7 +93,11 @@
 
 # DRIVERS = src/mame/drivers/1942.c,src/mame/drivers/cops.c
 
+ifneq ($(USEROPTIONS),"")
+-include $(USEROPTIONS)
+else
 -include useroptions.mak
+endif
 
 ###########################################################################
 ##################   END USER-CONFIGURABLE OPTIONS   ######################
