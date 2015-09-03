@@ -19,6 +19,7 @@ const options_entry cli_options::s_option_entries[] =
 	{ NULL,                            NULL,       OPTION_HEADER,     "CORE COMMANDS" },
 	{ CLICOMMAND_HELP ";h;?",           "0",       OPTION_COMMAND,    "show help message" },
 	{ CLICOMMAND_VALIDATE ";valid",     "0",       OPTION_COMMAND,    "perform driver validation on all game drivers" },
+	{ CLIOPTION_CHDIR ";cd",           NULL,       OPTION_STRING,     "change to directory on startup" },
 
 	/* configuration commands */
 	{ NULL,                            NULL,       OPTION_HEADER,     "CONFIGURATION COMMANDS" },

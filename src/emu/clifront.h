@@ -66,6 +66,7 @@ private:
 	void display_help();
 	void display_suggestions(const char *gamename);
 	void output_single_softlist(FILE *out, software_list_device &swlist);
+	void change_working_directory();
 
 	// internal state
 	cli_options &       m_options;

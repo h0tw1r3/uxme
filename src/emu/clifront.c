@@ -110,6 +110,8 @@ int cli_frontend::execute(int argc, char **argv)
 		std::string option_errors;
 		m_options.parse_command_line(argc, argv, option_errors);
 
+		change_working_directory();
+
 		m_options.parse_standard_inis(option_errors);
 
 		if (*(m_options.software_name()) != 0)
@@ -1643,6 +1645,7 @@ void cli_frontend::display_help()
 			"        %s -showconfig   for a list of configuration options\n"
 			"        %s -listmedia    for a full list of supported media\n"
 			"        %s -createconfig to create a %s.ini\n\n"
+			"           -chdir        change working directory on startup\n\n"
 			"For usage instructions, please consult the files config.txt and windows.txt.\n",emulator_info::get_appname(),
 			emulator_info::get_appname(),emulator_info::get_appname(),emulator_info::get_appname(),emulator_info::get_configname());
 }
@@ -1655,6 +1658,53 @@ void cli_frontend::display_help()
 
 void cli_frontend::display_suggestions(const char *gamename)
 {
+}
+
+//-------------------------------------------------
+//  change_working_directory
+//  helper for initial startup (cli_frontend::execute)
+//-------------------------------------------------
+void cli_frontend::change_working_directory()
+{
+	if (*(m_options.chdir_path()) != 0)
+	{
+		if (osd_chdir(m_options.chdir_path()) != 0)
+			throw emu_fatalerror(MAMERR_FATALERROR, "Failed to change working directory '%s'", m_options.chdir_path());
+	}
+	else
+	{
+		// try ini path's in order (see sdlmain and emuopts) that
+		// have an ini file
+		bool changedpath = false;
+		emu_file file(m_options.ini_path(), OPEN_FLAG_READ);
+		file_error filerr = file.open(emulator_info::get_configname(), ".ini");
+		if (filerr == FILERR_NONE)
+		{
+			if (osd_chdir(file.dirname()) == 0)
+				changedpath = true;
+		}
+		file.close();
+
+		// that didn't work (no existing ini), so let file create the folder
+		if (!changedpath)
+		{
+			emu_file file(m_options.ini_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
+			file_error filerr = file.open(emulator_info::get_configname(), ".ini");
+			file.remove_on_close();
+			if (filerr == FILERR_NONE)
+			{
+				if (osd_chdir(file.dirname()) == 0)
+					changedpath = true;
+			}
+			file.close();
+		}
+
+		if (!changedpath)
+			throw emu_fatalerror(MAMERR_FATALERROR, "Failed to change working directory");
+	}
+
+	// never save option
+	m_options.set_flag(CLIOPTION_CHDIR, ~OPTION_FLAG_INTERNAL, OPTION_FLAG_INTERNAL);
 }
 
 

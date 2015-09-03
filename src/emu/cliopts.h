@@ -22,6 +22,7 @@
 // core commands
 #define CLICOMMAND_HELP                 "help"
 #define CLICOMMAND_VALIDATE             "validate"
+#define CLIOPTION_CHDIR                 "chdir"
 
 // configuration commands
 #define CLICOMMAND_CREATECONFIG         "createconfig"
@@ -59,6 +60,8 @@ class cli_options : public emu_options
 public:
 	// construction/destruction
 	cli_options();
+
+	const char *chdir_path() const { return value(CLIOPTION_CHDIR); }
 
 private:
 	static const options_entry s_option_entries[];
