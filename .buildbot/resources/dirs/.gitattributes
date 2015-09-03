@@ -1,0 +1,2 @@
+*.cfg svneol=CRLF#text/plain eol=crlf
+*.txt svneol=CRLF#text/plain eol=crlf

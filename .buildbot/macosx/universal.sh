@@ -29,7 +29,6 @@ do
 		fi
 	fi
 	x86_64-apple-darwin11-lipo -create $FILE ../../x64/Release/$FILE64 -output ../../universal/Release/$FILE
-	[ -e /usr/bin/upx ] && /usr/bin/upx ../../universal/Release/$FILE
 done
 
 popd
