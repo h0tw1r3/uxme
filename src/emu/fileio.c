@@ -42,8 +42,11 @@ path_iterator::path_iterator(const char *rawsearchpath)
 bool path_iterator::next(std::string &buffer, const char *name)
 {
 	// if none left, return FALSE to indicate we are done
-	if (m_index != 0 && *m_current == 0)
+	if (m_index != 0 && *m_current == 0) {
+		m_last.clear();
+		m_last_dir.clear();
 		return false;
+	}
 
 	// copy up to the next semicolon
 	const char *semi = strchr(m_current, ';');
@@ -51,6 +54,8 @@ bool path_iterator::next(std::string &buffer, const char *name)
 		semi = m_current + strlen(m_current);
 	buffer.assign(m_current, semi - m_current);
 	m_current = (*semi == 0) ? semi : semi + 1;
+
+	m_last_dir = buffer;
 
 	// append the name if we have one
 	if (name != NULL)
@@ -60,6 +65,8 @@ bool path_iterator::next(std::string &buffer, const char *name)
 			buffer.append(PATH_SEPARATOR);
 		buffer.append(name);
 	}
+
+	m_last = buffer;
 
 	// bump the index and return TRUE
 	m_index++;
