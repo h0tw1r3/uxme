@@ -926,6 +926,20 @@ void osd_list_network_adapters(void);
 -----------------------------------------------------------------------------*/
 const char *osd_get_volume_name(int idx);
 
+/*-----------------------------------------------------------------------------
+    osd_subst_env: substitute environment variables with values
+
+    Parameters:
+
+        dst - result pointer
+        src - source string
+
+-----------------------------------------------------------------------------*/
+void osd_subst_env(char **dst, const char *src);
+
+/* change working directory */
+int osd_chdir(const char *path);
+
 /* ----- output management ----- */
 
 // output channels

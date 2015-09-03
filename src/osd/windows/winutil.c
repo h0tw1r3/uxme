@@ -9,6 +9,7 @@
 // standard windows headers
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <direct.h>
 
 // MAMEOS headers
 #include "winutil.h"
@@ -121,4 +122,28 @@ BOOL win_is_gui_application(void)
 		}
 	}
 	return is_gui_frontend;
+}
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(const char *path)
+{
+	char *path_expanded = NULL;
+	osd_subst_env(&path_expanded, path);
+	int retval = _chdir(path_expanded);
+	osd_free(path_expanded);
+	return retval;
+}
+
+//============================================================
+//  osd_subst_env
+//============================================================
+void osd_subst_env(char **dst, const char *src)
+{
+	TCHAR buffer[MAX_PATH];
+
+	TCHAR *t_src = tstring_from_utf8(src);
+	ExpandEnvironmentStrings(t_src, buffer, ARRAY_LENGTH(buffer));
+	*dst = utf8_from_tstring(buffer);
 }

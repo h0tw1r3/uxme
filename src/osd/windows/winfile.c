@@ -46,9 +46,12 @@ extern const char *winfile_ptty_identifier;
 //  osd_open
 //============================================================
 
-file_error osd_open(const char *path, UINT32 openflags, osd_file **file, UINT64 *filesize)
+file_error osd_open(const char *orig_path, UINT32 openflags, osd_file **file, UINT64 *filesize)
 {
 	file_error filerr = FILERR_NONE;
+	char *path = NULL;
+
+	osd_subst_env(&path, orig_path);
 
 	// convert path to TCHAR
 	TCHAR *t_path = tstring_from_utf8(path);
@@ -154,6 +157,7 @@ error:
 		*file = NULL;
 	}
 	osd_free(t_path);
+	osd_free(path);
 	return filerr;
 }
 

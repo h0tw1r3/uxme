@@ -99,3 +99,23 @@ int osd_setenv(const char *name, const char *value, int overwrite)
 {
 	return 0;
 }
+
+//============================================================
+//  osd_subst_env
+//============================================================
+int osd_subst_env(char **dst, const char *src)
+{
+	*dst = (char *)osd_malloc_array(strlen(src) + 1);
+	if (*dst != NULL)
+		strcpy(*dst, src);
+
+	return 0;
+}
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(const char *path)
+{
+	return chdir(path);
+}
