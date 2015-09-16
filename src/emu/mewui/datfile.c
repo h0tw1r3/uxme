@@ -152,7 +152,7 @@ void datfile_manager::load_software_info(const char *softlist, std::string &buff
 			for (int x = 0; !found && x < m_swindex.size(); x++)
 				if (m_swindex[x].listname.compare(softlist) == 0)
 					for (int y = 0; !found && y < m_swindex[x].items.size(); y++)
-						if (m_swindex[x].items[y].softname.compare(softname) == 0)
+						if (m_swindex[x].items[y].name.compare(softname) == 0)
 						{
 							found = true;
 							s_offset = m_swindex[x].items[y].offset;
@@ -186,8 +186,8 @@ void datfile_manager::load_software_info(const char *softlist, std::string &buff
 
 void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer, int type)
 {
-	std::vector<tDatafileIndex> index_idx;
-	std::vector<sDataDrvIndex> driver_idx;
+	std::vector<Drvindex> index_idx;
+	std::vector<Itemsindex> driver_idx;
 	const char *tag = NULL;
 	std::string filename;
 
@@ -236,7 +236,7 @@ void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer
 //  load a game text into the buffer
 //-------------------------------------------------
 
-void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer, std::vector<tDatafileIndex> &idx, const char *tag)
+void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer, std::vector<Drvindex> &idx, const char *tag)
 {
 	size_t x = 0;
 	for (x = 0; x < idx.size() && idx[x].driver != drv; ++x) ;
@@ -282,7 +282,7 @@ void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer
 //  load a driver name and offset into an
 //  indexed array
 //-------------------------------------------------
-void datfile_manager::load_driver_text(const game_driver *drv, std::string &buffer, std::vector<sDataDrvIndex> &idx, const char *tag)
+void datfile_manager::load_driver_text(const game_driver *drv, std::string &buffer, std::vector<Itemsindex> &idx, const char *tag)
 {
 	std::string s;
 	core_filename_extract_base(s, drv->source_file);
@@ -321,7 +321,7 @@ void datfile_manager::load_driver_text(const game_driver *drv, std::string &buff
 //  load a game name and offset into an
 //  indexed array (mameinfo)
 //-------------------------------------------------
-int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, std::vector<sDataDrvIndex> &index_drv, int &drvcount)
+int datfile_manager::index_mame_mess_info(std::vector<Drvindex> &index, std::vector<Itemsindex> &index_drv, int &drvcount)
 {
 	int          count = 0;
 	std::string  readbuf, name;
@@ -368,7 +368,7 @@ int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, st
 					int game_index = driver_list::find(name.c_str());
 					if (game_index != -1)
 					{
-						tDatafileIndex idx;
+						Drvindex idx;
 						idx.driver = &driver_list::driver(game_index);
 						idx.offset = myfile.tellg();
 						index.push_back(idx);
@@ -377,7 +377,7 @@ int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, st
 				}
 				else if (xid.compare(0, t_drv, TAG_DRIVER) == 0)
 				{
-					sDataDrvIndex idx_drv;
+					Itemsindex idx_drv;
 					idx_drv.name = name;
 					idx_drv.offset = myfile.tellg();
 					index_drv.push_back(idx_drv);
@@ -395,7 +395,7 @@ int datfile_manager::index_mame_mess_info(std::vector<tDatafileIndex> &index, st
 //  load a game name and offset into an
 //  indexed array
 //-------------------------------------------------
-int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swcount)
+int datfile_manager::index_datafile(std::vector<Drvindex> &index, int &swcount)
 {
 	int          count = 0;
 	std::string  readbuf, name;
@@ -452,7 +452,7 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 
 						if (game_index != -1)
 						{
-							tDatafileIndex idx;
+							Drvindex idx;
 							idx.driver = &driver_list::driver(game_index);
 							idx.offset = myfile.tellg();
 							index.push_back(idx);
@@ -473,7 +473,7 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 						int game_index = driver_list::find(name.c_str());
 						if (game_index != -1)
 						{
-							tDatafileIndex idx;
+							Drvindex idx;
 							idx.driver = &driver_list::driver(game_index);
 							idx.offset = myfile.tellg();
 							index.push_back(idx);
@@ -538,8 +538,8 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 								strtrimspace(name);
 
 								// add a SoftwareItem
-								SoftwareItem t_temp;
-								t_temp.softname.assign(name);
+								Itemsindex t_temp;
+								t_temp.name.assign(name);
 								t_temp.offset = myfile.tellg();
 								m_swindex[list_index].items.push_back(t_temp);
 
@@ -560,8 +560,8 @@ int datfile_manager::index_datafile(std::vector<tDatafileIndex> &index, int &swc
 									name.erase(found+1);
 
 								// add a SoftwareItem
-								SoftwareItem t_temp;
-								t_temp.softname.assign(name);
+								Itemsindex t_temp;
+								t_temp.name.assign(name);
 								t_temp.offset = myfile.tellg();
 								m_swindex[list_index].items.push_back(t_temp);
 
@@ -601,7 +601,7 @@ bool datfile_manager::ParseOpen(const char *filename)
 //  create the menu index
 //-------------------------------------------------
 
-void datfile_manager::index_menuidx(const game_driver *drv, std::vector<tDatafileIndex> &idx, std::vector<tMenuIndex> &index)
+void datfile_manager::index_menuidx(const game_driver *drv, std::vector<Drvindex> &idx, std::vector<Itemsindex> &index)
 {
 	std::string readbuf;
 	size_t x = 0;
@@ -634,8 +634,8 @@ void datfile_manager::index_menuidx(const game_driver *drv, std::vector<tDatafil
 		if (!core_strnicmp(TAG_COMMAND, readbuf.c_str(), strlen(TAG_COMMAND)))
 		{
 			std::getline(myfile, readbuf);
-			tMenuIndex m_idx;
-			m_idx.menuitem = readbuf;
+			Itemsindex m_idx;
+			m_idx.name = readbuf;
 			m_idx.offset = myfile.tellg();
 			index.push_back(m_idx);
 		}
@@ -684,7 +684,7 @@ void datfile_manager::command_sub_menu(const game_driver *drv, std::vector<std::
 		m_menuidx.clear();
 		index_menuidx(drv, m_cmdidx, m_menuidx);
 		for (size_t x = 0; x < m_menuidx.size(); ++x)
-			menuitems.push_back(m_menuidx[x].menuitem);
+			menuitems.push_back(m_menuidx[x].name);
 	}
 }
 
