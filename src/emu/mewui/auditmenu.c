@@ -13,10 +13,6 @@
 #include "audit.h"
 #include "mewui/auditmenu.h"
 #include "mewui/utils.h"
-#include <algorithm>
-#undef realloc
-#include <fstream>
-#define realloc(x,y)    __error_realloc_is_dangerous__
 
 //-------------------------------------------------
 //  sort

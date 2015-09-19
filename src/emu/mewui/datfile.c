@@ -12,9 +12,6 @@
 #include "drivenum.h"
 #include "mewui/datfile.h"
 #include "mewui/utils.h"
-#undef realloc
-#include <fstream>
-#define realloc(x,y)    __error_realloc_is_dangerous__
 
 //-------------------------------------------------
 //  TAGS
@@ -550,7 +547,7 @@ int datfile_manager::index_datafile(std::vector<Drvindex> &index, int &swcount)
 							else
 							{
 								// if reach the end, bail out
-								if (s_roms[cpoint] == CR || s_roms[cpoint] == LF)
+								if (s_roms[cpoint] == '\r' || s_roms[cpoint] == '\n')
 									break;
 
 								// copy data
