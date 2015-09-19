@@ -44,29 +44,22 @@ APPCONTENT="${SCRATCH}/disk/${TARGETNAME}.app/Contents"
 
 LASTTAG=$(git describe --tag --abbrev=0)
 VERSION=$(git describe --tag | sed 's/-[^-]*$//')
-
-# short version converts 0.165-10 to 1650010
-# or 1.3-1 to 100030001
-arrVERSION=(${VERSION//[.-]/ })
-NUMVERSION=""
-for VERPART in ${arrVERSION[@]} ;
-do
-	[ $VERPART -gt 0 ] && NUMVERSION="${NUMVERSION}$(printf '%04d' ${VERPART})"
-done
-NUMVERSION=$(expr $NUMVERSION + 0)
+REVCOUNT=$(git rev-list HEAD --count)
+BUNDLEVERSION=${VERSION//[v-]/.}; BUNDLEVERSION=${BUNDLEVERSION#"."}
+SHORTVERSION=${LASTTAG//v/}
 
 mkdir -p "${APPCONTENT}"/{MacOS,Resources,Resources/defaults}
 
-# add version to plist
-cat Info.plist | sed 's/%%POINTVERSION%%/'${VERSION//-/.}'/' | \
-	sed 's/%%SHORTVERSION%%/'${NUMVERSION}'/' > "${APPCONTENT}"/Info.plist
-
-cp -a application.icns "${APPCONTENT}"/Resources/
-cp -a launch.sh "${APPCONTENT}"/MacOS/
+# bundle
+cat Info.plist | sed 's/%%BUNDLENAME%%/'${TARGETNAME}'/' | sed 's/%%SHORTVERSION%%/'${SHORTVERSION}'/' | sed 's/%%BUNDLEVERSION%%/'${BUNDLEVERSION}'/' > "${APPCONTENT}"/Info.plist
+if [ -f ${TARGETNAME}.icns ]; then
+	cp ${TARGETNAME}.icns "${APPCONTENT}"/Resources/application.icns
+else
+	cp application.icns "${APPCONTENT}"/Resources/
+fi
+cat launch.sh | sed 's/%%TARGETNAME%%/'${TARGETNAME}'/' > "${APPCONTENT}"/MacOS/launch.sh
+chmod +x "${APPCONTENT}"/MacOS/launch.sh
 cp -a "${BIN}/${TARGETNAME}${SUFFIX}" "${APPCONTENT}"/MacOS/
-
-../changelog.sh ${LASTTAG} | pandoc -f markdown -t html5 -o "${SCRATCH}"/disk/CHANGELOG.html
-pandoc -f markdown_github -t html5 ../../README.md -o "${SCRATCH}"/disk/README.html
 
 # support files
 mkdir "${SCRATCH}"/disk/tools
@@ -76,11 +69,30 @@ for TOOL in $TOOLS ; do
 done
 
 # documentation
-pandoc -f markdown -t html5 ../resources/"MAME Legal Information.md" -o "${SCRATCH}"/disk/"MAME Legal Information.html"
-cp -r ../../docs "${SCRATCH}"/disk/Documentation
+pandoc -f markdown_github -t html5 ../../README.md -o "${SCRATCH}"/disk/README.html
+pandoc -f markdown -t html5 ../resources/"MAME Legal Information.md" -o "${SCRATCH}"/disk/"Legal Information.html"
+cp -r ../../docs "${SCRATCH}"/disk/Docs
+../changelog.sh ${LASTTAG} | pandoc -f markdown -t html5 -o "${SCRATCH}"/disk/Docs/CHANGELOG.html
+
+# defaults
 cp -r ../../{hash,hlsl,web,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
 cp -r ../resources/dirs/* "${APPCONTENT}"/Resources/defaults/
 cp -r ../resources/fonts "${APPCONTENT}"/Resources/Fonts
 
-genisoimage -D -V "${TARGETNAME} ${VERSION}" -no-pad -r -apple -o ${SCRATCH}/uncompressed.dmg ${SCRATCH}/disk/
-dmg dmg ${SCRATCH}/uncompressed.dmg ../../uxme.dmg
+# dmg
+#cp DS_Store "${SCRATCH}/disk/.DS_Store"
+cp VolumeIcon.icns "${SCRATCH}/disk/.VolumeIcon.icns"
+#mkdir "${SCRATCH}/disk/.background"
+#cp background.png "${SCRATCH}/disk/.background/background.png"
+
+WORKDMG="${SCRATCH}/uncompressed.dmg"
+SCRATCHSZ=$(du -s "${SCRATCH}" | cut -f1)
+dd if=/dev/zero of="${WORKDMG}" bs=1112 count=${SCRATCHSZ}
+mkfs.hfsplus -v "${TARGETNAME}" "${WORKDMG}"
+hfsplus "${WORKDMG}" addall "${SCRATCH}/disk/"
+hfsplus "${WORKDMG}" attr / C
+#hfsplus "${WORKDMG}" symlink " " /Applications
+# TODO: genisoimage has drawbacks, but most people dont have libdmg-hfsplus built
+#       make conditional package based on best available tools.
+# genisoimage -D -V "AttractMode ${VERSION#v}" -no-pad -r -apple -o ${SCRATCH}/uncompressed.dmg ${SCRATCH}/disk/
+dmg dmg "${WORKDMG}" ../../${TARGETNAME}.dmg

@@ -1,32 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple/DTD PLIST 1.0/EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en-US</string>
+	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>launch.sh</string>
 	<key>CFBundleIconFile</key>
-	<string>application</string>
+	<string>application.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.github.h0tw1r3.uxme</string>
+	<string>com.github.h0tw1r3.%%BUNDLENAME%%</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
-	<key>CFBundleDisplayName</key>
-	<string>UXME</string>
 	<key>CFBundleName</key>
-	<string>uxme</string>
+	<string>%%BUNDLENAME%%</string>
+	<key>CFBundleDisplayName</key>
+	<string>%%BUNDLENAME%%</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>%%POINTVERSION%%</string>
-	<key>CFBundleSignature</key>
-	<string>uxme</string>
-	<key>CFBundleVersion</key>
 	<string>%%SHORTVERSION%%</string>
-	<key>ATSApplicationFontsPath </key>
-	<string>Fonts</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2015 Nicola Salmoria and the MAME team.</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>%%BUNDLEVERSION%%</string>
 </dict>
 </plist>

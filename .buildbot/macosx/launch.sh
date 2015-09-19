@@ -8,7 +8,7 @@ DEFAULT_FONT="PixelOperator"
 if [ ! -d "${SUPPORT_PATH}" ]; then
 	cp -r ../Resources/defaults "${SUPPORT_PATH}"
 	chmod -R ug+w "${SUPPORT_PATH}"
-	./uxme -createconfig -uifont ${DEFAULT_FONT}
+	./%%TARGETNAME%% -createconfig -uifont ${DEFAULT_FONT}
 fi
 
 # FIXME: ATSApplicationFontsPath doesn't seem to work
@@ -17,4 +17,4 @@ if [ ! -f "${HOME}/Library/Fonts/${DEFAULT_FONT}.ttf" ]; then
 	chmod ug+w "${HOME}"/Library/Fonts/PixelOperator.ttf
 fi
 
-./uxme
+./%%TARGETNAME%%
