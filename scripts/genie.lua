@@ -379,6 +379,15 @@ newoption {
 	description = "List of drivers to compile.",
 }
 
+newoption {
+	trigger = "FORCE_VERSION_COMPILE",
+	description = "Force compiling of version.c file.",
+	allowed = {
+		{ "0",   "Disabled" 	},
+		{ "1",   "Enabled"      },
+	}
+}
+
 if _OPTIONS["SHLIB"]=="1" then
 	LIBTYPE = "SharedLib"
 else
@@ -1000,6 +1009,11 @@ end
 					"-Wno-extern-c-compat",
 				}
 			end
+      if (version >= 70000) then
+        buildoptions {
+          "-Wno-tautological-undefined-compare",
+        }
+      end
 		else
 			if (version == 40201) then
 				buildoptions {
@@ -1070,6 +1084,11 @@ configuration { "asmjs" }
 		"-std=gnu++98",
 	}
 	archivesplit_size "20"
+	if os.getenv("EMSCRIPTEN") then
+		includedirs {
+			os.getenv("EMSCRIPTEN") .. "/system/lib/libcxxabi/include"
+		}
+	end
 
 configuration { "android*" }
 	buildoptions {
@@ -1264,16 +1283,6 @@ configuration { "vs2010" }
 			"/wd4481", -- warning C4481: nonstandard extension used: override specifier 'override'
 		}
 
-configuration { "x32", "vs*" }
-		libdirs {
-			MAME_DIR .. "3rdparty/dxsdk/lib/x86",
-		}
-
-configuration { "x64", "vs*" }
-		libdirs {
-			MAME_DIR .. "3rdparty/dxsdk/lib/x64",
-		}
-
 configuration { "winphone8* or winstore8*" }
 	removelinks {
 		"DelayImp",
@@ -1307,7 +1316,10 @@ dofile(path.join("src", "3rdparty.lua"))
 group "core"
 
 dofile(path.join("src", "emu.lua"))
-emuProject(_OPTIONS["target"],_OPTIONS["subtarget"])
+
+group "devices"
+dofile(path.join("src", "devices.lua"))
+devicesProject(_OPTIONS["target"],_OPTIONS["subtarget"])
 
 group "drivers"
 findfunction("createProjects_" .. _OPTIONS["target"] .. "_" .. _OPTIONS["subtarget"])(_OPTIONS["target"], _OPTIONS["subtarget"])

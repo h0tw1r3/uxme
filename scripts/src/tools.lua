@@ -695,11 +695,11 @@ end
 includedirs {
 	MAME_DIR .. "src/osd",
 	MAME_DIR .. "src/lib/util",
-	MAME_DIR .. "src/emu/netlist",
+	MAME_DIR .. "src/lib/netlist",
 }
 
 files {
-	MAME_DIR .. "src/emu/netlist/prg/nltool.c",
+	MAME_DIR .. "src/lib/netlist/prg/nltool.c",
 }
 
 --------------------------------------------------
@@ -738,11 +738,11 @@ links {
 includedirs {
   MAME_DIR .. "src/osd",
   MAME_DIR .. "src/lib/util",
-  MAME_DIR .. "src/emu/netlist",
+  MAME_DIR .. "src/lib/netlist",
 }
 
 files {
-  MAME_DIR .. "src/emu/netlist/prg/nlwav.c",
+  MAME_DIR .. "src/lib/netlist/prg/nlwav.c",
 }
 
 --------------------------------------------------
