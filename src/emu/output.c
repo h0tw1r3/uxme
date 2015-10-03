@@ -10,6 +10,10 @@
 #include "emu.h"
 #include "coreutil.h"
 
+#undef realloc
+#include <sstream>
+#define realloc(x,y)    __error_realloc_is_dangerous__
+
 /***************************************************************************
     CONSTANTS
 ***************************************************************************/
@@ -430,6 +434,6 @@ char *I64_to_base10(UINT64 i) {
 	which = (which+1) & 3;
 	r = (char *) &retstring[which];
 	temp = s.str();
-	std::strcpy(r, temp.c_str());
+	strcpy(r, temp.c_str());
 	return r;
 }
