@@ -24,6 +24,7 @@
 
 #define MAX_CHAR_INFO            256
 #define MAX_CUST_FILTER          8
+#define MEWUI_VERSION_TAG        build_version
 
 // GLOBAL ENUMERATORS
 enum
@@ -66,6 +67,7 @@ enum
 	PCBS_VIEW,
 	FLYERS_VIEW,
 	TITLES_VIEW,
+	ENDS_VIEW,
 	ARTPREV_VIEW,
 	BOSSES_VIEW,
 	LOGOS_VIEW,
@@ -84,6 +86,14 @@ enum
 	RP_IMAGES = RP_FIRST,
 	RP_INFOS,
 	RP_LAST = RP_INFOS
+};
+
+enum
+{
+	SHOW_PANELS = 0,
+	HIDE_LEFT_PANEL,
+	HIDE_RIGHT_PANEL,
+	HIDE_BOTH
 };
 
 enum
@@ -130,7 +140,7 @@ enum
 
 enum
 {
-	HOVER_DAT_UP = -100,
+	HOVER_DAT_UP = -1000,
 	HOVER_DAT_DOWN,
 	HOVER_UI_LEFT,
 	HOVER_UI_RIGHT,
@@ -142,7 +152,16 @@ enum
 	HOVER_B_MAMEINFO,
 	HOVER_B_COMMAND,
 	HOVER_B_FOLDERS,
-	HOVER_B_SETTINGS
+	HOVER_B_SETTINGS,
+	HOVER_RPANEL_ARROW,
+	HOVER_LPANEL_ARROW,
+	HOVER_MAME_ALL,
+	HOVER_MAME_ARCADES,
+	HOVER_MAME_SYSTEMS,
+	HOVER_FILTER_FIRST,
+	HOVER_FILTER_LAST = (HOVER_FILTER_FIRST) + 1 + FILTER_LAST,
+	HOVER_SW_FILTER_FIRST,
+	HOVER_SW_FILTER_LAST = (HOVER_SW_FILTER_FIRST) + 1 + MEWUI_SW_LAST
 };
 
 // GLOBAL STRUCTURES
@@ -204,8 +223,9 @@ struct c_year
 struct mewui_globals
 {
 	static UINT8        curimage_view, curdats_view, cur_sw_dats_view, rpanel;
-	static bool         switch_image, redraw_icon, default_image, reselect, reset;
+	static bool         switch_image, redraw_icon, default_image, reset;
 	static int          visible_main_lines, visible_sw_lines;
+	static UINT16       panels_status;
 	static std::vector<cache_info> driver_cache;
 };
 

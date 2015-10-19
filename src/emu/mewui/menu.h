@@ -5,7 +5,7 @@
 *****************************************/
 public:
 	int  visible_items;
-	bool    ui_error;
+	bool ui_error;
 
 	// draw UME box
 	void draw_ume_box(float x1, float y1, float x2, float y2);
@@ -56,7 +56,6 @@ private:
 
 	// which item is being hovered over
 	int r_hover;
-	int ume_hover;
 
 	int visible_lines;        // main box visible lines
 	int right_visible_lines;  // right box lines

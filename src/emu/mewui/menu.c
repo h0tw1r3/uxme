@@ -54,6 +54,7 @@ static const ui_arts_info arts_info[] =
 	{ "PCBs",            OPTION_PCBS_PATH,           "pcb" },
 	{ "Flyers",          OPTION_FLYERS_PATH,         "flyers" },
 	{ "Titles",          OPTION_TITLES_PATH,         "titles" },
+	{ "Ends",            OPTION_ENDS_PATH,           "ends" },
 	{ "Artwork Preview", OPTION_ARTPREV_PATH,        "artwork preview" },
 	{ "Bosses",          OPTION_BOSSES_PATH,         "bosses" },
 	{ "Logos",           OPTION_LOGOS_PATH,          "logo" },
@@ -80,8 +81,15 @@ void ui_menu::init_mewui(running_machine &machine)
 {
 	// create a texture for hilighting items in main menu
 	hilight_main_bitmap = auto_bitmap_rgb32_alloc(machine, 1, 26);
+	int r1 = 0, g1 = 169, b1 = 255; //Any start color
+	int r2 = 0, g2 = 39, b2 = 130; //Any stop color
 	for (int y = 0; y < 26; y++)
-		hilight_main_bitmap->pix32(y, 0) = rgb_t(0xff, 0, 169 - (y * 5), 255 - (y * 5));
+	{
+		int r = r1 + (y * (r2 - r1) / 26);
+		int g = g1 + (y * (g2 - g1) / 26);
+		int b = b1 + (y * (b2 - b1) / 26);
+		hilight_main_bitmap->pix32(y, 0) = rgb_t(0xff, r, g, b);
+	}
 
 	hilight_main_texture = machine.render().texture_alloc();
 	hilight_main_texture->set_bitmap(*hilight_main_bitmap, hilight_main_bitmap->cliprect(), TEXFORMAT_ARGB32);
@@ -171,7 +179,7 @@ void ui_menu::draw_select_game(bool noinput)
 	float ud_arrow_width = line_height * machine().render().ui_aspect();
 	float gutter_width = 0.4f * line_height * machine().render().ui_aspect() * 1.3f;
 	mouse_x = -1, mouse_y = -1;
-	float right_panel_size = 0.3f;
+	float right_panel_size = (mewui_globals::panels_status == HIDE_BOTH || mewui_globals::panels_status == HIDE_RIGHT_PANEL) ? 2.0f * UI_BOX_LR_BORDER: 0.3f;
 	float visible_width = 1.0f - 4.0f * UI_BOX_LR_BORDER;
 	float primary_left = (1.0f - visible_width) * 0.5f;
 	float primary_width = visible_width;
@@ -218,19 +226,20 @@ void ui_menu::draw_select_game(bool noinput)
 	// compute left box size
 	float x1 = visible_left - UI_BOX_LR_BORDER;
 	float y1 = visible_top - UI_BOX_TB_BORDER;
-	float x2 = visible_left + 2 * UI_BOX_LR_BORDER;
+	float x2 = x1 + 2.0f * UI_BOX_LR_BORDER;
 	float y2 = visible_top + visible_main_menu_height + UI_BOX_TB_BORDER + extra_height;
 
 	// add left box
 	visible_left = draw_left_box(x1, y1, x2, y2, is_swlist);
-	visible_width -= right_panel_size + visible_left - 2 * UI_BOX_LR_BORDER;
+	visible_width -= right_panel_size + visible_left - 2.0f * UI_BOX_LR_BORDER;
 
-	// compute and add main a box
+	// compute and add main box
 	x1 = visible_left - UI_BOX_LR_BORDER;
 	x2 = visible_left + visible_width + UI_BOX_LR_BORDER;
 	float line = visible_top + (float)(visible_lines * line_height);
 
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+	//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
 
 	if (visible_items < visible_lines)
 		visible_lines = visible_items;
@@ -394,13 +403,10 @@ void ui_menu::draw_select_game(bool noinput)
 	x1 = x2;
 	x2 += right_panel_size;
 
-	// draw right box
-	float origy1 = draw_right_box_title(x1, y1, x2, y2);
-
 	if (mewui_globals::rpanel == RP_IMAGES)
-		arts_render((selected >= 0 && selected < item.size()) ? item[selected].ref : NULL, x1, origy1, x2, y2, (is_swlist || is_favorites));
+		arts_render((selected >= 0 && selected < item.size()) ? item[selected].ref : NULL, x1, y1, x2, y2, (is_swlist || is_favorites));
 	else
-		infos_render((selected >= 0 && selected < item.size()) ? item[selected].ref : NULL, x1, origy1, x2, y2, (is_swlist || is_favorites));
+		infos_render((selected >= 0 && selected < item.size()) ? item[selected].ref : NULL, x1, y1, x2, y2, (is_swlist || is_favorites));
 
 	x1 = primary_left - UI_BOX_LR_BORDER;
 	x2 = primary_left + primary_width + UI_BOX_LR_BORDER;
@@ -422,6 +428,59 @@ void ui_menu::draw_select_game(bool noinput)
 
 void ui_menu::arts_render(void *selectedref, float origx1, float origy1, float origx2, float origy2, bool software)
 {
+	if (mewui_globals::panels_status == HIDE_RIGHT_PANEL || mewui_globals::panels_status == HIDE_BOTH)
+	{
+		float line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
+
+		// set left-right arrows dimension
+		float ar_x0 = 0.5f * (origx2 + origx1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (origy2 + origy1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (origy2 + origy1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && origx1 <= mouse_x && origx2 > mouse_x && origy1 <= mouse_y && origy2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_RPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90 ^ ORIENTATION_FLIP_X);
+		r_hover = -1;
+		return;
+	}
+	else
+	{
+		float line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
+
+		float x2 = origx1 + 2.0f * UI_BOX_LR_BORDER;
+		// set left-right arrows dimension
+		float ar_x0 = 0.5f * (x2 + origx1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (origy2 + origy1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (origy2 + origy1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, origx1, origy1, x2, origy2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && origx1 <= mouse_x && x2 > mouse_x && origy1 <= mouse_y && origy2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_RPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90);
+		origx1 = x2;
+	}
+
+	origy1 = draw_right_box_title(origx1, origy1, origx2, origy2);
+
 	static ui_software_info *oldsoft = NULL;
 	static const game_driver *olddriver = NULL;
 	const game_driver *driver = NULL;
@@ -645,9 +704,7 @@ void ui_menu::get_title_search(std::string &snaptext, std::string &searchstr)
 
 void ui_menu::handle_main_keys(UINT32 flags)
 {
-	int ignorepause = ui_menu::stack_has_special_main_menu();
-	int ignoreright = FALSE;
-	int ignoreleft = FALSE;
+	bool ignorepause = ui_menu::stack_has_special_main_menu();
 
 	// bail if no items
 	if (item.size() == 0)
@@ -678,8 +735,10 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	validate_selection(1);
 
 	// swallow left/right keys if they are not appropriate
-	ignoreleft = ((item[selected].flags & MENU_FLAG_LEFT_ARROW) == 0);
-	ignoreright = ((item[selected].flags & MENU_FLAG_RIGHT_ARROW) == 0);
+	bool ignoreleft = ((item[selected].flags & MENU_FLAG_LEFT_ARROW) == 0 || mewui_globals::panels_status == HIDE_BOTH || mewui_globals::panels_status == HIDE_RIGHT_PANEL);
+	bool ignoreright = ((item[selected].flags & MENU_FLAG_RIGHT_ARROW) == 0 || mewui_globals::panels_status == HIDE_BOTH || mewui_globals::panels_status == HIDE_RIGHT_PANEL);
+	bool ignoreup = (mewui_globals::panels_status == HIDE_BOTH || mewui_globals::panels_status == HIDE_LEFT_PANEL);
+	bool ignoredown = (mewui_globals::panels_status == HIDE_BOTH || mewui_globals::panels_status == HIDE_LEFT_PANEL);
 
 	// accept left/right keys as-is with repeat
 	if (!ignoreleft && exclusive_input_pressed(IPT_UI_LEFT, (flags & UI_MENU_PROCESS_LR_REPEAT) ? 6 : 0))
@@ -702,14 +761,14 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_UP, 6))
 	{
 		// Filter
-		if (machine().input().code_pressed(KEYCODE_LALT) || machine().input().code_pressed(JOYCODE_BUTTON2))
+		if (!ignoreup && (machine().input().code_pressed(KEYCODE_LALT) || machine().input().code_pressed(JOYCODE_BUTTON2)))
 		{
 			menu_event.iptkey = IPT_UI_UP_FILTER;
 			return;
 		}
 
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreleft && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_UP_PANEL;
 			topline_datsview--;
@@ -729,14 +788,14 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_DOWN, 6))
 	{
 		// Filter
-		if (machine().input().code_pressed(KEYCODE_LALT) || machine().input().code_pressed(JOYCODE_BUTTON2))
+		if (!ignoredown && (machine().input().code_pressed(KEYCODE_LALT) || machine().input().code_pressed(JOYCODE_BUTTON2)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_FILTER;
 			return;
 		}
 
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreright && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_PANEL;
 			topline_datsview++;
@@ -756,7 +815,7 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_PAGE_UP, 6))
 	{
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreleft && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_PANEL;
 			topline_datsview -= right_visible_lines - 1;
@@ -778,7 +837,7 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_PAGE_DOWN, 6))
 	{
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreleft && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_PANEL;
 			topline_datsview += right_visible_lines - 1;
@@ -800,7 +859,7 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_HOME, 0))
 	{
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreleft && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_PANEL;
 			topline_datsview = 0;
@@ -818,7 +877,7 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	if (exclusive_input_pressed(IPT_UI_END, 0))
 	{
 		// Infos
-		if (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1))
+		if (!ignoreleft && (machine().input().code_pressed(KEYCODE_LCONTROL) || machine().input().code_pressed(JOYCODE_BUTTON1)))
 		{
 			menu_event.iptkey = IPT_UI_DOWN_PANEL;
 			topline_datsview = totallines;
@@ -903,6 +962,28 @@ void ui_menu::handle_main_events(UINT32 flags)
 						topline_datsview += right_visible_lines - 1;
 					else if (hover == HOVER_DAT_UP)
 						topline_datsview -= right_visible_lines - 1;
+					else if (hover == HOVER_LPANEL_ARROW)
+					{
+						if (mewui_globals::panels_status == HIDE_LEFT_PANEL)
+							mewui_globals::panels_status = SHOW_PANELS;
+						else if (mewui_globals::panels_status == HIDE_BOTH)
+							mewui_globals::panels_status = HIDE_RIGHT_PANEL;
+						else if (mewui_globals::panels_status == SHOW_PANELS)
+							mewui_globals::panels_status = HIDE_LEFT_PANEL;
+						else if (mewui_globals::panels_status == HIDE_RIGHT_PANEL)
+							mewui_globals::panels_status = HIDE_BOTH;
+					}
+					else if (hover == HOVER_RPANEL_ARROW)
+					{
+						if (mewui_globals::panels_status == HIDE_RIGHT_PANEL)
+							mewui_globals::panels_status = SHOW_PANELS;
+						else if (mewui_globals::panels_status == HIDE_BOTH)
+							mewui_globals::panels_status = HIDE_LEFT_PANEL;
+						else if (mewui_globals::panels_status == SHOW_PANELS)
+							mewui_globals::panels_status = HIDE_RIGHT_PANEL;
+						else if (mewui_globals::panels_status == HIDE_LEFT_PANEL)
+							mewui_globals::panels_status = HIDE_BOTH;
+					}
 					else if (hover == HOVER_B_FAV)
 					{
 						menu_event.iptkey = IPT_UI_FAVORITES;
@@ -940,24 +1021,26 @@ void ui_menu::handle_main_events(UINT32 flags)
 						selected = visible_items + 2;
 						stop = true;
 					}
+					else if (hover >= HOVER_MAME_ALL && hover <= HOVER_MAME_SYSTEMS)
+					{
+						ume_filters::actual = (HOVER_MAME_ALL - hover) * (-1);
+						menu_event.iptkey = IPT_OTHER;
+						stop = true;
+					}
 					else if (r_hover >= RP_FIRST && r_hover <= RP_LAST)
 					{
 						mewui_globals::rpanel = r_hover;
 						stop = true;
 					}
-					else if (l_sw_hover >= MEWUI_SW_FIRST && l_sw_hover <= MEWUI_SW_LAST)
+					else if (hover >= HOVER_SW_FILTER_FIRST && hover <= HOVER_SW_FILTER_LAST)
 					{
+						l_sw_hover = (HOVER_SW_FILTER_FIRST - hover) * (-1);
 						menu_event.iptkey = IPT_OTHER;
 						stop = true;
 					}
-					else if (ume_hover >= MEWUI_MAME_FIRST && ume_hover <= MEWUI_MAME_LAST)
+					else if (hover >= HOVER_FILTER_FIRST && hover <= HOVER_FILTER_LAST)
 					{
-						ume_filters::actual = ume_hover;
-						menu_event.iptkey = IPT_OTHER;
-						stop = true;
-					}
-					else if (l_hover >= FILTER_FIRST && l_hover <= FILTER_LAST)
-					{
+						l_hover = (HOVER_FILTER_FIRST - hover) * (-1);
 						menu_event.iptkey = IPT_OTHER;
 						stop = true;
 					}
@@ -1023,116 +1106,174 @@ void ui_menu::handle_main_events(UINT32 flags)
 
 float ui_menu::draw_left_box(float x1, float y1, float x2, float y2, bool software)
 {
-	float text_size = 0.75f;
-	float line_height = machine().ui().get_line_height() * text_size;
-	float left_width = 0.0f;
-	int text_lenght = (software) ? sw_filters::length : main_filters::length;
-	int afilter = (software) ? sw_filters::actual : main_filters::actual;
-	int *hover = (software) ? &l_sw_hover : &l_hover;
-	const char **text = (software) ? sw_filters::text : main_filters::text;
-	float sc = y2 - y1 - (2.0f * UI_BOX_TB_BORDER);
-
-	if ((text_lenght * line_height) > sc)
+	if (mewui_globals::panels_status == SHOW_PANELS || mewui_globals::panels_status == HIDE_RIGHT_PANEL)
 	{
-		float lm = sc / (text_lenght);
-		text_size = lm / machine().ui().get_line_height();
-		line_height = machine().ui().get_line_height() * text_size;
-	}
+		float origy1 = y1;
+		float origy2 = y2;
+		float text_size = 0.75f;
+		float line_height = machine().ui().get_line_height() * text_size;
+		float left_width = 0.0f;
+		int text_lenght = (software) ? sw_filters::length : main_filters::length;
+		int afilter = (software) ? sw_filters::actual : main_filters::actual;
+		int phover = (software) ? HOVER_SW_FILTER_FIRST : HOVER_FILTER_FIRST;
+		const char **text = (software) ? sw_filters::text : main_filters::text;
+		float sc = y2 - y1 - (2.0f * UI_BOX_TB_BORDER);
 
-	float text_sign = machine().ui().get_string_width_ex("_# ", text_size);
-	for (int x = 0; x < text_lenght; x++)
-	{
-		float total_width;
-
-		// compute width of left hand side
-		total_width = machine().ui().get_string_width_ex(text[x], text_size);
-		total_width += text_sign;
-
-		// track the maximum
-		if (total_width > left_width)
-			left_width = total_width;
-	}
-
-	x2 += left_width;
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
-
-	// take off the borders
-	x1 += UI_BOX_LR_BORDER;
-	x2 -= UI_BOX_LR_BORDER;
-	y1 += UI_BOX_TB_BORDER;
-	y2 -= UI_BOX_TB_BORDER;
-
-	*hover = -1;
-	for (int filter = 0; filter < text_lenght; filter++)
-	{
-		std::string str(text[filter]);
-		rgb_t bgcolor = UI_TEXT_BG_COLOR;
-
-		if (mouse_hit && x1 <= mouse_x && x2 > mouse_x && y1 <= mouse_y && y1 + line_height > mouse_y)
+		if ((text_lenght * line_height) > sc)
 		{
-			bgcolor = UI_MOUSEOVER_BG_COLOR;
-			*hover = filter;
+			float lm = sc / (text_lenght);
+			text_size = lm / machine().ui().get_line_height();
+			line_height = machine().ui().get_line_height() * text_size;
 		}
 
-		if (afilter == filter)
-			bgcolor = UI_SELECTED_BG_COLOR;
-
-		if (bgcolor != UI_TEXT_BG_COLOR)
-			container->add_rect(x1, y1, x2, y1 + line_height, bgcolor, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
-
-		float x1t = x1 + text_sign;
-		if (!software && afilter == FILTER_CUSTOM)
+		float text_sign = machine().ui().get_string_width_ex("_# ", text_size);
+		for (int x = 0; x < text_lenght; x++)
 		{
-			if (filter == custfltr::main)
+			float total_width;
+
+			// compute width of left hand side
+			total_width = machine().ui().get_string_width_ex(text[x], text_size);
+			total_width += text_sign;
+
+			// track the maximum
+			if (total_width > left_width)
+				left_width = total_width;
+		}
+
+		x2 = x1 + left_width + 2.0f * UI_BOX_LR_BORDER;
+		//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+		machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
+
+		// take off the borders
+		x1 += UI_BOX_LR_BORDER;
+		x2 -= UI_BOX_LR_BORDER;
+		y1 += UI_BOX_TB_BORDER;
+		y2 -= UI_BOX_TB_BORDER;
+
+		for (int filter = 0; filter < text_lenght; filter++)
+		{
+			std::string str(text[filter]);
+			rgb_t bgcolor = UI_TEXT_BG_COLOR;
+			rgb_t fgcolor = UI_TEXT_COLOR;
+
+			if (mouse_hit && x1 <= mouse_x && x2 > mouse_x && y1 <= mouse_y && y1 + line_height > mouse_y)
 			{
-				str.assign("@custom1 ").append(text[filter]);
-				x1t -= text_sign;
+				bgcolor = UI_MOUSEOVER_BG_COLOR;
+				fgcolor = UI_MOUSEOVER_COLOR;
+				hover = phover + filter;
 			}
-			else
+
+			if (afilter == filter)
 			{
-				for (int count = 1; count <= custfltr::numother; count++)
+				bgcolor = UI_SELECTED_BG_COLOR;
+				fgcolor = UI_SELECTED_COLOR;
+			}
+
+			if (bgcolor != UI_TEXT_BG_COLOR)
+				container->add_rect(x1, y1, x2, y1 + line_height, bgcolor, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
+
+			float x1t = x1 + text_sign;
+			if (!software && afilter == FILTER_CUSTOM)
+			{
+				if (filter == custfltr::main)
 				{
-					int cfilter = custfltr::other[count];
-					if (cfilter == filter)
+					str.assign("@custom1 ").append(text[filter]);
+					x1t -= text_sign;
+				}
+				else
+				{
+					for (int count = 1; count <= custfltr::numother; count++)
 					{
-						strprintf(str, "@custom%d %s", count + 1, text[filter]);
-						x1t -= text_sign;
-						break;
+						int cfilter = custfltr::other[count];
+						if (cfilter == filter)
+						{
+							strprintf(str, "@custom%d %s", count + 1, text[filter]);
+							x1t -= text_sign;
+							break;
+						}
 					}
 				}
+				convert_command_glyph(str);
 			}
-			convert_command_glyph(str);
-		}
 
-		if (software && afilter == MEWUI_SW_CUSTOM)
-		{
-			if (filter == sw_custfltr::main)
+			if (software && afilter == MEWUI_SW_CUSTOM)
 			{
-				str.assign("@custom1 ").append(text[filter]);
-				x1t -= text_sign;
-			}
-			else
-			{
-				for (int count = 1; count <= sw_custfltr::numother; count++)
+				if (filter == sw_custfltr::main)
 				{
-					int cfilter = sw_custfltr::other[count];
-					if (cfilter == filter)
+					str.assign("@custom1 ").append(text[filter]);
+					x1t -= text_sign;
+				}
+				else
+				{
+					for (int count = 1; count <= sw_custfltr::numother; count++)
 					{
-						strprintf(str, "@custom%d %s", count + 1, text[filter]);
-						x1t -= text_sign;
-						break;
+						int cfilter = sw_custfltr::other[count];
+						if (cfilter == filter)
+						{
+							strprintf(str, "@custom%d %s", count + 1, text[filter]);
+							x1t -= text_sign;
+							break;
+						}
 					}
 				}
+				convert_command_glyph(str);
 			}
-			convert_command_glyph(str);
+
+			machine().ui().draw_text_full(container, str.c_str(), x1t, y1, x2 - x1, JUSTIFY_LEFT, WRAP_NEVER,
+			                              DRAW_NORMAL, fgcolor, bgcolor, NULL, NULL, text_size);
+			y1 += line_height;
 		}
 
-		machine().ui().draw_text_full(container, str.c_str(), x1t, y1, x2 - x1, JUSTIFY_LEFT, WRAP_NEVER,
-		                              DRAW_NORMAL, UI_TEXT_COLOR, bgcolor, NULL, NULL, text_size);
-		y1 += line_height;
-	}
+		x1 = x2 + UI_BOX_LR_BORDER;
+		x2 = x1 + 2.0f * UI_BOX_LR_BORDER;
+		y1 = origy1;
+		y2 = origy2;
+		line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
 
-	return x2 + 2.0f * UI_BOX_LR_BORDER;
+		// set left-right arrows dimension
+		float ar_x0 = 0.5f * (x2 + x1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (y2 + y1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (y2 + y1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && x1 <= mouse_x && x2 > mouse_x && y1 <= mouse_y && y2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_LPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90 ^ ORIENTATION_FLIP_X);
+		return x2 + UI_BOX_LR_BORDER;
+	}
+	else
+	{
+		float line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
+
+		// set left-right arrows dimension
+		float ar_x0 = 0.5f * (x2 + x1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (y2 + y1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (y2 + y1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && x1 <= mouse_x && x2 > mouse_x && y1 <= mouse_y && y2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_LPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90);
+		return x2 + UI_BOX_LR_BORDER;
+	}
 }
 
 //-------------------------------------------------
@@ -1165,33 +1306,36 @@ void ui_menu::draw_ume_box(float x1, float y1, float x2, float y2)
 	y1 += UI_BOX_TB_BORDER;
 	y2 -= UI_BOX_TB_BORDER;
 
-	ume_hover = -1;
-
 	for (int filter = 0; filter < ume_filters::length; filter++)
 	{
 		rgb_t bgcolor = UI_TEXT_BG_COLOR;
+		rgb_t fgcolor = UI_TEXT_COLOR;
 
 		if (mouse_hit && x1 <= mouse_x && x2 > mouse_x && y1 <= mouse_y && y1 + line_height > mouse_y)
 		{
 			bgcolor = UI_MOUSEOVER_BG_COLOR;
-			ume_hover = filter;
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_MAME_ALL + filter;
 		}
 
 		if (ume_filters::actual == filter)
+		{
 			bgcolor = UI_SELECTED_BG_COLOR;
+			fgcolor = UI_SELECTED_COLOR;
+		}
 
 		if (bgcolor != UI_TEXT_BG_COLOR)
 			container->add_rect(x1, y1, x2, y1 + line_height, bgcolor, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
 
 		machine().ui().draw_text_full(container, ume_filters::text[filter], x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
-		                              DRAW_NORMAL, UI_TEXT_COLOR, bgcolor, NULL, NULL, text_size);
+		                              DRAW_NORMAL, fgcolor, bgcolor, NULL, NULL, text_size);
 
 		y1 += line_height;
 	}
 }
 
 //-------------------------------------------------
-//  draw right box
+//  draw right box title
 //-------------------------------------------------
 
 float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
@@ -1200,6 +1344,7 @@ float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 	float midl = (x2 - x1) * 0.5f;
 
 	// add outlined box for options
+	//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
 	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
 
 	// add separator line
@@ -1221,6 +1366,7 @@ float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 			if (mewui_globals::rpanel != cells)
 			{
 				bgcolor = UI_MOUSEOVER_BG_COLOR;
+				fgcolor = UI_MOUSEOVER_COLOR;
 				r_hover = cells;
 			}
 		}
@@ -1229,7 +1375,8 @@ float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 		{
 			container->add_line(x1, y1 + line_height, x1 + midl, y1 + line_height, UI_LINE_WIDTH,
 			                    UI_BORDER_COLOR, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
-			fgcolor = UI_CLONE_COLOR;
+			if (fgcolor != UI_MOUSEOVER_COLOR)
+				fgcolor = UI_CLONE_COLOR;
 		}
 
 		if (bgcolor != UI_TEXT_BG_COLOR)
@@ -1250,6 +1397,58 @@ float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 
 void ui_menu::infos_render(void *selectedref, float origx1, float origy1, float origx2, float origy2, bool software)
 {
+	if (mewui_globals::panels_status == HIDE_RIGHT_PANEL || mewui_globals::panels_status == HIDE_BOTH)
+	{
+		float line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
+
+		// set left-right arrows dimension
+		float ar_x0 = 0.5f * (origx2 + origx1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (origy2 + origy1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (origy2 + origy1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && origx1 <= mouse_x && origx2 > mouse_x && origy1 <= mouse_y && origy2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_RPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90 ^ ORIENTATION_FLIP_X);
+		r_hover = -1;
+		return;
+	}
+	else
+	{
+		float line_height = machine().ui().get_line_height();
+		float lr_arrow_width = 0.4f * line_height * machine().render().ui_aspect();
+		rgb_t fgcolor = UI_TEXT_COLOR;
+
+		float x2 = origx1 + 2.0f * UI_BOX_LR_BORDER;
+		float ar_x0 = 0.5f * (x2 + origx1) - 0.5f * lr_arrow_width;
+		float ar_y0 = 0.5f * (origy2 + origy1) + 0.1f * line_height;
+		float ar_x1 = ar_x0 + lr_arrow_width;
+		float ar_y1 = 0.5f * (origy2 + origy1) + 0.9f * line_height;
+
+		//machine().ui().draw_outlined_box(container, origx1, origy1, x2, origy2, UI_BACKGROUND_COLOR);
+		machine().ui().draw_outlined_box(container, origx1, origy1, origx2, origy2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
+
+		if (mouse_hit && origx1 <= mouse_x && x2 > mouse_x && origy1 <= mouse_y && origy2 > mouse_y)
+		{
+			fgcolor = UI_MOUSEOVER_COLOR;
+			hover = HOVER_RPANEL_ARROW;
+		}
+
+		draw_arrow(container, ar_x0, ar_y0, ar_x1, ar_y1, fgcolor, ROT90);
+		origx1 = x2;
+	}
+
+	origy1 = draw_right_box_title(origx1, origy1, origx2, origy2);
+
 	static std::string buffer;
 	std::vector<int> xstart;
 	std::vector<int> xend;
