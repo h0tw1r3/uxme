@@ -123,6 +123,11 @@ private:
 		int l_draw_box(lua_State *L);
 		int l_draw_line(lua_State *L);
 		int l_draw_text(lua_State *L);
+		int l_snapshot(lua_State *L);
+	};
+	struct lua_video {
+		int l_begin_recording(lua_State *L);
+		int l_end_recording(lua_State *L);
 	};
 
 	void resume(void *L, INT32 param);

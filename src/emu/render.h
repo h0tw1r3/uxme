@@ -648,6 +648,7 @@ public:
 
 	// get a primitive list
 	render_primitive_list &get_primitives();
+	render_primitive_list &get_primitives(bool include_ui);
 
 	// hit testing
 	bool map_point_container(INT32 target_x, INT32 target_y, render_container &container, float &container_x, float &container_y);

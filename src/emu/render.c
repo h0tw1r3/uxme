@@ -1260,6 +1260,11 @@ void render_target::compute_minimum_size(INT32 &minwidth, INT32 &minheight)
 
 render_primitive_list &render_target::get_primitives()
 {
+	return get_primitives(false);
+}
+
+render_primitive_list &render_target::get_primitives(bool include_ui)
+{
 	// remember the base values if this is the first frame
 	if (m_base_view == NULL)
 		m_base_view = m_curview;
@@ -1363,7 +1368,7 @@ render_primitive_list &render_target::get_primitives()
 	}
 
 	// process the UI if we are the UI target
-	if (is_ui_target())
+	if (is_ui_target() || include_ui)
 	{
 		// compute the transform for the UI
 		object_transform ui_xform;

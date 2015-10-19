@@ -368,6 +368,39 @@ void lua_engine::emu_set_hook(lua_State *L)
 	}
 }
 
+//-------------------------------------------------
+//  begin_recording - start saving avi
+//  -> manager:machine():video():begin_recording()
+//-------------------------------------------------
+int lua_engine::lua_video::l_begin_recording(lua_State *L)
+{
+	const char *name = NULL;
+	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
+	if(!vm) {
+		return 0;
+	}
+	luaL_argcheck(L, lua_isstring(L, 2) || lua_isnone(L, 2), 2, "optional argument: filename, string expected");
+	if (!lua_isnone(L, 2)) {
+		name = lua_tostring(L, 2);
+	}
+	vm->begin_recording(name, video_manager::MF_AVI);
+	return 1;
+}
+
+//-------------------------------------------------
+//  end_recording - stop saving avi
+//  -> manager:machine():video():end_recording()
+//-------------------------------------------------
+int lua_engine::lua_video::l_end_recording(lua_State *L)
+{
+	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
+	if(!vm) {
+		return 0;
+	}
+	vm->end_recording(video_manager::MF_AVI);
+	return 1;
+}
+
 //
 // machine_get_cheats - return table of cheats
 // -> manager:machine().cheats[0]
@@ -655,6 +688,27 @@ int lua_engine::lua_screen::l_width(lua_State *L)
 	return 1;
 }
 
+//-------------------------------------------------
+//  screen_snapshot - save png bitmap of screen to snapshots folder
+//  -> manager:machine().screens[":screen"]:snapshot("name")
+//-------------------------------------------------
+int lua_engine::lua_screen::l_snapshot(lua_State *L)
+{
+	screen_device *sd = luabridge::Stack<screen_device *>::get(L, 1);
+	const char *filename = lua_tostring(L, 2);
+	if(!sd)
+		return 0;
+	luaL_argcheck(L, lua_isstring(L, 2), 2, "filename (string) expected");
+	if (!sd->machine().render().is_live(*sd))
+		return 0;
+	emu_file file(sd->machine().options().snapshot_directory(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
+	file_error filerr = file.open(filename);
+	if (filerr != FILERR_NONE)
+		return 0;
+	sd->machine().video().save_snapshot(sd, file);
+	file.close();
+	return 1;
+}
 //-------------------------------------------------
 //  draw_box - draw a box on a screen container
 //  -> manager:machine().screens[":screen"]:draw_box(x1, y1, x2, y2, bgcolor, linecolor)
@@ -996,9 +1050,18 @@ void lua_engine::initialize()
 				.addFunction ("hard_reset", &running_machine::schedule_hard_reset)
 				.addFunction ("soft_reset", &running_machine::schedule_soft_reset)
 				.addFunction ("system", &running_machine::system)
+				.addFunction ("video", &running_machine::video)
 				.addProperty <luabridge::LuaRef, void> ("devices", &lua_engine::l_machine_get_devices)
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
 				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
+			.endClass ()
+			.beginClass <lua_video> ("lua_video_manager")
+				.addCFunction ("begin_recording", &lua_video::l_begin_recording)
+				.addCFunction ("end_recording", &lua_video::l_end_recording)
+			.endClass ()
+			.deriveClass <video_manager, lua_video> ("video")
+				.addFunction ("snapshot", &video_manager::save_active_screen_snapshots)
+				.addFunction ("is_recording", &video_manager::is_recording)
 			.endClass ()
 			.beginClass <cheat_entry> ("cheat_entry")
 				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_cheat_entry_get_state)
@@ -1063,6 +1126,7 @@ void lua_engine::initialize()
 				.addCFunction ("draw_text", &lua_screen::l_draw_text)
 				.addCFunction ("height", &lua_screen::l_height)
 				.addCFunction ("width", &lua_screen::l_width)
+				.addCFunction ("snapshot", &lua_screen::l_snapshot)
 			.endClass()
 			.deriveClass <screen_device, lua_screen> ("screen_dev")
 				.addFunction ("frame_number", &screen_device::frame_number)
