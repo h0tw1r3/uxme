@@ -475,6 +475,44 @@ luabridge::LuaRef lua_engine::l_machine_get_devices(const running_machine *r)
 	return devs_table;
 }
 
+//-------------------------------------------------
+//  machine_get_ioports - return table of ioport userdata
+//  -> manager:machine().ioports["JOY1"]
+//-------------------------------------------------
+
+luabridge::LuaRef lua_engine::l_machine_get_ioports(const running_machine *r)
+{
+	running_machine *m = const_cast<running_machine *>(r);
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef io_table = luabridge::LuaRef::newTable(L);
+	ioport_port *port;
+
+	for (port = m->ioport().first_port(); port != NULL; port = port->next()) {
+		io_table[port->tag()] = port;
+	}
+
+	return io_table;
+}
+
+//-------------------------------------------------
+//  ioport_get_fields - return table of ioport field userdata
+//  -> manager:machine().ioports[":P1"].fields[":"]
+//-------------------------------------------------
+
+luabridge::LuaRef lua_engine::l_ioport_get_fields(const ioport_port *i)
+{
+	ioport_port *p = const_cast<ioport_port *>(i);
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef f_table = luabridge::LuaRef::newTable(L);
+	ioport_field *field;
+
+	for (field = p->first_field(); field != NULL; field = field->next()) {
+		f_table[field->name()] = field;
+	}
+
+	return f_table;
+}
+
 // private helper for get_devices - DFS visit all devices in a running machine
 luabridge::LuaRef lua_engine::devtree_dfs(device_t *root, luabridge::LuaRef devs_table)
 {
@@ -1054,6 +1092,11 @@ void lua_engine::initialize()
 				.addProperty <luabridge::LuaRef, void> ("devices", &lua_engine::l_machine_get_devices)
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
 				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
+				.addProperty <luabridge::LuaRef, void> ("ioports", &lua_engine::l_machine_get_ioports)
+			.endClass ()
+			.beginClass <parameters_manager> ("parameters")
+				.addFunction ("add", &parameters_manager::add)
+				.addFunction ("lookup", &parameters_manager::lookup)
 			.endClass ()
 			.beginClass <lua_video> ("lua_video_manager")
 				.addCFunction ("begin_recording", &lua_video::l_begin_recording)
@@ -1093,10 +1136,14 @@ void lua_engine::initialize()
 				.addFunction ("select_next_state", &cheat_entry::select_next_state)
 			.endClass ()
 			.beginClass <game_driver> ("game_driver")
+				.addData ("source_file", &game_driver::source_file)
+				.addData ("parent", &game_driver::parent)
 				.addData ("name", &game_driver::name)
 				.addData ("description", &game_driver::description)
 				.addData ("year", &game_driver::year)
 				.addData ("manufacturer", &game_driver::manufacturer)
+				.addData ("compatible_with", &game_driver::compatible_with)
+				.addData ("default_layout", &game_driver::default_layout)
 			.endClass ()
 			.beginClass <device_t> ("device")
 				.addFunction ("name", &device_t::name)
@@ -1104,6 +1151,23 @@ void lua_engine::initialize()
 				.addFunction ("tag", &device_t::tag)
 				.addProperty <luabridge::LuaRef, void> ("spaces", &lua_engine::l_dev_get_memspaces)
 				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_dev_get_states)
+			.endClass()
+			.beginClass <ioport_port> ("ioport")
+				.addProperty ("tag", &ioport_port::tag)
+				.addProperty ("active", &ioport_port::active)
+				.addFunction ("live", &ioport_port::live)
+				.addProperty <luabridge::LuaRef, void> ("fields", &lua_engine::l_ioport_get_fields)
+			.endClass()
+			.beginClass <ioport_field> ("ioport_field")
+				.addProperty ("name", &ioport_field::name)
+				.addProperty ("player", &ioport_field::player)
+				.addProperty ("mask", &ioport_field::mask)
+				.addProperty ("defvalue", &ioport_field::defvalue)
+				.addProperty ("sensitivity", &ioport_field::sensitivity)
+				.addProperty ("way", &ioport_field::way)
+				.addProperty ("is_analog", &ioport_field::is_analog)
+				.addProperty ("is_digital_joystick", &ioport_field::is_digital_joystick)
+				.addProperty ("enabled", &ioport_field::enabled)
 			.endClass()
 			.beginClass <lua_addr_space> ("lua_addr_space")
 				.addCFunction ("read_i8", &lua_addr_space::l_mem_read<INT8>)
