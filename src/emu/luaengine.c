@@ -356,6 +356,12 @@ void lua_engine::emu_set_hook(lua_State *L)
 		hook_frame_cb.set(L, 1);
 	} else if (strcmp(hookname, "start") == 0) {
 		hook_start_cb.set(L, 1);
+	} else if (strcmp(hookname, "exit") == 0) {
+		hook_exit_cb.set(L, 1);
+	} else if (strcmp(hookname, "pause") == 0) {
+		hook_pause_cb.set(L, 1);
+	} else if (strcmp(hookname, "resume") == 0) {
+		hook_resume_cb.set(L, 1);
 	} else {
 		lua_writestringerror("%s", "Unknown hook name, aborting.\n");
 	}
@@ -887,6 +893,13 @@ void lua_engine::push(lua_State *L, void *p, const char *tname)
 	lua_setmetatable(L, -2);
 }
 
+int lua_engine::l_emu_sleep(lua_State *L)
+{
+	luaL_argcheck(L, lua_isnumber(L, 1), 1, "sleep milliseconds (integer) expected");
+	osd_sleep(osd_ticks_per_second() / 1000 * lua_tounsigned(L, 1));
+	return 1;
+}
+
 int lua_engine::l_emu_exit(lua_State *L)
 {
 	luaThis->machine().schedule_exit();
@@ -1034,6 +1047,7 @@ void lua_engine::initialize()
 			.addCFunction ("start",       l_emu_start )
 			.addCFunction ("pause",       l_emu_pause )
 			.addCFunction ("unpause",     l_emu_unpause )
+			.addCFunction ("sleep",       l_emu_sleep )
 			.beginClass <machine_manager> ("manager")
 				.addFunction ("machine", &machine_manager::machine)
 				.addFunction ("options", &machine_manager::options)
@@ -1201,6 +1215,45 @@ bool lua_engine::start_hook()
 		if (is_cb_hooked) {
 			lua_State *L = hook_start_cb.precall();
 			hook_start_cb.call(this, L, 0);
+		}
+	}
+	return is_cb_hooked;
+}
+
+bool lua_engine::exit_hook()
+{
+	bool is_cb_hooked = false;
+	if (m_machine != NULL) {
+		is_cb_hooked = hook_exit_cb.active();
+		if (is_cb_hooked) {
+			lua_State *L = hook_exit_cb.precall();
+			hook_exit_cb.call(this, L, 0);
+		}
+	}
+	return is_cb_hooked;
+}
+
+bool lua_engine::pause_hook()
+{
+	bool is_cb_hooked = false;
+	if (m_machine != NULL) {
+		is_cb_hooked = hook_pause_cb.active();
+		if (is_cb_hooked) {
+			lua_State *L = hook_pause_cb.precall();
+			hook_pause_cb.call(this, L, 0);
+		}
+	}
+	return is_cb_hooked;
+}
+
+bool lua_engine::resume_hook()
+{
+	bool is_cb_hooked = false;
+	if (m_machine != NULL) {
+		is_cb_hooked = hook_resume_cb.active();
+		if (is_cb_hooked) {
+			lua_State *L = hook_resume_cb.precall();
+			hook_resume_cb.call(this, L, 0);
 		}
 	}
 	return is_cb_hooked;

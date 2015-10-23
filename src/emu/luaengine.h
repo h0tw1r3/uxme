@@ -46,6 +46,9 @@ public:
 	void periodic_check();
 	bool frame_hook();
 	bool start_hook();
+	bool exit_hook();
+	bool pause_hook();
+	bool resume_hook();
 
 	void resume(lua_State *L, int nparam = 0, lua_State *root = NULL);
 	void set_machine(running_machine *machine) { m_machine = machine; update_machine(); }
@@ -70,6 +73,9 @@ private:
 
 	hook hook_frame_cb;
 	hook hook_start_cb;
+	hook hook_exit_cb;
+	hook hook_pause_cb;
+	hook hook_resume_cb;
 
 	static lua_engine*  luaThis;
 
@@ -101,6 +107,7 @@ private:
 	static int l_emu_pause(lua_State *L);
 	static int l_emu_unpause(lua_State *L);
 	static int l_emu_set_hook(lua_State *L);
+	static int l_emu_sleep(lua_State *L);
 
 	// "emu.machine" namespace
 	static luabridge::LuaRef l_machine_get_cheats(const running_machine *r);

@@ -504,6 +504,8 @@ int running_machine::run(bool firstrun)
 	}
 #endif
 
+	manager().lua()->exit_hook();
+
 	// call all exit callbacks registered
 	call_notifiers(MACHINE_NOTIFY_EXIT);
 	zip_file_cache_clear();
@@ -776,6 +778,7 @@ void running_machine::pause()
 	m_paused = true;
 
 	// call the callbacks
+	manager().lua()->pause_hook();
 	call_notifiers(MACHINE_NOTIFY_PAUSE);
 }
 
@@ -792,6 +795,7 @@ void running_machine::resume()
 	m_paused = false;
 
 	// call the callbacks
+	manager().lua()->resume_hook();
 	call_notifiers(MACHINE_NOTIFY_RESUME);
 }
 
