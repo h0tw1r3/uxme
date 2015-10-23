@@ -45,6 +45,7 @@ public:
 	void serve_lua();
 	void periodic_check();
 	bool frame_hook();
+	bool start_hook();
 
 	void resume(lua_State *L, int nparam = 0, lua_State *root = NULL);
 	void set_machine(running_machine *machine) { m_machine = machine; update_machine(); }
@@ -60,8 +61,6 @@ private:
 		bool active() const { return L != NULL; }
 	};
 
-	static const char *const tname_ioport;
-
 	// internal state
 	lua_State          *m_lua_state;
 	running_machine *   m_machine;
@@ -70,6 +69,7 @@ private:
 	bool output_notifier_set;
 
 	hook hook_frame_cb;
+	hook hook_start_cb;
 
 	static lua_engine*  luaThis;
 
@@ -87,7 +87,6 @@ private:
 	void emu_hook_output(lua_State *L);
 	void emu_set_hook(lua_State *L);
 
-	static int l_ioport_write(lua_State *L);
 	static int l_emu_after(lua_State *L);
 	static int l_emu_app_name(lua_State *L);
 	static int l_emu_app_version(lua_State *L);
@@ -135,7 +134,6 @@ private:
 	void resume(void *L, INT32 param);
 	void report_errors(int status);
 	void start();
-	static int luaopen_ioport(lua_State *L);
 	void close();
 
 	static void *checkparam(lua_State *L, int idx, const char *tname);

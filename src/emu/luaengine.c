@@ -41,7 +41,6 @@ static lua_State *globalL = NULL;
 #define luai_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #define luai_writeline()    (luai_writestring("\n", 1), fflush(stdout))
 
-const char *const lua_engine::tname_ioport = "lua.ioport";
 lua_engine* lua_engine::luaThis = NULL;
 
 extern "C" {
@@ -194,14 +193,6 @@ void lua_engine::resume(lua_State *L, int nparam, lua_State *root)
 void lua_engine::resume(void *_L, INT32 param)
 {
 	resume(static_cast<lua_State *>(_L));
-}
-
-int lua_engine::l_ioport_write(lua_State *L)
-{
-	ioport_field *field = static_cast<ioport_field *>(getparam(L, 1, tname_ioport));
-	luaL_argcheck(L, lua_isnumber(L, 2), 2, "value expected");
-	field->set_value(lua_tointeger(L, 2));
-	return 0;
 }
 
 //-------------------------------------------------
@@ -363,6 +354,8 @@ void lua_engine::emu_set_hook(lua_State *L)
 		}
 	} else if (strcmp(hookname, "frame") == 0) {
 		hook_frame_cb.set(L, 1);
+	} else if (strcmp(hookname, "start") == 0) {
+		hook_start_cb.set(L, 1);
 	} else {
 		lua_writestringerror("%s", "Unknown hook name, aborting.\n");
 	}
@@ -912,24 +905,6 @@ int lua_engine::l_emu_start(lua_State *L)
 	return 1;
 }
 
-int lua_engine::luaopen_ioport(lua_State *L)
-{
-	static const struct luaL_Reg ioport_funcs [] = {
-		{ "write",       l_ioport_write },
-		{ NULL, NULL }  /* sentinel */
-	};
-
-	luaL_newmetatable(L, tname_ioport);
-	lua_pushvalue(L, -1);
-	lua_pushstring(L, tname_ioport);
-	lua_rawset(L, LUA_REGISTRYINDEX);
-	lua_pushstring(L, "__index");
-	lua_pushvalue(L, -2);
-	lua_settable(L, -3);
-	luaL_setfuncs(L, ioport_funcs, 0);
-	return 1;
-}
-
 struct msg {
 	std::string text;
 	int ready;
@@ -1016,8 +991,6 @@ lua_engine::lua_engine()
 
 	luaopen_lsqlite3(m_lua_state);
 
-	luaopen_ioport(m_lua_state);
-
 	lua_gc(m_lua_state, LUA_GCRESTART, 0);
 	msg.ready = 0;
 	msg.status = 0;
@@ -1037,24 +1010,6 @@ lua_engine::~lua_engine()
 
 void lua_engine::update_machine()
 {
-	lua_newtable(m_lua_state);
-	if (m_machine!=NULL)
-	{
-		// Create the ioport array
-		ioport_port *port = machine().ioport().first_port();
-		while(port) {
-			ioport_field *field = port->first_field();
-			while(field) {
-				if(field->name()) {
-					push(m_lua_state, field, tname_ioport);
-					lua_setfield(m_lua_state, -2, field->name());
-				}
-				field = field->next();
-			}
-			port = port->next();
-		}
-	}
-	lua_setglobal(m_lua_state, "ioport");
 }
 
 //-------------------------------------------------
@@ -1238,6 +1193,19 @@ bool lua_engine::frame_hook()
 	return is_cb_hooked;
 }
 
+bool lua_engine::start_hook()
+{
+	bool is_cb_hooked = false;
+	if (m_machine != NULL) {
+		is_cb_hooked = hook_start_cb.active();
+		if (is_cb_hooked) {
+			lua_State *L = hook_start_cb.precall();
+			hook_start_cb.call(this, L, 0);
+		}
+	}
+	return is_cb_hooked;
+}
+
 void lua_engine::periodic_check()
 {
 	osd_lock_acquire(lock);
@@ -1313,6 +1281,7 @@ void lua_engine::load_string(const char *value)
 void lua_engine::start()
 {
 	resume(m_lua_state);
+	luaThis->start_hook();
 }
 
 
