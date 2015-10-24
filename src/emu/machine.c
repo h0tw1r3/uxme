@@ -773,7 +773,7 @@ void running_machine::immediate_load(const char *filename)
 void running_machine::pause()
 {
 	// ignore if nothing has changed
-	if (m_paused)
+	if (m_paused || m_current_phase != MACHINE_PHASE_RUNNING)
 		return;
 	m_paused = true;
 
