@@ -80,6 +80,8 @@ private:
 
 	int find_or_allocate(std::string name);
 
+	std::ifstream &getline(std::ifstream &is, std::string &line);
+
 	// internal state
 	running_machine     &m_machine;             // reference to our machine
 	std::string         m_fullpath;
