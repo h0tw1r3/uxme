@@ -137,10 +137,6 @@ void ui_menu_command_content::handle()
 void ui_menu_command_content::populate()
 {
 	std::string buffer;
-	int game_paused = machine().paused();
-
-	if (!game_paused)
-		machine().pause();
 
 	machine().datfile().load_command_info(buffer, m_param);
 
@@ -175,9 +171,6 @@ void ui_menu_command_content::populate()
 		}
 		item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
 	}
-
-	if (!game_paused)
-		machine().resume();
 
 	customtop = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
 	custombottom = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
@@ -293,10 +286,6 @@ void ui_menu_history_sw::handle()
 void ui_menu_history_sw::populate()
 {
 	std::string buffer;
-	int game_paused = machine().paused();
-
-	if (!game_paused)
-		machine().pause();
 
 	machine().datfile().load_software_info(m_list, buffer, m_short);
 
@@ -320,9 +309,6 @@ void ui_menu_history_sw::populate()
 	}
 	else
 		item_append("No available History for this software.", NULL, MENU_FLAG_DISABLE, NULL);
-
-	if (!game_paused)
-		machine().resume();
 
 	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
 	customtop = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
@@ -421,11 +407,6 @@ void ui_menu_dats::handle()
 
 void ui_menu_dats::populate()
 {
-	int game_paused = machine().paused();
-
-	if (!game_paused)
-		machine().pause();
-
 	switch (m_flags)
 	{
 		case MEWUI_HISTORY_LOAD:
@@ -453,9 +434,6 @@ void ui_menu_dats::populate()
 				item_append("No available Sysinfo for this machine.", NULL, MENU_FLAG_DISABLE, NULL);
 			break;
 	}
-
-	if (!game_paused)
-		machine().resume();
 
 	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
 	customtop = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
