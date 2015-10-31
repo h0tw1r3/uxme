@@ -7,6 +7,16 @@ local naclToolchain = ""
 local mingwToolchain = ""
 local osxToolchain = ""
 
+if _OPTIONS['CROSS_PREFIX'] then
+	mingwToolchain = _OPTIONS["CROSS_PREFIX"]
+else
+	mingwToolchain = "$(MINGW64)/bin/i686-w64-mingw32-"
+end
+
+if _OPTIONS['CROSS_PREFIX'] then
+	osxToolchain = _OPTIONS["CROSS_PREFIX"]
+end
+
 newoption {
 	trigger = "gcc",
 	value = "GCC",
@@ -195,8 +205,6 @@ function toolchain(_buildDir, _subDir)
 			if not os.getenv("MINGW32") or not os.getenv("MINGW32") then
 				print("Set MINGW32 envrionment variable.")
 			end		
-
-			mingwToolchain = "$(MINGW32)/bin/i686-w64-mingw32-"
 -- work around GCC 4.9.2 not having proper linker for LTO=1 usage
 			local version_4_ar = str_to_version(_OPTIONS["gcc_version"])
 			premake.gcc.cc  = mingwToolchain .. "gcc"
@@ -214,7 +222,6 @@ function toolchain(_buildDir, _subDir)
 			if not os.getenv("MINGW64") or not os.getenv("MINGW64") then
 				print("Set MINGW64 envrionment variable.")
 			end				
-			mingwToolchain = "$(MINGW64)/bin/x86_64-w64-mingw32-"
 -- work around GCC 4.9.2 not having proper linker for LTO=1 usage
 			local version_4_ar = str_to_version(_OPTIONS["gcc_version"])
 			premake.gcc.cc  = mingwToolchain .. "gcc"
@@ -276,7 +283,6 @@ function toolchain(_buildDir, _subDir)
 
 		if "osx" == _OPTIONS["gcc"] then
 			if os.is("linux") then
-				osxToolchain = _OPTIONS["CROSS_PREFIX"]
 				premake.gcc.cc  = osxToolchain .. "clang"
 				premake.gcc.cxx = osxToolchain .. "clang++"
 				premake.gcc.ar  = osxToolchain .. "ar"
@@ -285,9 +291,6 @@ function toolchain(_buildDir, _subDir)
 		end
 
 		if "osx-clang" == _OPTIONS["gcc"] then
-			if _OPTIONS['CROSS_PREFIX'] then
-				osxToolchain = _OPTIONS["CROSS_PREFIX"]
-			end
 			premake.gcc.cc  = osxToolchain .. "clang"
 			premake.gcc.cxx = osxToolchain .. "clang++"
 			premake.gcc.ar  = osxToolchain .. "ar"
