@@ -1666,7 +1666,7 @@ void ui_mewui_select_game::save_cache_info()
 	// attempt to open the output file
 	emu_file file(machine().options().mewui_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
 
-	if (file.open("info_", emulator_info::get_configname(), ".ini") == FILERR_NONE)
+	if (file.open("info_", emulator_info::get_configname(), SUBTARGETNAME, ".ini") == FILERR_NONE)
 	{
 		std::string filename(file.fullpath());
 		file.close();
@@ -1767,7 +1767,7 @@ void ui_mewui_select_game::load_cache_info()
 
 	// try to load driver cache
 	emu_file efile(machine().options().mewui_path(), OPEN_FLAG_READ);
-	file_error filerr = efile.open("info_", emulator_info::get_configname(), ".ini");
+	file_error filerr = efile.open("info_", emulator_info::get_configname(), SUBTARGETNAME, ".ini");
 
 	// file not exist ? save and exit
 	if (filerr != FILERR_NONE)
@@ -1831,7 +1831,7 @@ void ui_mewui_select_game::save_available_machines()
 {
 	// attempt to open the output file
 	emu_file file(machine().options().mewui_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-	if (file.open(emulator_info::get_configname(), "_avail.ini") == FILERR_NONE)
+	if (file.open(emulator_info::get_configname(), SUBTARGETNAME, "_avail.ini") == FILERR_NONE)
 	{
 		std::string filename(file.fullpath());
 		file.close();
@@ -1874,7 +1874,7 @@ bool ui_mewui_select_game::load_available_machines()
 {
 	// try to load available drivers from file
 	emu_file efile(machine().options().mewui_path(), OPEN_FLAG_READ);
-	file_error filerr = efile.open(emulator_info::get_configname(), "_avail.ini");
+	file_error filerr = efile.open(emulator_info::get_configname(), SUBTARGETNAME, "_avail.ini");
 
 	// file not exist ? exit
 	if (filerr != FILERR_NONE)
@@ -1933,7 +1933,7 @@ void ui_mewui_select_game::load_custom_filters()
 {
 	// attempt to open the output file
 	emu_file file(machine().options().mewui_path(), OPEN_FLAG_READ);
-	if (file.open("custom_", emulator_info::get_configname(), "_filter.ini") == FILERR_NONE)
+	if (file.open("custom_", emulator_info::get_configname(), SUBTARGETNAME, "_filter.ini") == FILERR_NONE)
 	{
 		char buffer[MAX_CHAR_INFO];
 

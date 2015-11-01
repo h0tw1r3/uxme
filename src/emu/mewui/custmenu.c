@@ -271,7 +271,7 @@ void ui_menu_custom_filter::save_custom_filters()
 {
 	// attempt to open the output file
 	emu_file file(machine().options().mewui_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-	if (file.open("custom_", emulator_info::get_configname(), "_filter.ini") == FILERR_NONE)
+	if (file.open("custom_", emulator_info::get_configname(), SUBTARGETNAME, "_filter.ini") == FILERR_NONE)
 	{
 		// generate custom filters info
 		std::string cinfo;

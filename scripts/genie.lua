@@ -1303,6 +1303,9 @@ configuration { "winphone8* or winstore8*" }
 
 
 configuration { }
+	defines {
+		"SUBTARGETNAME='\"" .. _OPTIONS["subtarget"] .. "\"'"
+	}
 
 
 group "libs"

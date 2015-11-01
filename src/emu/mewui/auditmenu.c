@@ -182,7 +182,7 @@ void ui_menu_audit::save_available_machines()
 {
 	// attempt to open the output file
 	emu_file file(machine().options().mewui_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-	if (file.open(emulator_info::get_configname(), "_avail.ini") == FILERR_NONE)
+	if (file.open(emulator_info::get_configname(), SUBTARGETNAME, "_avail.ini") == FILERR_NONE)
 	{
 		std::string filename(file.fullpath());
 		file.close();
