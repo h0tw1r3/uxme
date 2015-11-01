@@ -28,7 +28,7 @@ static const folders_entry s_folders_entry[] =
 	{ "ROMs",                OPTION_MEDIAPATH },
 	{ "MEWUI",               OPTION_MEWUI_PATH },
 	{ "Samples",             OPTION_SAMPLEPATH },
-	{ "DATs",                OPTION_HISTORY_PATH },
+	{ "DATs",                OPTION_DATPATH },
 	{ "INIs",                OPTION_INIPATH },
 	{ "Extra INIs",          OPTION_EXTRAINI_PATH },
 	{ "Icons",               OPTION_ICONS_PATH },
@@ -345,7 +345,7 @@ void ui_menu_directory::handle()
 	if (menu_event != NULL && menu_event->itemref != NULL && menu_event->iptkey == IPT_UI_SELECT)
 	{
 		int ref = (FPTR)menu_event->itemref;
-		bool change = (ref == HISTORY_FOLDERS || ref == EXTRAINI_FOLDERS || ref == MEWUI_FOLDERS);
+		bool change = (ref == DAT_FOLDERS || ref == EXTRAINI_FOLDERS || ref == MEWUI_FOLDERS);
 		ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_display_actual(machine(), container, ref, change)));
 	}
 }
@@ -361,7 +361,7 @@ void ui_menu_directory::populate()
 	item_append("Samples", NULL, 0, (void *)SAMPLE_FOLDERS);
 	item_append("INIs", NULL, 0, (void *)INI_FOLDERS);
 	item_append("Artwork", NULL, 0, (void *)ARTWORK_FOLDERS);
-	item_append("DATs (History, Mameinfo, etc...)", NULL, 0, (void *)HISTORY_FOLDERS);
+	item_append("DATs (History, Mameinfo, etc...)", NULL, 0, (void *)DAT_FOLDERS);
 	item_append("Extra INI (Category, etc...)", NULL, 0, (void *)EXTRAINI_FOLDERS);
 	item_append("Icons", NULL, 0, (void *)ICON_FOLDERS);
 	item_append("Cheats", NULL, 0, (void *)CHEAT_FOLDERS);

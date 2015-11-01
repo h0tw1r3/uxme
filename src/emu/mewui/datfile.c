@@ -584,7 +584,7 @@ int datfile_manager::index_datafile(std::vector<Drvindex> &index, int &swcount)
 bool datfile_manager::ParseOpen(const char *filename)
 {
 	// Open file up in binary mode
-	emu_file fp(machine().options().history_path(), OPEN_FLAG_READ);
+	emu_file fp(machine().options().dat_path(), OPEN_FLAG_READ);
 
 	if (fp.open(filename) == FILERR_NONE)
 	{
