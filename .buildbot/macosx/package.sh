@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # error handling setup
-set -o nounset
-set -o pipefail
-set -o errtrace
+set -o nounset -o pipefail -o errtrace
 
 error() {
+	local lc="$BASH_COMMAND" rc=$?
 	echo "ERROR in $0 : line $1 exit code $2"
+	echo "      [$lc]"
 	exit $2
 }
 trap 'error ${LINENO} ${?}' ERR
@@ -22,7 +22,8 @@ cd `dirname ${SCRIPT_PATH}` > /dev/null
 SCRIPT_PATH=`pwd`;
 
 function finish {
-	[ -d $SCRATCH ] && rm -rf "$SCRATCH"
+	#[ -d $SCRATCH ] && rm -rf "$SCRATCH"
+	echo $SCRATCH
 }
 trap finish EXIT
 
@@ -44,13 +45,19 @@ APPCONTENT="${SCRATCH}/disk/${TARGETNAME}.app/Contents"
 
 LASTTAG=$(git describe --tag --abbrev=0)
 VERSION=$(git describe --tag | sed 's/-[^-]*$//')
-REVCOUNT=$(git rev-list HEAD --count)
+REVCOUNT=$(git log ${LASTTAG}..HEAD --oneline | wc -l)
 BUNDLEVERSION=${VERSION//[v-]/.}; BUNDLEVERSION=${BUNDLEVERSION#"."}
 SHORTVERSION=${LASTTAG//v/}
+echo "LASTTAG: ${LASTTAG}"
+echo "VERSION: ${VERSION}"
+echo "REVCOUNT: ${REVCOUNT}"
+echo "BUNDLEVERSION: ${BUNDLEVERSION}"
+echo "SHORTVERSION: ${SHORTVERSION}"
 
 mkdir -p "${APPCONTENT}"/{MacOS,Resources,Resources/defaults}
 
 # bundle
+echo "Bundle..."
 cat Info.plist | sed 's/%%BUNDLENAME%%/'${TARGETNAME}'/' | sed 's/%%SHORTVERSION%%/'${SHORTVERSION}'/' | sed 's/%%BUNDLEVERSION%%/'${BUNDLEVERSION}'/' > "${APPCONTENT}"/Info.plist
 if [ -f ${TARGETNAME}.icns ]; then
 	cp ${TARGETNAME}.icns "${APPCONTENT}"/Resources/application.icns
@@ -62,6 +69,7 @@ chmod +x "${APPCONTENT}"/MacOS/launch.sh
 cp -a "${BIN}/${TARGETNAME}${SUFFIX}" "${APPCONTENT}"/MacOS/
 
 # support files
+echo "Tools..."
 mkdir "${SCRATCH}"/disk/tools
 TOOLS="chdman ldverify ldresample romcmp jedutil unidasm nltool castool floptool imgtool aueffectutil"
 for TOOL in $TOOLS ; do
@@ -69,17 +77,20 @@ for TOOL in $TOOLS ; do
 done
 
 # documentation
+echo "Documentation..."
 pandoc -f markdown_github -t html5 ../../README.md -o "${SCRATCH}"/disk/README.html
 pandoc -f markdown -t html5 ../resources/"MAME Legal Information.md" -o "${SCRATCH}"/disk/"Legal Information.html"
 cp -r ../../docs "${SCRATCH}"/disk/Docs
 ../changelog.sh ${LASTTAG} | pandoc -f markdown -t html5 -o "${SCRATCH}"/disk/Docs/CHANGELOG.html
 
 # defaults
+echo "Defaults..."
 cp -r ../../{hash,hlsl,web,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
 cp -r ../resources/dirs/* "${APPCONTENT}"/Resources/defaults/
 cp -r ../resources/fonts "${APPCONTENT}"/Resources/Fonts
 
 # dmg
+echo "Dmg..."
 #cp DS_Store "${SCRATCH}/disk/.DS_Store"
 cp VolumeIcon.icns "${SCRATCH}/disk/.VolumeIcon.icns"
 #mkdir "${SCRATCH}/disk/.background"

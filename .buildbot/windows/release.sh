@@ -56,7 +56,6 @@ cp -r ../docs "$PKG"/
 cp -r ../hash "$PKG"/
 cp -r ../hlsl "$PKG"/
 cp -r ../web "$PKG"/
-cp -r ../nl_examples "$PKG"/
 cp -r ../samples "$PKG"/
 cp -r ../artwork "$PKG"/
 cp -r resources/dirs/* "$PKG"/
@@ -69,6 +68,6 @@ VERSION=$(grep '^#define BARE_BUILD_VERSION' ../src/version.c | sed 's/.*"\(.*\)
 pushd "$PKG" >/dev/null
 cd ..
 ln -s "$BUILD" "${APPNAME}-${VERSION}"
-zip -9 -r "${BUILD}.zip" "${APPNAME}-${VERSION}"
+7za a -mpass=4 -mfb=255 -y -tzip -l "${BUILD}.zip" "${APPNAME}-${VERSION}"
 unlink "${APPNAME}-${VERSION}"
 popd >/dev/null
