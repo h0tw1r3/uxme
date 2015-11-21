@@ -400,6 +400,35 @@ int lua_engine::lua_video::l_end_recording(lua_State *L)
 	return 1;
 }
 
+// machine_options - return table options
+// -> manager:machine().options[]
+luabridge::LuaRef lua_engine::l_machine_get_option(const running_machine *r)
+{
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef options_table = luabridge::LuaRef::newTable(L);
+
+	int unadorned_index = 0;
+	for (emu_options::entry *curentry = r->options().first(); curentry != NULL; curentry = curentry->next())
+	{
+		const char *name = curentry->name();
+		bool is_unadorned = false;
+
+		// check if it's unadorned
+		if (name && strlen(name) && !strcmp(name, core_options::unadorned(unadorned_index)))
+		{
+			unadorned_index++;
+			is_unadorned = true;
+		}
+
+		if (!curentry->is_header() && !curentry->is_command() && !curentry->is_internal() && !is_unadorned)
+		{
+			options_table[name] = curentry;
+		}
+	}
+
+	return options_table;
+}
+
 //
 // machine_get_cheats - return table of cheats
 // -> manager:machine().cheats[0]
@@ -564,6 +593,21 @@ luabridge::LuaRef lua_engine::l_dev_get_states(const device_t *d)
 	}
 
 	return st_table;
+}
+
+std::string lua_engine::l_option_get_value(const emu_options::entry *e)
+{
+	return e->value();
+}
+
+void lua_engine::l_option_set_value(emu_options::entry *e, std::string val)
+{
+	std::string error;
+	const char *c = val.c_str();
+	luaThis->machine().options().set_value(e->name(), c, OPTION_PRIORITY_DRIVER_INI, error);
+	if (!error.empty()) {
+		lua_writestringerror("%s\n", error.c_str());
+	}
 }
 
 //-------------------------------------------------
@@ -1064,6 +1108,15 @@ void lua_engine::initialize()
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
 				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
 				.addProperty <luabridge::LuaRef, void> ("ioports", &lua_engine::l_machine_get_ioports)
+				.addProperty <luabridge::LuaRef, void> ("option", &lua_engine::l_machine_get_option)
+			.endClass ()
+			.beginClass <emu_options::entry> ("option_entry")
+				.addProperty ("description", &emu_options::entry::description)
+				.addProperty <std::string, std::string> ("value", &lua_engine::l_option_get_value, &lua_engine::l_option_set_value)
+				.addProperty ("default_value", &emu_options::entry::default_value)
+				.addProperty ("minimum", &emu_options::entry::minimum)
+				.addProperty ("maximum", &emu_options::entry::maximum)
+				.addProperty ("has_range", &emu_options::entry::has_range)
 			.endClass ()
 			.beginClass <parameters_manager> ("parameters")
 				.addFunction ("add", &parameters_manager::add)

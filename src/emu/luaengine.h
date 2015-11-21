@@ -115,6 +115,11 @@ private:
 	static luabridge::LuaRef l_machine_get_devices(const running_machine *r);
 	static luabridge::LuaRef l_machine_get_ioports(const running_machine *r);
 	static luabridge::LuaRef l_ioport_get_fields(const ioport_port *i);
+	static luabridge::LuaRef l_machine_get_option(const running_machine *r);
+
+	static std::string l_option_get_value(const emu_options::entry *e);
+	static void l_option_set_value(emu_options::entry *e, std::string v);
+
 	static luabridge::LuaRef devtree_dfs(device_t *root, luabridge::LuaRef dev_table);
 	static luabridge::LuaRef l_dev_get_states(const device_t *d);
 	static UINT64 l_state_get_value(const device_state_entry *d);
