@@ -4,7 +4,7 @@ The *Unofficial* eXtended Machine Emulator is a fork of the popular software emu
 
 ### Extended Features (or bugs)
 
-* Cheat API support in LUA engine
+* Extended LUA API
 * Auto load machine specific LUA script on start
 * High score support _(MKCHAMP)_
 * Autofire support (??)
@@ -16,6 +16,8 @@ The *Unofficial* eXtended Machine Emulator is a fork of the popular software emu
 * OSD mouse wheel support _(MEWUI)_
 * In-game clock _(mameuifx)_
 * [MEWUI][mewui] _(dankan1890)_
+* Change working directory on startup
+* Mechanical systems (pinball) not compiled
 
 *Features that came from related projects or forums may have been refactored for easy cherry-picking by others.*
 *Applicable credits are designated in (). If you would like information added here, [submit an issue][issue].*
