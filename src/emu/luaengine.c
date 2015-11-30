@@ -541,6 +541,25 @@ luabridge::LuaRef lua_engine::l_ioport_get_fields(const ioport_port *i)
 	return f_table;
 }
 
+//
+// render_get_targets - return table of targets
+// -> manager:machine():render().targets[]
+//
+luabridge::LuaRef lua_engine::l_render_get_targets(const render_manager *r)
+{
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef target_table = luabridge::LuaRef::newTable(L);
+
+	int targetnum = 0;
+	for (render_target *curr_rt = r->first_target(); curr_rt != NULL; curr_rt = curr_rt->next())
+	{
+		target_table[targetnum] = curr_rt;
+		targetnum++;
+	}
+
+	return target_table;
+}
+
 // private helper for get_devices - DFS visit all devices in a running machine
 luabridge::LuaRef lua_engine::devtree_dfs(device_t *root, luabridge::LuaRef devs_table)
 {
@@ -766,6 +785,63 @@ int lua_engine::lua_screen::l_width(lua_State *L)
 	}
 
 	lua_pushunsigned(L, sc->visible_area().width());
+	return 1;
+}
+
+//-------------------------------------------------
+//  screen_aspect - return screen aspect ratio
+//  -> manager:machine().screens[":screen"]:aspect()
+//-------------------------------------------------
+
+int lua_engine::lua_screen::l_aspect(lua_State *L)
+{
+	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sc) {
+		return 0;
+	}
+
+	render_container &rc = sc->container();
+	float aspect = luaThis->machine().render().ui_aspect(&rc);
+
+	lua_pushnumber(L, aspect);
+	return 1;
+}
+
+//-------------------------------------------------
+//  pixel_aspect - return pixel_aspect ratio
+//  -> manager:machine().screens[":screen"]:pixel_aspect()
+//-------------------------------------------------
+
+int lua_engine::lua_screen::l_pixel_aspect(lua_State *L)
+{
+	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sc) {
+		return 0;
+	}
+
+	render_container &rc = sc->container();
+	//float height = rc.manager().ui_target().pixel_aspect();
+	int width = rc.manager().ui_target().width();
+	//render_target &ui_target() const { assert(m_ui_target != NULL); return *m_ui_target; }
+	//float aspect = luaThis->machine().render().pixel_aspect(&rc);
+
+	lua_pushunsigned(L, width);
+	return 1;
+}
+
+//-------------------------------------------------
+//  screen_refresh - return screen refresh
+//  -> manager:machine().screens[":screen"]:refresh()
+//-------------------------------------------------
+
+int lua_engine::lua_screen::l_refresh(lua_State *L)
+{
+	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sc) {
+		return 0;
+	}
+
+	lua_pushnumber(L, ATTOSECONDS_TO_HZ(sc->refresh_attoseconds()));
 	return 1;
 }
 
@@ -1104,6 +1180,9 @@ void lua_engine::initialize()
 				.addFunction ("load", &running_machine::schedule_load)
 				.addFunction ("system", &running_machine::system)
 				.addFunction ("video", &running_machine::video)
+				.addFunction ("ui", &running_machine::ui)
+				.addFunction ("osd", &running_machine::osd)
+				.addFunction ("render", &running_machine::render)
 				.addProperty <luabridge::LuaRef, void> ("devices", &lua_engine::l_machine_get_devices)
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
 				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
@@ -1214,12 +1293,45 @@ void lua_engine::initialize()
 			.deriveClass <address_space, lua_addr_space> ("addr_space")
 				.addFunction("name", &address_space::name)
 			.endClass()
+			.beginClass <render_target> ("target")
+				.addProperty ("width", &render_target::width)
+				.addProperty ("height", &render_target::height)
+				.addProperty ("pixel_aspect", &render_target::pixel_aspect)
+				.addProperty ("max_update_rate", &render_target::max_update_rate)
+				.addProperty ("view", &render_target::view, &render_target::set_view)
+				.addProperty ("hidden", &render_target::hidden)
+				.addProperty ("is_ui_target", &render_target::is_ui_target)
+				.addProperty ("index", &render_target::index)
+				.addProperty ("orientation", &render_target::orientation, &render_target::set_orientation)
+			.endClass()
+			.beginClass <render_container> ("render_container")
+				.addProperty ("orientation", &render_container::orientation)
+				.addProperty ("xscale", &render_container::xscale)
+				.addProperty ("yscale", &render_container::yscale)
+				.addProperty ("xoffset", &render_container::xoffset)
+				.addProperty ("yoffset", &render_container::yoffset)
+				.addProperty ("is_empty", &render_container::is_empty)
+			.endClass()
+			.beginClass <render_manager> ("render")
+				.addFunction ("max_update_rate", &render_manager::max_update_rate)
+				.addFunction ("ui_target", &render_manager::ui_target)
+				.addFunction ("ui_container", &render_manager::ui_container)
+				.addProperty <luabridge::LuaRef, void> ("targets", &lua_engine::l_render_get_targets)
+			.endClass()
+			.beginClass <ui_manager> ("ui")
+				.addProperty <bool, bool> ("show_fps", &ui_manager::show_fps, &ui_manager::set_show_fps)
+				.addProperty <bool, bool> ("show_clock", &ui_manager::show_clock, &ui_manager::set_show_clock)
+				.addProperty <bool, bool> ("show_profiler", &ui_manager::show_profiler, &ui_manager::set_show_profiler)
+				.addProperty <bool, bool> ("single_step", &ui_manager::single_step, &ui_manager::set_single_step)
+			.endClass()
 			.beginClass <lua_screen> ("lua_screen_dev")
 				.addCFunction ("draw_box",  &lua_screen::l_draw_box)
 				.addCFunction ("draw_line", &lua_screen::l_draw_line)
 				.addCFunction ("draw_text", &lua_screen::l_draw_text)
+				.addCFunction ("aspect", &lua_screen::l_aspect)
 				.addCFunction ("height", &lua_screen::l_height)
 				.addCFunction ("width", &lua_screen::l_width)
+				.addCFunction ("refresh", &lua_screen::l_refresh)
 				.addCFunction ("snapshot", &lua_screen::l_snapshot)
 			.endClass()
 			.deriveClass <screen_device, lua_screen> ("screen_dev")
@@ -1227,6 +1339,8 @@ void lua_engine::initialize()
 				.addFunction ("name", &screen_device::name)
 				.addFunction ("shortname", &screen_device::shortname)
 				.addFunction ("tag", &screen_device::tag)
+				.addFunction ("xscale", &screen_device::xscale)
+				.addFunction ("yscale", &screen_device::yscale)
 			.endClass()
 			.beginClass <device_state_entry> ("dev_space")
 				.addFunction ("name", &device_state_entry::symbol)

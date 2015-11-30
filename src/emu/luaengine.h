@@ -116,6 +116,7 @@ private:
 	static luabridge::LuaRef l_machine_get_ioports(const running_machine *r);
 	static luabridge::LuaRef l_ioport_get_fields(const ioport_port *i);
 	static luabridge::LuaRef l_machine_get_option(const running_machine *r);
+	static luabridge::LuaRef l_render_get_targets(const render_manager *r);
 
 	static std::string l_option_get_value(const emu_options::entry *e);
 	static void l_option_set_value(emu_options::entry *e, std::string v);
@@ -133,6 +134,9 @@ private:
 	struct lua_screen {
 		int l_height(lua_State *L);
 		int l_width(lua_State *L);
+		int l_aspect(lua_State *L);
+		int l_pixel_aspect(lua_State *L);
+		int l_refresh(lua_State *L);
 		int l_draw_box(lua_State *L);
 		int l_draw_line(lua_State *L);
 		int l_draw_text(lua_State *L);
