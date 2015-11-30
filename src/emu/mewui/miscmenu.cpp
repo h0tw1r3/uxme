@@ -10,6 +10,7 @@
 
 #include "emu.h"
 #include "ui/ui.h"
+#include "ui/menu.h"
 #include "mewui/miscmenu.h"
 #include "mewui/utils.h"
 
@@ -22,9 +23,6 @@ ui_menu_misc_options::misc_option ui_menu_misc_options::m_options[] = {
 	{ 0, "Show mouse pointer",                              OPTION_UI_MOUSE },
 	{ 0, "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
 	{ 0, "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
-	{ 0, "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
-	{ 0, "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
-	{ 0, "Skip displaying loading messages at startup",     OPTION_SKIP_LOADING },
 	{ 0, "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
 	{ 0, "Use image as background",                         OPTION_USE_BACKGROUND },
 	{ 0, "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },

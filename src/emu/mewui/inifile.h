@@ -59,8 +59,6 @@ private:
 	// file open/close
 	bool ParseOpen(const char *filename);
 
-	std::ifstream &getline(std::ifstream &is, std::string &line);
-
 	// internal state
 	running_machine &m_machine;  // reference to our machine
 	std::string     m_fullpath;

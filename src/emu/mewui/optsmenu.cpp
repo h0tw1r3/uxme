@@ -10,6 +10,7 @@
 
 #include "emu.h"
 #include "ui/ui.h"
+#include "ui/menu.h"
 #include "mewui/datfile.h"
 #include "mewui/inifile.h"
 #include "mewui/utils.h"
@@ -53,20 +54,20 @@ void ui_menu_game_options::handle()
 
 	// process the menu
 //	ui_menu::menu_stack->parent->process(UI_MENU_PROCESS_NOINPUT);
-//	const ui_menu_event *menu_event = process(UI_MENU_PROCESS_LR_REPEAT | UI_MENU_PROCESS_NOIMAGE);
-	const ui_menu_event *menu_event = process(UI_MENU_PROCESS_LR_REPEAT);
+//	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | UI_MENU_PROCESS_NOIMAGE);
+	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT);
 
-	if (menu_event != NULL && menu_event->itemref != NULL)
-		switch ((FPTR)menu_event->itemref)
+	if (m_event != NULL && m_event->itemref != NULL)
+		switch ((FPTR)m_event->itemref)
 		{
 			case FILTER_MENU:
 			{
-				if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(menu_event->iptkey == IPT_UI_RIGHT) ? main_filters::actual++ : main_filters::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? main_filters::actual++ : main_filters::actual--;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
 					int total = main_filters::length;
 					std::vector<std::string> s_sel(total);
@@ -80,134 +81,136 @@ void ui_menu_game_options::handle()
 
 			case FILE_CATEGORY_FILTER:
 			{
-				if (menu_event->iptkey == IPT_UI_LEFT)
+				if (m_event->iptkey == IPT_UI_LEFT)
 				{
 					machine().inifile().current_file--;
 					machine().inifile().current_category = 0;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_RIGHT)
+				else if (m_event->iptkey == IPT_UI_RIGHT)
 				{
 					machine().inifile().current_file++;
 					machine().inifile().current_category = 0;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
-					int total = machine().inifile().ini_index.size();
+					inifile_manager &ifile = machine().inifile();
+					int total = ifile.ini_index.size();
 					std::vector<std::string> s_sel(total);
 					machine().inifile().current_category = 0;
 					for (size_t index = 0; index < total; ++index)
-						s_sel[index].assign(machine().inifile().ini_index[index].name);
+						s_sel[index].assign(ifile.ini_index[index].name);
 
-					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &machine().inifile().current_file, SELECTOR_INIFILE)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &ifile.current_file, SELECTOR_INIFILE)));
 				}
 				break;
 			}
 
 			case CATEGORY_FILTER:
 			{
-				if (menu_event->iptkey == IPT_UI_LEFT)
+				if (m_event->iptkey == IPT_UI_LEFT)
 				{
 					machine().inifile().current_category--;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_RIGHT)
+				else if (m_event->iptkey == IPT_UI_RIGHT)
 				{
 					machine().inifile().current_category++;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
-					int cfile = machine().inifile().current_file;
-					int total = machine().inifile().ini_index[cfile].category.size();
+					inifile_manager &ifile = machine().inifile();
+					int cfile = ifile.current_file;
+					int total = ifile.ini_index[cfile].category.size();
 					std::vector<std::string> s_sel(total);
 					for (int index = 0; index < total; ++index)
-						s_sel[index].assign(machine().inifile().ini_index[cfile].category[index].name);
+						s_sel[index].assign(ifile.ini_index[cfile].category[index].name);
 
-					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &machine().inifile().current_category, SELECTOR_CATEGORY)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &ifile.current_category, SELECTOR_CATEGORY)));
 				}
 				break;
 			}
 
 			case MANUFACT_CAT_FILTER:
-				if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(menu_event->iptkey == IPT_UI_RIGHT) ? c_mnfct::actual++ : c_mnfct::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? c_mnfct::actual++ : c_mnfct::actual--;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, c_mnfct::ui, &c_mnfct::actual)));
 
 				break;
 
 			case YEAR_CAT_FILTER:
-				if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(menu_event->iptkey == IPT_UI_RIGHT) ? c_year::actual++ : c_year::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? c_year::actual++ : c_year::actual--;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, c_year::ui, &c_year::actual)));
 
 				break;
 
 			case SCREEN_CAT_FILTER:
-				if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(menu_event->iptkey == IPT_UI_RIGHT) ? c_screen::actual++ : c_screen::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? screen_filters::actual++ : screen_filters::actual--;
 					changed = true;
 				}
-				else if (menu_event->iptkey == IPT_UI_SELECT)
+				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
-					std::vector<std::string> text(c_screen::length);
-					for (int x = 0; x < c_screen::length; ++x)
-						text[x].assign(c_screen::text[x]);
+					std::vector<std::string> text(screen_filters::length);
+					for (int x = 0; x < screen_filters::length; ++x)
+						text[x].assign(screen_filters::text[x]);
 
-					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, text, &c_screen::actual)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, text, &screen_filters::actual)));
 				}
 
 				break;
 
 			case MISC_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_misc_options(machine(), container)));
 				break;
 
 			case SOUND_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_sound_options(machine(), container)));
 				break;
 
 			case DISPLAY_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_display_options(machine(), container)));
 				break;
 
 			case CUSTOM_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_custom_ui(machine(), container)));
 				break;
 
 			case CONTROLLER_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_controller_mapping(machine(), container)));
 				break;
 
 			case CGI_MENU:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_input_groups(machine(), container)));
 				break;
 
 			case CUSTOM_FILTER:
-				if (menu_event->iptkey == IPT_UI_SELECT)
+				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_custom_filter(machine(), container)));
 				break;
 
 			case UME_SYSTEM:
-				if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(menu_event->iptkey == IPT_UI_RIGHT) ? ume_filters::actual++ : ume_filters::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? ume_filters::actual++ : ume_filters::actual--;
 					changed = true;
 				}
 				break;
@@ -228,26 +231,27 @@ void ui_menu_game_options::populate()
 
 	// add filter item
 	UINT32 arrow_flags = get_arrow_flags(0, ume_filters::length - 1, ume_filters::actual);
-	item_append("Machine", ume_filters::text[ume_filters::actual], arrow_flags, (void *)UME_SYSTEM);
+	item_append("Machine", ume_filters::text[ume_filters::actual], arrow_flags, (void *)(FPTR)UME_SYSTEM);
 
 	// add filter item
 	arrow_flags = get_arrow_flags((int)FILTER_FIRST, (int)FILTER_LAST, main_filters::actual);
-	item_append("Filter", main_filters::text[main_filters::actual], arrow_flags, (void *)FILTER_MENU);
+	item_append("Filter", main_filters::text[main_filters::actual], arrow_flags, (void *)(FPTR)FILTER_MENU);
 
 	// add category subitem
 	if (main_filters::actual == FILTER_CATEGORY && !machine().inifile().ini_index.empty())
 	{
-		int actual_file = machine().inifile().current_file;
+		inifile_manager &inif = machine().inifile();
+		int afile = inif.current_file;
+		int acategory = inif.current_category;
 
-		arrow_flags = get_arrow_flags(0, machine().inifile().ini_index.size() - 1, actual_file);
+		arrow_flags = get_arrow_flags(0, inif.ini_index.size() - 1, afile);
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), machine().inifile().ini_index[actual_file].name.c_str(), arrow_flags, (void *)FILE_CATEGORY_FILTER);
+		item_append(fbuff.c_str(), inif.ini_index[afile].name.c_str(), arrow_flags, (void *)(FPTR)FILE_CATEGORY_FILTER);
 
-		int actual_category = machine().inifile().current_category;
-		arrow_flags = get_arrow_flags(0, machine().inifile().ini_index[actual_file].category.size() - 1, actual_category);
+		arrow_flags = get_arrow_flags(0, inif.ini_index[afile].category.size() - 1, acategory);
 		fbuff.assign(" ^!Category");
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), machine().inifile().ini_index[actual_file].category[actual_category].name.c_str(), arrow_flags, (void *)CATEGORY_FILTER);
+		item_append(fbuff.c_str(), inif.ini_index[afile].category[acategory].name.c_str(), arrow_flags, (void *)(FPTR)CATEGORY_FILTER);
 	}
 	// add manufacturer subitem
 	else if (main_filters::actual == FILTER_MANUFACTURER && c_mnfct::ui.size() > 0)
@@ -255,7 +259,7 @@ void ui_menu_game_options::populate()
 		arrow_flags = get_arrow_flags(0, c_mnfct::ui.size() - 1, c_mnfct::actual);
 		fbuff.assign("^!Manufacturer");
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), c_mnfct::ui[c_mnfct::actual].c_str(), arrow_flags, (void *)MANUFACT_CAT_FILTER);
+		item_append(fbuff.c_str(), c_mnfct::ui[c_mnfct::actual].c_str(), arrow_flags, (void *)(FPTR)MANUFACT_CAT_FILTER);
 	}
 	// add year subitem
 	else if (main_filters::actual == FILTER_YEAR && c_year::ui.size() > 0)
@@ -263,33 +267,33 @@ void ui_menu_game_options::populate()
 		arrow_flags = get_arrow_flags(0, c_year::ui.size() - 1, c_year::actual);
 		fbuff.assign("^!Year");
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), c_year::ui[c_year::actual].c_str(), arrow_flags, (void *)YEAR_CAT_FILTER);
+		item_append(fbuff.c_str(), c_year::ui[c_year::actual].c_str(), arrow_flags, (void *)(FPTR)YEAR_CAT_FILTER);
 	}
 	// add screen subitem
 	else if (main_filters::actual == FILTER_SCREEN)
 	{
-		arrow_flags = get_arrow_flags(0, c_screen::length - 1, c_screen::actual);
+		arrow_flags = get_arrow_flags(0, screen_filters::length - 1, screen_filters::actual);
 		fbuff.assign("^!Screen type");
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), c_screen::text[c_screen::actual], arrow_flags, (void *)SCREEN_CAT_FILTER);
+		item_append(fbuff.c_str(), screen_filters::text[screen_filters::actual], arrow_flags, (void *)(FPTR)SCREEN_CAT_FILTER);
 	}
 	// add custom subitem
 	else if (main_filters::actual == FILTER_CUSTOM)
 	{
 		fbuff.assign("^!Setup custom filter");
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), NULL, 0, (void *)CUSTOM_FILTER);
+		item_append(fbuff.c_str(), NULL, 0, (void *)(FPTR)CUSTOM_FILTER);
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
 
 	// add options items
-	item_append("Customize UI", NULL, 0, (void *)CUSTOM_MENU);
-	item_append("Display Options", NULL, 0, (void *)DISPLAY_MENU);
-	item_append("Sound Options", NULL, 0, (void *)SOUND_MENU);
-	item_append("Miscellaneous Options", NULL, 0, (void *)MISC_MENU);
-	item_append("Device Mapping", NULL, 0, (void *)CONTROLLER_MENU);
-	item_append("General Inputs", NULL, 0, (void *)CGI_MENU);
+	item_append("Customize UI", NULL, 0, (void *)(FPTR)CUSTOM_MENU);
+	item_append("Display Options", NULL, 0, (void *)(FPTR)DISPLAY_MENU);
+	item_append("Sound Options", NULL, 0, (void *)(FPTR)SOUND_MENU);
+	item_append("Miscellaneous Options", NULL, 0, (void *)(FPTR)MISC_MENU);
+	item_append("Device Mapping", NULL, 0, (void *)(FPTR)CONTROLLER_MENU);
+	item_append("General Inputs", NULL, 0, (void *)(FPTR)CGI_MENU);
 	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
 
 	custombottom = 2.0f * machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
@@ -303,7 +307,8 @@ void ui_menu_game_options::populate()
 void ui_menu_game_options::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
 	float width;
-	machine().ui().draw_text_full(container, "Settings", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	ui_manager &mui = machine().ui();
+	mui.draw_text_full(container, "Settings", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, NULL);
 	width += 2 * UI_BOX_LR_BORDER;
 	float maxwidth = MAX(origx2 - origx1, width);
@@ -315,7 +320,7 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 	float y2 = origy1 - UI_BOX_TB_BORDER;
 
 	// draw a box
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
 
 	// take off the borders
 	x1 += UI_BOX_LR_BORDER;
@@ -323,7 +328,7 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	machine().ui().draw_text_full(container, "Settings", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Settings", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
 }
 
@@ -343,5 +348,5 @@ void save_game_options(running_machine &machine)
 		file.close();
 	}
 	else
-		popmessage("**Error to save %s.ini**", emulator_info::get_configname());
+		machine.popmessage("**Error to save %s.ini**", emulator_info::get_configname());
 }

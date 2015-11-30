@@ -1,4 +1,4 @@
-// license:BSD-3-Clause
+﻿// license:BSD-3-Clause
 // copyright-holders:Dankan1890
 /*********************************************************************
 
@@ -10,6 +10,7 @@
 
 #include "emu.h"
 #include "ui/ui.h"
+#include "ui/menu.h"
 #include "audit.h"
 #include "mewui/auditmenu.h"
 #include "mewui/utils.h"
@@ -41,14 +42,14 @@ bool sorted_game_list(const game_driver *m_x, const game_driver *y)
 	if (clonex)
 	{
 		cx = driver_list::find(m_x->parent);
-		if (cx == -1 || (cx != -1 && ((driver_list::driver(cx).flags & MACHINE_IS_BIOS_ROOT) != 0)))
+		if (cx == -1 || (driver_list::driver(cx).flags & MACHINE_IS_BIOS_ROOT) != 0)
 			clonex = false;
 	}
 
 	if (cloney)
 	{
 		cy = driver_list::find(y->parent);
-		if (cy == -1 || (cy != -1 && ((driver_list::driver(cy).flags & MACHINE_IS_BIOS_ROOT) != 0)))
+		if (cy == -1 || (driver_list::driver(cy).flags & MACHINE_IS_BIOS_ROOT) != 0)
 			cloney = false;
 	}
 
@@ -171,7 +172,7 @@ void ui_menu_audit::handle()
 
 void ui_menu_audit::populate()
 {
-	item_append("Dummy", NULL, 0, (void *)1);
+	item_append("Dummy", NULL, 0, (void *)(FPTR)1);
 }
 
 //-------------------------------------------------
@@ -197,20 +198,20 @@ void ui_menu_audit::save_available_machines()
 		int find = 0;
 
 		// generate available list
-		for (size_t m_x = 0; m_x < m_available.size(); ++m_x)
+		for (size_t x = 0; x < m_available.size(); ++x)
 		{
-			find = driver_list::find(m_available[m_x]->name);
+			find = driver_list::find(m_available[x]->name);
 			myfile << find << space;
-			find = driver_list::find(m_availablesorted[m_x]->name);
+			find = driver_list::find(m_availablesorted[x]->name);
 			myfile << find << space;
 		}
 
 		// generate unavailable list
-		for (size_t m_x = 0; m_x < m_unavailable.size(); ++m_x)
+		for (size_t x = 0; x < m_unavailable.size(); ++x)
 		{
-			find = driver_list::find(m_unavailable[m_x]->name);
+			find = driver_list::find(m_unavailable[x]->name);
 			myfile << find << space;
-			find = driver_list::find(m_unavailablesorted[m_x]->name);
+			find = driver_list::find(m_unavailablesorted[x]->name);
 			myfile << find << space;
 		}
 		myfile.close();

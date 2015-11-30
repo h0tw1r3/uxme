@@ -19,7 +19,7 @@
 const options_entry mewui_options::s_option_entries[] =
 {
 	// seach path options
-	{ NULL,                                 NULL,  OPTION_HEADER,  "UI SEARCH PATH OPTIONS" },
+	{ NULL,                                 NULL,  OPTION_HEADER,  "MEWUI SEARCH PATH OPTIONS" },
 	{ OPTION_EXTRAINI_PATH,            "folders",  OPTION_STRING,  "path to extra ini files" },
 	{ OPTION_CABINETS_PATH,   "cabinets;cabdevs",  OPTION_STRING,  "path to cabinets / devices image" },
 	{ OPTION_CPANELS_PATH,              "cpanel",  OPTION_STRING,  "path to control panel image" },
@@ -37,10 +37,10 @@ const options_entry mewui_options::s_option_entries[] =
 	{ OPTION_HOWTO_PATH,                 "howto",  OPTION_STRING,  "path to howto image" },
 	{ OPTION_SELECT_PATH,               "select",  OPTION_STRING,  "path to select image" },
 	{ OPTION_ICONS_PATH,                 "icons",  OPTION_STRING,  "path to ICOns image" },
-	{ OPTION_MEWUI_PATH,                 "mewui",  OPTION_STRING,  "path to UI files" },
+	{ OPTION_MEWUI_PATH,                 "mewui",  OPTION_STRING,  "path to MEWUI files" },
 
 	// misc options
-	{ NULL,                                 NULL,   OPTION_HEADER, "UI MISC OPTIONS" },
+	{ NULL,                                 NULL,   OPTION_HEADER, "MEWUI MISC OPTIONS" },
 	{ OPTION_DATS_ENABLED,                   "1",  OPTION_BOOLEAN, "enable DATs support" },
 	{ OPTION_REMEMBER_LAST,                  "1",  OPTION_BOOLEAN, "reselect in main menu last played game" },
 	{ OPTION_ENLARGE_SNAPS,                  "1",  OPTION_BOOLEAN, "enlarge arts (snapshot, title, etc...) in right panel (keeping aspect ratio)" },
@@ -53,7 +53,7 @@ const options_entry mewui_options::s_option_entries[] =
 	{ OPTION_LAST_USED_MACHINE,               "",   OPTION_STRING, "latest used machine" },
 
 	// UI options
-	{ NULL,                                 NULL,   OPTION_HEADER, "UI UI OPTIONS" },
+	{ NULL,                                 NULL,   OPTION_HEADER, "MEWUI UI OPTIONS" },
 	{ OPTION_INFOS_SIZE "(0.05-1.00)",    "0.75",    OPTION_FLOAT, "UI right panel infos text size (0.05 - 1.00)" },
 	{ OPTION_FONT_ROWS "(25-40)",           "30",  OPTION_INTEGER, "UI font text size (25 - 40)" },
 	{ OPTION_HIDE_PANELS "(0-3)",            "0",  OPTION_INTEGER, "UI hide left/right panel in main view (0 = Show all, 1 = hide left, 2 = hide right, 3 = hide both" },

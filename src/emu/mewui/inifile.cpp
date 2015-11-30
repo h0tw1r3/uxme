@@ -13,6 +13,7 @@
 #include "drivenum.h"
 #include "mewui/inifile.h"
 #include "mewui/utils.h"
+#include "softlist.h"
 
 //-------------------------------------------------
 //  GLOBAL VARIABLES
@@ -82,7 +83,7 @@ void inifile_manager::init_category(std::vector<IniCategoryIndex> &index, std::s
 {
 	std::string readbuf;
 	std::ifstream myfile(filename.c_str(), std::ifstream::binary);
-	while (getline(myfile, readbuf))
+	while (clean_getline(myfile, readbuf))
 	{
 		if (!readbuf.empty() && readbuf[0] == '[')
 		{
@@ -125,7 +126,7 @@ void inifile_manager::load_ini_category(std::vector<int> &temp_filter)
 		int num_game = driver_list::total();
 		std::string readbuf;
 		myfile.seekg(offset, myfile.beg);
-		while (getline(myfile, readbuf))
+		while (clean_getline(myfile, readbuf))
 		{
 			if (readbuf.empty() || readbuf[0] == '[') break;
 			int dfind = driver_list::find(readbuf.c_str());
@@ -166,18 +167,6 @@ bool inifile_manager::ParseOpen(const char *filename)
 	return false;
 }
 
-std::ifstream &inifile_manager::getline(std::ifstream &is, std::string &line)
-{
-	if (std::getline(is, line)) {
-		size_t epos = line.find_last_not_of("\r\n");
-		if (std::string::npos != epos)
-			line.erase(epos+1);
-		else
-			line.clear();
-	}
-	return is;
-}
-
 /**************************************************************************
     FAVORITE MANAGER
 **************************************************************************/
@@ -189,6 +178,7 @@ std::ifstream &inifile_manager::getline(std::ifstream &is, std::string &line)
 favorite_manager::favorite_manager(running_machine &machine)
 	: m_machine(machine)
 {
+	m_current_favorite = -1;
 	parse_favorite();
 }
 
@@ -248,6 +238,7 @@ void favorite_manager::add_favorite_game()
 		if (image->exists() && image->software_entry())
 		{
 			const software_info *swinfo = image->software_entry();
+			const software_part *part = image->part_entry();
 			ui_software_info tmpmatches;
 			if (swinfo->shortname()) tmpmatches.shortname.assign(swinfo->shortname());
 			if (image->longname()) tmpmatches.longname.assign(image->longname());
@@ -255,10 +246,10 @@ void favorite_manager::add_favorite_game()
 			if (image->year()) tmpmatches.year.assign(image->year());
 			if (image->manufacturer()) tmpmatches.publisher.assign(image->manufacturer());
 			tmpmatches.supported = image->supported();
-			if (image->part_entry()->name()) tmpmatches.part.assign(image->part_entry()->name());
+			if (part->name()) tmpmatches.part.assign(part->name());
 			tmpmatches.driver = &machine().system();
 			if (image->software_list_name()) tmpmatches.listname.assign(image->software_list_name());
-			if (image->part_entry()->interface()) tmpmatches.interface.assign(image->part_entry()->interface());
+			if (part->interface()) tmpmatches.interface.assign(part->interface());
 			if (image->instance_name()) tmpmatches.instance.assign(image->instance_name());
 			tmpmatches.startempty = 0;
 			tmpmatches.parentlongname.clear();

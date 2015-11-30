@@ -24,7 +24,6 @@
 #include "ui/viewgfx.h"
 #include "imagedev/cassette.h"
 #include <time.h>
-#include "mewui/selgame.h"
 #include "image.h"
 
 
@@ -489,7 +488,6 @@ void ui_manager::update_and_render(render_container *container)
 				float x_pixel = 1.0f / container->manager().ui_target().width();
 				float y_pixel = 1.0f / container->manager().ui_target().height();
 				container->add_quad(mouse_x, mouse_y, mouse_x + x_pixel*32, mouse_y + y_pixel*32, ARGB_WHITE, m_mouse_arrow_texture, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
-//				container->add_quad(mouse_x,mouse_y,mouse_x + 0.05f*container->manager().ui_aspect(container),mouse_y + 0.05f,UI_TEXT_COLOR,m_mouse_arrow_texture,PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
 			}
 		}
 	}
@@ -2563,7 +2561,6 @@ void ui_manager::wrap_text(render_container *container, const char *origs, float
 	float wrapwidth = origwrapwidth;
 	const char *s = origs;
 	const char *linestart;
-	float cury = y;
 	float maxwidth = 0;
 	float aspect = machine().render().ui_aspect(container);
 	count = 0;
@@ -2576,7 +2573,6 @@ void ui_manager::wrap_text(render_container *container, const char *origs, float
 		int scharcount;
 		float lastbreak_width = 0;
 		float curwidth = 0;
-		float curx = x;
 
 		// get the current character
 		scharcount = uchar_from_utf8(&schar, s, ends - s);
@@ -2646,9 +2642,6 @@ void ui_manager::wrap_text(render_container *container, const char *origs, float
 			}
 		}
 
-		// align according to the justfication
-		curx += (origwrapwidth - curwidth) * 0.5f;
-
 		// track the maximum width of any given line
 		if (curwidth > maxwidth)
 			maxwidth = curwidth;
@@ -2668,7 +2661,6 @@ void ui_manager::wrap_text(render_container *container, const char *origs, float
 		}
 
 		// advance by a row
-		cury += lineheight;
 		count++;
 
 		// skip past any spaces at the beginning of the next line
@@ -2723,7 +2715,6 @@ rgb_t decode_ui_color(int id, running_machine *machine)
 	static rgb_t color[ARRAY_LENGTH(s_color_list)];
 
 	if (machine) {
-		std::string option_errors;
 		emu_options option;
 
 		for (int x = 0; x < ARRAY_LENGTH(s_color_list); x++) {

@@ -1,4 +1,4 @@
-// license:BSD-3-Clause
+﻿// license:BSD-3-Clause
 // copyright-holders:Dankan1890
 /*********************************************************************
 
@@ -10,6 +10,7 @@
 
 #include "emu.h"
 #include "ui/ui.h"
+#include "ui/menu.h"
 #include "mewui/dsplmenu.h"
 #include "mewui/selector.h"
 #include "mewui/utils.h"
@@ -100,19 +101,19 @@ void ui_menu_display_options::handle()
 	bool changed = false;
 
 	// process the menu
-	const ui_menu_event *menu_event = process(0);
+	const ui_menu_event *m_event = process(0);
 
-	if (menu_event != NULL && menu_event->itemref != NULL)
+	if (m_event != NULL && m_event->itemref != NULL)
 	{
-		int value = (FPTR)menu_event->itemref;
+		int value = (FPTR)m_event->itemref;
 		if (!strcmp(m_options[value].option, OSDOPTION_VIDEO) || !strcmp(m_options[value].option, OSDOPTION_PRESCALE))
 		{
-			if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
+			if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 			{
 				changed = true;
-				(menu_event->iptkey == IPT_UI_LEFT) ? m_options[value].status-- : m_options[value].status++;
+				(m_event->iptkey == IPT_UI_LEFT) ? m_options[value].status-- : m_options[value].status++;
 			}
-			else if (menu_event->iptkey == IPT_UI_SELECT && !strcmp(m_options[value].option, OSDOPTION_VIDEO))
+			else if (m_event->iptkey == IPT_UI_SELECT && !strcmp(m_options[value].option, OSDOPTION_VIDEO))
 			{
 				int total = ARRAY_LENGTH(m_video);
 				std::vector<std::string> s_sel(total);
@@ -122,7 +123,7 @@ void ui_menu_display_options::handle()
 				ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &m_options[value].status)));
 			}
 		}
-		else if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT || menu_event->iptkey == IPT_UI_SELECT)
+		else if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT || m_event->iptkey == IPT_UI_SELECT)
 		{
 			changed = true;
 			m_options[value].status = !m_options[value].status;
@@ -142,11 +143,11 @@ void ui_menu_display_options::populate()
 	// add video mode option
 	std::string v_text(m_video[m_options[1].status].label);
 	UINT32 arrow_flags = get_arrow_flags(0, ARRAY_LENGTH(m_video) - 1, m_options[1].status);
-	item_append(m_options[1].description, v_text.c_str(), arrow_flags, (void *)1);
+	item_append(m_options[1].description, v_text.c_str(), arrow_flags, (void *)(FPTR)1);
 
 	// add options items
 	for (int opt = 2; opt < ARRAY_LENGTH(m_options); ++opt)
-		if (strcmp(m_options[opt].option, OSDOPTION_PRESCALE))
+		if (strcmp(m_options[opt].option, OSDOPTION_PRESCALE) != 0)
 			item_append(m_options[opt].description, m_options[opt].status ? "On" : "Off",
 			            m_options[opt].status ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)(FPTR)opt);
 		else
@@ -167,8 +168,8 @@ void ui_menu_display_options::populate()
 void ui_menu_display_options::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
 	float width;
-
-	machine().ui().draw_text_full(container, "Display Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	ui_manager &mui = machine().ui();
+	mui.draw_text_full(container, "Display Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, NULL);
 	width += 2 * UI_BOX_LR_BORDER;
 	float maxwidth = MAX(origx2 - origx1, width);
@@ -180,7 +181,7 @@ void ui_menu_display_options::custom_render(void *selectedref, float top, float 
 	float y2 = origy1 - UI_BOX_TB_BORDER;
 
 	// draw a box
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
 
 	// take off the borders
 	x1 += UI_BOX_LR_BORDER;
@@ -188,6 +189,6 @@ void ui_menu_display_options::custom_render(void *selectedref, float top, float 
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	machine().ui().draw_text_full(container, "Display Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Display Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
 }

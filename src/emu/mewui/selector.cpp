@@ -10,6 +10,7 @@
 
 #include "emu.h"
 #include "ui/ui.h"
+#include "ui/menu.h"
 #include "mewui/selector.h"
 #include "mewui/inifile.h"
 #include "mewui/utils.h"
@@ -25,6 +26,8 @@ ui_menu_selector::ui_menu_selector(running_machine &machine, render_container *c
 	m_first_pass = true;
 	m_hover = _hover;
 	m_str_items = s_sel;
+	m_search[0] = '\0';
+	m_searchlist[0] = NULL;
 }
 
 ui_menu_selector::~ui_menu_selector()
@@ -38,14 +41,14 @@ ui_menu_selector::~ui_menu_selector()
 void ui_menu_selector::handle()
 {
 	// process the menu
-	const ui_menu_event *menu_event = process(0);
+	const ui_menu_event *m_event = process(0);
 
-	if (menu_event != NULL && menu_event->itemref != NULL)
+	if (m_event != NULL && m_event->itemref != NULL)
 	{
-		if (menu_event->iptkey == IPT_UI_SELECT)
+		if (m_event->iptkey == IPT_UI_SELECT)
 		{
 			for (size_t idx = 0; idx < m_str_items.size(); idx++)
-				if ((void*)&m_str_items[idx] == menu_event->itemref)
+				if ((void*)&m_str_items[idx] == m_event->itemref)
 					*m_selector = idx;
 
 			switch (m_category)
@@ -79,28 +82,28 @@ void ui_menu_selector::handle()
 			mewui_globals::switch_image = true;
 			ui_menu::stack_pop(machine());
 		}
-		else if (menu_event->iptkey == IPT_SPECIAL)
+		else if (m_event->iptkey == IPT_SPECIAL)
 		{
 			int buflen = strlen(m_search);
 
 			// if it's a backspace and we can handle it, do so
-			if ((menu_event->unichar == 8 || menu_event->unichar == 0x7f) && buflen > 0)
+			if ((m_event->unichar == 8 || m_event->unichar == 0x7f) && buflen > 0)
 			{
 				*(char *)utf8_previous_char(&m_search[buflen]) = 0;
 				reset(UI_MENU_RESET_SELECT_FIRST);
 			}
 
 			// if it's any other key and we're not maxed out, update
-			else if (menu_event->unichar >= ' ' && menu_event->unichar < 0x7f)
+			else if (m_event->unichar >= ' ' && m_event->unichar < 0x7f)
 			{
-				buflen += utf8_from_uchar(&m_search[buflen], ARRAY_LENGTH(m_search) - buflen, menu_event->unichar);
+				buflen += utf8_from_uchar(&m_search[buflen], ARRAY_LENGTH(m_search) - buflen, m_event->unichar);
 				m_search[buflen] = 0;
 				reset(UI_MENU_RESET_SELECT_FIRST);
 			}
 		}
 
 		// escape pressed with non-empty text clears the text
-		else if (menu_event->iptkey == IPT_UI_CANCEL && m_search[0] != 0)
+		else if (m_event->iptkey == IPT_UI_CANCEL && m_search[0] != 0)
 		{
 			m_search[0] = '\0';
 			reset(UI_MENU_RESET_SELECT_FIRST);
@@ -135,8 +138,7 @@ void ui_menu_selector::populate()
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
-	customtop = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
-	custombottom = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
+	customtop = custombottom = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
 	m_first_pass = false;
 }
 
@@ -147,10 +149,11 @@ void ui_menu_selector::populate()
 void ui_menu_selector::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
 	float width;
+	ui_manager &mui = machine().ui();
 	std::string tempbuf = std::string("Selection List - Search: ").append(m_search).append("_");
 
 	// get the size of the text
-	machine().ui().draw_text_full(container, tempbuf.c_str(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, tempbuf.c_str(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, NULL);
 	width += (2.0f * UI_BOX_LR_BORDER) + 0.01f;
 	float maxwidth = MAX(width, origx2 - origx1);
@@ -162,7 +165,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 	float y2 = origy1 - UI_BOX_TB_BORDER;
 
 	// draw a box
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
 
 	// take off the borders
 	x1 += UI_BOX_LR_BORDER;
@@ -170,7 +173,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	machine().ui().draw_text_full(container, tempbuf.c_str(), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, tempbuf.c_str(), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
 
 	// bottom text
@@ -179,7 +182,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 	machine().input().seq_name(ui_select_text, machine().ioport().type_seq(IPT_UI_SELECT, 0, SEQ_TYPE_STANDARD));
 	tempbuf.assign("Double click or press ").append(ui_select_text.c_str()).append(" to select");
 
-	machine().ui().draw_text_full(container, tempbuf.c_str(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_NEVER,
+	mui.draw_text_full(container, tempbuf.c_str(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_NEVER,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, NULL);
 	width += 2 * UI_BOX_LR_BORDER;
 	maxwidth = MAX(maxwidth, width);
@@ -191,7 +194,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 	y2 = origy2 + bottom;
 
 	// draw a box
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_RED_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_RED_COLOR);
 
 	// take off the borders
 	x1 += UI_BOX_LR_BORDER;
@@ -199,7 +202,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	machine().ui().draw_text_full(container, tempbuf.c_str(), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
+	mui.draw_text_full(container, tempbuf.c_str(), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
 }
 
@@ -220,8 +223,6 @@ void ui_menu_selector::find_matches(const char *str)
 
 		// pick the best match between driver name and description
 		int curpenalty = fuzzy_substring(str, m_str_items[index].c_str());
-		int tmp = fuzzy_substring(str, m_str_items[index].c_str());
-		curpenalty = MIN(curpenalty, tmp);
 
 		// insert into the sorted table of matches
 		for (int matchnum = VISIBLE_GAMES_IN_SEARCH - 1; matchnum >= 0; matchnum--)
