@@ -24,6 +24,9 @@
 #undef None
 #endif
 
+// forward declarations
+class cheat_entry;
+
 struct lua_State;
 namespace luabridge
 {
