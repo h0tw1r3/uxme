@@ -69,6 +69,7 @@
 # USE_LIBSDL = 1
 # CYGWIN_BUILD = 1
 
+# BUILDDIR = build
 # TARGETOS = windows
 # CROSS_BUILD = 1
 # CROSS_PREFIX = 
@@ -91,12 +92,14 @@
 
 # QT_HOME = /usr/lib64/qt48/
 
-# SOURCES = src/mame/drivers/asteroid.c,src/mame/audio/llander.c
+# SOURCES = src/mame/drivers/asteroid.cpp,src/mame/audio/llander.cpp
 
 # FORCE_VERSION_COMPILE = 1
 
-ifneq ($(USEROPTIONS),"")
--include $(USEROPTIONS)
+# MS BUILD = 1
+
+ifdef PREFIX_MAKEFILE
+include $(PREFIX_MAKEFILE)
 else
 -include useroptions.mak
 endif
@@ -185,6 +188,10 @@ MAKEPARAMS += verbose=1
 else
 SILENT := @
 MAKEPARAMS += --no-print-directory
+endif
+
+ifndef BUILDDIR
+BUILDDIR := build
 endif
 
 #-------------------------------------------------
@@ -329,6 +336,10 @@ OSD := sdl
 endif
 
 ifeq ($(TARGETOS),os2)
+OSD := sdl
+endif
+
+ifeq ($(TARGETOS),asmjs)
 OSD := sdl
 endif
 endif
@@ -520,6 +531,10 @@ ifdef OSD
 PARAMS += --osd='$(OSD)'
 endif
 
+ifdef BUILDDIR
+PARAMS += --build-dir='$(BUILDDIR)'
+endif
+
 ifdef TARGETOS
 PARAMS += --targetos='$(TARGETOS)'
 endif
@@ -677,6 +692,11 @@ SCRIPTS = scripts/genie.lua \
 	$(wildcard src/osd/$(OSD)/$(OSD).mak) \
 	$(wildcard src/$(TARGET)/$(SUBTARGET).mak)
 
+ifeq ($(SUBTARGET),mame)
+SCRIPTS += scripts/target/$(TARGET)/arcade.lua
+SCRIPTS += scripts/target/$(TARGET)/mess.lua
+endif
+
 ifndef SOURCES
 SCRIPTS += scripts/target/$(TARGET)/$(SUBTARGET).lua
 endif
@@ -718,7 +738,7 @@ else
   COPY  = $(SILENT) copy /Y "$(subst /,\\,$(1))" "$(subst /,\\,$(2))"
 endif
 
-GENDIR = build/generated
+GENDIR = $(BUILDDIR)/generated
 
 # all sources are under the src/ directory
 SRC = src
@@ -731,6 +751,24 @@ GCC_VERSION      := $(shell gcc -dumpversion 2> NUL)
 CLANG_VERSION    := $(shell %CLANG%\bin\clang --version 2> NUL| head -n 1 | sed "s/[^0-9,.]//g")
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > NUL 2>&1 && echo python)
 CHECK_CLANG      :=
+ifdef MSBUILD
+MSBUILD_PARAMS   := /v:minimal /m:$(NUMBER_OF_PROCESSORS) 
+ifeq ($(CONFIG),debug)
+MSBUILD_PARAMS += /p:Configuration=Debug
+else
+MSBUILD_PARAMS += /p:Configuration=Release
+endif
+ifeq ($(ARCHITECTURE),_x64)
+MSBUILD_PARAMS += /p:Platform=x64
+else
+MSBUILD_PARAMS += /p:Platform=win32
+endif
+ifeq ($(SUBTARGET),mess)
+MSBUILD_SOLUTION := $(SUBTARGET).sln
+else
+MSBUILD_SOLUTION := $(TARGET)$(SUBTARGET).sln
+endif
+endif
 else
 GCC_VERSION      := $(shell $(subst @,,$(CC)) -dumpversion 2> /dev/null)
 ifneq ($(OS),solaris)
@@ -759,7 +797,7 @@ SUBDIR := $(OSD)/$(TARGET)
 else
 SUBDIR := $(OSD)/$(TARGET)$(SUBTARGET)
 endif
-PROJECTDIR := build/projects/$(SUBDIR)
+PROJECTDIR := $(BUILDDIR)/projects/$(SUBDIR)
 
 .PHONY: all clean regenie generate
 all: $(GENIE) $(TARGETOS)$(ARCHITECTURE)
@@ -828,12 +866,21 @@ vs2012_xp: generate
 
 vs2013: generate
 	$(SILENT) $(GENIE) $(PARAMS) vs2013
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2013/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
 
 vs2013_intel: generate
 	$(SILENT) $(GENIE) $(PARAMS) --vs=intel-15 vs2013
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2013-intel/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
 
 vs2013_xp: generate
 	$(SILENT) $(GENIE) $(PARAMS) --vs=vs2013-xp vs2013
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2013-xp/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
 
 vs2013_clang: generate
 	$(SILENT) $(GENIE) $(PARAMS) --vs=vs2013-clang vs2013
@@ -843,6 +890,27 @@ vs2013_winrt: generate
 
 vs2015: generate
 	$(SILENT) $(GENIE) $(PARAMS) vs2015
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2015/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
+
+vs2015_intel: generate
+	$(SILENT) $(GENIE) $(PARAMS) --vs=intel-15 vs2015
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2015-intel/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
+
+vs2015_xp: generate
+	$(SILENT) $(GENIE) $(PARAMS) --vs=vs2015-xp vs2015
+ifdef MSBUILD
+	$(SILENT) msbuild $(PROJECTDIR)/vs2015-xp/$(MSBUILD_SOLUTION) $(MSBUILD_PARAMS)
+endif
+
+vs2015_clang: generate
+	$(SILENT) $(GENIE) $(PARAMS) --vs=vs2015-clang vs2015
+
+vs2015_winrt: generate
+	$(SILENT) $(GENIE) $(PARAMS) --vs=winstore81 vs2015
 
 android-arm: generate
 ifndef ANDROID_NDK_ARM
@@ -1078,6 +1146,20 @@ os2_x86: generate $(PROJECTDIR)/gmake-os2/Makefile
 
 
 #-------------------------------------------------
+# cmake
+#-------------------------------------------------
+cmake: generate
+	$(SILENT) $(GENIE) $(PARAMS) cmake
+ifeq ($(OS),windows)
+	$(SILENT)echo cmake_minimum_required(VERSION 2.8.4) > CMakeLists.txt 
+	$(SILENT)echo add_subdirectory($(PROJECTDIR)/cmake) >> CMakeLists.txt 
+else
+	$(SILENT)echo "cmake_minimum_required(VERSION 2.8.4)" > CMakeLists.txt 
+	$(SILENT)echo "add_subdirectory($(PROJECTDIR)/cmake)" >> CMakeLists.txt 
+endif
+
+	
+#-------------------------------------------------
 # Clean/bootstrap
 #-------------------------------------------------
 
@@ -1090,7 +1172,7 @@ $(GENIE): $(GENIE_SRC)
 
 clean:
 	@echo Cleaning...
-	-@rm -rf build
+	-@rm -rf $(BUILDDIR)
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C 3rdparty/genie/build/gmake.$(GENIEOS) -f genie.make clean
 
 GEN_FOLDERS := $(GENDIR)/$(TARGET)/layout/ $(GENDIR)/$(TARGET)/$(SUBTARGET)/
@@ -1122,7 +1204,7 @@ $(GENDIR)/%.lh: $(SRC)/%.lay scripts/build/file2str.py
 # Regression tests
 #-------------------------------------------------
 
-include $(SRC)/regtests/regtests.mak
+include regtests/regtests.mak
 
 .PHONY: tests
 
@@ -1162,7 +1244,7 @@ endif
 
 doxygen:
 	@echo Generate Doxygen documentation
-	doxygen mame.doxygen
+	doxygen doxygen/doxygen.config
 
 #-------------------------------------------------
 # CppCheck analysis
@@ -1183,13 +1265,13 @@ ifndef USE_SYSTEM_LIB_LUA
 CPPCHECK_PARAMS += -I3rdparty/lua/src
 endif
 ifndef USE_SYSTEM_LIB_ZLIB
-CPPCHECK_PARAMS += -I3rdparty/zlib 
+CPPCHECK_PARAMS += -I3rdparty/zlib
 endif
 CPPCHECK_PARAMS += -I3rdparty/bgfx/include
 CPPCHECK_PARAMS += -I3rdparty/bx/include
-CPPCHECK_PARAMS += -Ibuild/generated/emu 
-CPPCHECK_PARAMS += -Ibuild/generated/emu/layout
-CPPCHECK_PARAMS += -Ibuild/generated/mame/layout 
+CPPCHECK_PARAMS += -I$(BUILDDIR)/generated/emu
+CPPCHECK_PARAMS += -I$(BUILDDIR)/generated/emu/layout
+CPPCHECK_PARAMS += -I$(BUILDDIR)/generated/mame/layout
 CPPCHECK_PARAMS += -DX64_WINDOWS_ABI
 CPPCHECK_PARAMS += -DPTR64=1
 CPPCHECK_PARAMS += -DMAME_DEBUG

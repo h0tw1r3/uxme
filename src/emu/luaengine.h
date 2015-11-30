@@ -148,7 +148,6 @@ private:
 	};
 
 	void resume(void *L, INT32 param);
-	void report_errors(int status);
 	void start();
 	void close();
 
