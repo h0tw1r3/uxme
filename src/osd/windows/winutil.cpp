@@ -12,6 +12,7 @@
 #include <direct.h>
 
 // MAMEOS headers
+#include "strconv.h"
 #include "winutil.h"
 
 //============================================================
