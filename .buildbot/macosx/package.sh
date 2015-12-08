@@ -85,7 +85,7 @@ cp -r ../../docs "${SCRATCH}"/disk/Docs
 
 # defaults
 echo "Defaults..."
-cp -r ../../{hash,hlsl,web,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
+cp -r ../../{hash,hlsl,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
 cp -r ../resources/dirs/* "${APPCONTENT}"/Resources/defaults/
 cp -r ../resources/fonts "${APPCONTENT}"/Resources/Fonts
 

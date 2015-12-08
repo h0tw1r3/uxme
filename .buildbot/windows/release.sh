@@ -55,7 +55,6 @@ cp "$BIN/imgtool${EXE}"    "$PKG"/tools/
 cp -r ../docs "$PKG"/
 cp -r ../hash "$PKG"/
 cp -r ../hlsl "$PKG"/
-cp -r ../web "$PKG"/
 cp -r ../samples "$PKG"/
 cp -r ../artwork "$PKG"/
 cp -r resources/dirs/* "$PKG"/
