@@ -64,7 +64,7 @@ cp -r resources/dirs/* "$PKG"/
 GITVERSION=$(git describe --tag --abbrev=0)
 ./changelog.sh $GITVERSION > "$PKG"/CHANGELOG.md
 
-VERSION=$(grep '^#define BARE_BUILD_VERSION' ../src/version.c | sed 's/.*"\(.*\)"$/\1/')
+VERSION=$(grep '^#define BARE_BUILD_VERSION' ../src/version.cpp | sed 's/.*"\(.*\)"$/\1/')
 
 pushd "$PKG" >/dev/null
 cd ..
