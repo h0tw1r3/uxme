@@ -18,6 +18,7 @@
 
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #include <yvals.h>
@@ -30,6 +31,26 @@
 #define assert(x) do { if (!(x)) { fprintf(stderr, "Assert: %s\n", #x); osd_break_into_debugger("Assertion failed"); } } while (0)
 #endif
 
+#if defined(__APPLE__)
+namespace std
+{
+	template <typename T, typename ... Args>
+	auto make_unique(Args&&... args)
+	-> typename std::enable_if<!std::is_array<T>::value,
+		std::unique_ptr<T>>::type
+	{
+		return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+	}
+
+	template<class T>
+	auto make_unique(std::size_t size)
+	-> typename std::enable_if<std::is_array<T>::value,
+		std::unique_ptr<T>>::type
+	{
+		return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
+	}
+}
+#endif
 
 typedef std::vector<UINT8> dynamic_buffer;
 
