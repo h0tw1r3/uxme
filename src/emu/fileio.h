@@ -42,9 +42,9 @@ public:
 	path_iterator(const char *searchpath);
 
 	// getters
-	bool next(std::string &buffer, const char *name = NULL);
-	const char *current() const { assert(m_base == NULL); return m_last.c_str(); }
-	const char *current_dir() const { assert(m_base == NULL); return m_last_dir.c_str(); }
+	bool next(std::string &buffer, const char *name = nullptr);
+	const char *current() const { assert(m_base == nullptr); return m_last.c_str(); }
+	const char *current_dir() const { assert(m_base == nullptr); return m_last_dir.c_str(); }
 
 	// reset
 	void reset() { m_current = m_base; m_index = 0; }
@@ -96,7 +96,7 @@ public:
 	// getters
 	operator core_file *();
 	operator core_file &();
-	bool is_open() const { return (m_file != NULL); }
+	bool is_open() const { return (m_file != nullptr); }
 	const char *filename() const { return m_filename.c_str(); }
 	const char *fullpath() const { return m_fullpath.c_str(); }
 	const char *dirname() const { return m_iterator.current_dir(); }
@@ -107,7 +107,7 @@ public:
 
 	// setters
 	void remove_on_close() { m_remove_on_close = true; }
-	void set_openflags(UINT32 openflags) { assert(m_file == NULL); m_openflags = openflags; }
+	void set_openflags(UINT32 openflags) { assert(m_file == nullptr); m_openflags = openflags; }
 	void set_restrict_to_mediapath(bool rtmp = true) { m_restrict_to_mediapath = rtmp; }
 
 	// open/close

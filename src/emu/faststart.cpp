@@ -59,7 +59,7 @@ void faststart_init (running_machine &machine)
 {
 	const char *faststart = machine.options().fast_start();
 
-	if (faststart != NULL && faststart[0] != 0)
+	if (faststart != nullptr && faststart[0] != 0)
 	{
 		if (strcmp(faststart, "auto") == 0)
 			faststart_load(machine);

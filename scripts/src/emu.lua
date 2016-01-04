@@ -16,6 +16,8 @@ kind (LIBTYPE)
 
 -- MEWUI
 dofile("mewui.lua")
+addprojectflags()
+
 includedirs {
 	MAME_DIR .. "src/osd",
 	MAME_DIR .. "src/emu",

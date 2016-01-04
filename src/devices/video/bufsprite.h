@@ -65,7 +65,7 @@ public:
 	// operations
 	_Type *copy(UINT32 srcoffset = 0, UINT32 srclength = 0x7fffffff)
 	{
-		assert(m_spriteram != NULL);
+		assert(m_spriteram != nullptr);
 		return &m_spriteram[0];
 	}
 
@@ -78,9 +78,9 @@ public:
 
 protected:
 	// first-time setup
-	virtual void device_start()
+	virtual void device_start() override
 	{
-		if (m_spriteram != NULL)
+		if (m_spriteram != nullptr)
 		{
 			m_buffered.resize(m_spriteram.bytes() / sizeof(_Type));
 			save_item(NAME(m_buffered));

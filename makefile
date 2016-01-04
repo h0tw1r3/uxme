@@ -81,7 +81,6 @@
 # LTO = 1
 # SSE2 = 1
 # OPENMP = 1
-# CPP11 = 1
 # FASTDEBUG = 1
 
 # FILTER_DEPS = 1
@@ -117,9 +116,28 @@ MAKEPARAMS := -R
 ifeq ($(OS),Windows_NT)
 OS := windows
 GENIEOS := windows
+PLATFORM := x86
 else
 UNAME := $(shell uname -mps)
+UNAME_M := $(shell uname -m)
+UNAME_P := $(shell uname -p)
 GENIEOS := linux
+PLATFORM := unknown
+ifneq ($(filter x86_64,$(UNAME_P)),)
+PLATFORM := x86
+endif 
+ifneq ($(filter %86,$(UNAME_P)),)
+PLATFORM := x86
+endif 
+ifneq ($(filter arm%,$(UNAME_M)),)
+PLATFORM := arm
+endif 
+ifneq ($(filter arm%,$(UNAME_P)),)
+PLATFORM := arm
+endif 
+ifneq ($(filter powerpc,$(UNAME_P)),)
+PLATFORM := powerpc
+endif 
 ifeq ($(firstword $(filter Linux,$(UNAME))),Linux)
 OS := linux
 endif
@@ -164,10 +182,10 @@ endif
 endif
 
 #-------------------------------------------------
-# specify core target: mame, mess, etc.
-# specify subtarget: mame, mess, tiny, etc.
-# build rules will be included from
-# src/$(TARGET)/$(SUBTARGET).mak
+# specify core target: mame, ldplayer
+# specify subtarget: mame, arcade, mess, tiny, etc.
+# build scripts will be run from
+# scripts/target/$(TARGET)/$(SUBTARGET).lua
 #-------------------------------------------------
 
 ifndef TARGET
@@ -303,8 +321,8 @@ LD := $(SILENT)g++
 
 #-------------------------------------------------
 # specify OSD layer: windows, sdl, etc.
-# build rules will be included from
-# src/osd/$(OSD)/$(OSD).mak
+# build scripts will be run from
+# scripts/src/osd/$(OSD).lua
 #-------------------------------------------------
 
 ifndef OSD
@@ -627,10 +645,6 @@ ifdef OPENMP
 PARAMS += --OPENMP='$(OPENMP)'
 endif
 
-ifdef CPP11
-PARAMS += --CPP11='$(CPP11)'
-endif
-
 ifdef FASTDEBUG
 PARAMS += --FASTDEBUG='$(FASTDEBUG)'
 endif
@@ -665,6 +679,10 @@ endif
 
 ifdef FORCE_VERSION_COMPILE
 PARAMS += --FORCE_VERSION_COMPILE='$(FORCE_VERSION_COMPILE)'
+endif
+
+ifdef PLATFORM
+PARAMS += --PLATFORM='$(PLATFORM)'
 endif
 
 #-------------------------------------------------
@@ -747,12 +765,11 @@ SRC = src
 3RDPARTY = 3rdparty
 
 ifeq ($(OS),windows)
-GCC_VERSION      := $(shell gcc -dumpversion 2> NUL)
-CLANG_VERSION    := $(shell %CLANG%\bin\clang --version 2> NUL| head -n 1 | sed "s/[^0-9,.]//g")
+GCC_VERSION      := $(shell $(subst @,,$(CC)) -dumpversion 2> NUL)
+CLANG_VERSION    := $(shell $(subst @,,$(CC)) --version 2> NUL| head -n 1 | grep clang | sed "s/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\).*$$/\1/" | head -n 1)
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > NUL 2>&1 && echo python)
-CHECK_CLANG      :=
 ifdef MSBUILD
-MSBUILD_PARAMS   := /v:minimal /m:$(NUMBER_OF_PROCESSORS) 
+MSBUILD_PARAMS   := /v:minimal /m:$(NUMBER_OF_PROCESSORS)
 ifeq ($(CONFIG),debug)
 MSBUILD_PARAMS += /p:Configuration=Debug
 else
@@ -763,7 +780,9 @@ MSBUILD_PARAMS += /p:Platform=x64
 else
 MSBUILD_PARAMS += /p:Platform=win32
 endif
-ifeq ($(SUBTARGET),mess)
+ifeq ($(SUBTARGET),mame)
+MSBUILD_SOLUTION := $(SUBTARGET).sln
+else ifeq ($(SUBTARGET),mess)
 MSBUILD_SOLUTION := $(SUBTARGET).sln
 else
 MSBUILD_SOLUTION := $(TARGET)$(SUBTARGET).sln
@@ -772,20 +791,20 @@ endif
 else
 GCC_VERSION      := $(shell $(subst @,,$(CROSS_PREFIX)$(CC)) -dumpversion 2> /dev/null)
 ifneq ($(OS),solaris)
-CLANG_VERSION    := $(shell clang --version  2> /dev/null | head -n 1 | grep -e 'version [0-9]\.[0-9]\(\.[0-9]\)\?' -o | grep -e '[0-9]\.[0-9]\(\.[0-9]\)\?' -o | tail -n 1)
+CLANG_VERSION    := $(shell $(subst @,,$(CC))  --version  2> /dev/null | head -n 1 | grep -e 'version [0-9]\.[0-9]\(\.[0-9]\)\?' -o | grep -e '[0-9]\.[0-9]\(\.[0-9]\)\?' -o | tail -n 1)
 endif
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > /dev/null 2>&1 && echo python)
-CHECK_CLANG      := $(shell gcc --version  2> /dev/null | grep 'clang' | head -n 1)
 endif
-
-ifeq ($(TARGETOS),macosx)
+ifeq ($(CLANG_VERSION),)
+$(info GCC $(GCC_VERSION) detected)
+else
+$(info Clang $(CLANG_VERSION) detected)
 ifeq ($(ARCHITECTURE),_x64)
 ARCHITECTURE := _x64_clang
 else
 ARCHITECTURE := _x86_clang
 endif
 endif
-
 ifneq ($(PYTHON_AVAILABLE),python)
 $(error Python is not available in path)
 endif
@@ -851,18 +870,6 @@ windows_x64_clang: generate $(PROJECTDIR)/gmake-mingw-clang/Makefile
 .PHONY: windows_x86_clang
 windows_x86_clang: generate $(PROJECTDIR)/gmake-mingw-clang/Makefile
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/gmake-mingw-clang config=$(CONFIG)32 WINDRES=$(WINDRES)
-
-vs2010: generate
-	$(SILENT) $(GENIE) $(PARAMS) vs2010
-
-vs2012: generate
-	$(SILENT) $(GENIE) $(PARAMS) vs2012
-
-vs2012_intel: generate
-	$(SILENT) $(GENIE) $(PARAMS) --vs=intel-15 vs2012
-
-vs2012_xp: generate
-	$(SILENT) $(GENIE) $(PARAMS) --vs=vs2012-xp vs2012
 
 vs2013: generate
 	$(SILENT) $(GENIE) $(PARAMS) vs2013
@@ -953,7 +960,7 @@ ifndef EMSCRIPTEN
 	$(error EMSCRIPTEN is not set)
 endif
 ifndef COMPILE
-	$(SILENT) $(GENIE) $(PARAMS) --gcc=asmjs --gcc_version=4.8 gmake
+	$(SILENT) $(GENIE) $(PARAMS) --gcc=asmjs --gcc_version=4.9 gmake
 endif
 	$(SILENT) $(MAKE) $(MAKEPARAMS) -C $(PROJECTDIR)/gmake-asmjs config=$(CONFIG)
 
@@ -1151,14 +1158,14 @@ os2_x86: generate $(PROJECTDIR)/gmake-os2/Makefile
 cmake: generate
 	$(SILENT) $(GENIE) $(PARAMS) cmake
 ifeq ($(OS),windows)
-	$(SILENT)echo cmake_minimum_required(VERSION 2.8.4) > CMakeLists.txt 
-	$(SILENT)echo add_subdirectory($(PROJECTDIR)/cmake) >> CMakeLists.txt 
+	$(SILENT)echo cmake_minimum_required(VERSION 2.8.4) > CMakeLists.txt
+	$(SILENT)echo add_subdirectory($(PROJECTDIR)/cmake) >> CMakeLists.txt
 else
-	$(SILENT)echo "cmake_minimum_required(VERSION 2.8.4)" > CMakeLists.txt 
-	$(SILENT)echo "add_subdirectory($(PROJECTDIR)/cmake)" >> CMakeLists.txt 
+	$(SILENT)echo "cmake_minimum_required(VERSION 2.8.4)" > CMakeLists.txt
+	$(SILENT)echo "add_subdirectory($(PROJECTDIR)/cmake)" >> CMakeLists.txt
 endif
 
-	
+
 #-------------------------------------------------
 # Clean/bootstrap
 #-------------------------------------------------
@@ -1199,7 +1206,7 @@ $(GENDIR)/%.lh: $(SRC)/%.lay scripts/build/file2str.py
 	@echo Converting $<...
 	$(SILENT)$(PYTHON) scripts/build/file2str.py $< $@ layout_$(basename $(notdir $<))
 
-	
+
 #-------------------------------------------------
 # Regression tests
 #-------------------------------------------------
@@ -1293,4 +1300,4 @@ endif
 cppcheck:
 	@echo Generate CppCheck analysis report
 	cppcheck --enable=all src/ $(CPPCHECK_PARAMS) -j9
-	
+

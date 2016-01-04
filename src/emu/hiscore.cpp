@@ -104,7 +104,7 @@ static UINT32 hexstr2num (const char **pString)
 				/* not a hexadecimal digit */
 				/* safety check for premature EOL */
 				if (!c)
-					string = NULL;
+					string = nullptr;
 				break;
 			}
 			result = result*16 + digit;
@@ -190,7 +190,7 @@ static void hiscore_free (void)
 		global_free_array(mem_range);
 		mem_range = next;
 	}
-	state.mem_range = NULL;
+	state.mem_range = nullptr;
 }
 
 static void hiscore_load (running_machine &machine)
@@ -303,7 +303,7 @@ void hiscore_init (running_machine &machine)
 		}
 	}
 
-	state.mem_range = NULL;
+	state.mem_range = nullptr;
 	emu_file f(machine.options().dat_path(), OPEN_FLAG_READ);
 	filerr = f.open("hiscore", ".dat");
 
@@ -335,12 +335,12 @@ void hiscore_init (running_machine &machine)
 					mem_range->start_value = hexstr2num (&pBuf);
 					mem_range->end_value = hexstr2num (&pBuf);
 
-					mem_range->next = NULL;
+					mem_range->next = nullptr;
 					{
 						memory_range *last = state.mem_range;
 						while (last && last->next) last = last->next;
 
-						if (last == NULL)
+						if (last == nullptr)
 						{
 							state.mem_range = mem_range;
 						}

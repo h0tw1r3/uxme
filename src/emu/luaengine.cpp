@@ -35,12 +35,12 @@
 	(fputs(p, stdout), fflush(stdout),  /* show prompt */ \
 	fgets(b, LUA_MAXINPUT, stdin) != NULL)  /* get line */
 
-static lua_State *globalL = NULL;
+static lua_State *globalL = nullptr;
 
 #define luai_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #define luai_writeline()    (luai_writestring("\n", 1), fflush(stdout))
 
-lua_engine* lua_engine::luaThis = NULL;
+lua_engine* lua_engine::luaThis = nullptr;
 
 extern "C" {
 	int luaopen_lsqlite3(lua_State *L);
@@ -49,7 +49,7 @@ extern "C" {
 static void lstop(lua_State *L, lua_Debug *ar)
 {
 	(void)ar;  /* unused arg. */
-	lua_sethook(L, NULL, 0, 0);
+	lua_sethook(L, nullptr, 0, 0);
 	luaL_error(L, "interrupted!");
 }
 
@@ -65,7 +65,7 @@ int lua_engine::report(int status) {
 	if (status != LUA_OK && !lua_isnil(m_lua_state, -1))
 	{
 		const char *msg = lua_tostring(m_lua_state, -1);
-		if (msg == NULL) msg = "(error object is not a string)";
+		if (msg == nullptr) msg = "(error object is not a string)";
 		lua_writestringerror("%s\n", msg);
 		lua_pop(m_lua_state, 1);
 		/* force a complete garbage collection in case of errors */
@@ -124,7 +124,7 @@ int lua_engine::incomplete(int status)
 
 lua_engine::hook::hook()
 {
-	L = NULL;
+	L = nullptr;
 	cb = -1;
 }
 
@@ -138,7 +138,7 @@ void lua_engine::hook::set(lua_State *_L, int idx)
 		luaL_unref(L, LUA_REGISTRYINDEX, cb);
 
 	if (lua_isnil(_L, idx)) {
-		L = NULL;
+		L = nullptr;
 		cb = -1;
 
 	} else {
@@ -162,7 +162,7 @@ void lua_engine::hook::call(lua_engine *engine, lua_State *T, int nparam)
 
 void lua_engine::resume(lua_State *L, int nparam, lua_State *root)
 {
-	int s = lua_resume(L, NULL, nparam);
+	int s = lua_resume(L, nullptr, nparam);
 	switch(s) {
 	case LUA_OK:
 		if(!root) {
@@ -293,7 +293,7 @@ int lua_engine::emu_wait(lua_State *L)
 {
 	luaL_argcheck(L, lua_isnumber(L, 1), 1, "waiting duration expected");
 	machine().scheduler().timer_set(attotime::from_double(lua_tonumber(L, 1)), timer_expired_delegate(FUNC(lua_engine::resume), this), 0, L);
-	return lua_yieldk(L, 0, 0, 0);
+	return lua_yieldk(L, 0, 0, nullptr);
 }
 
 int lua_engine::l_emu_wait(lua_State *L)
@@ -322,7 +322,7 @@ void lua_engine::emu_hook_output(lua_State *L)
 	hook_output_cb.set(L, 1);
 
 	if (!output_notifier_set) {
-		output_set_notifier(NULL, s_output_notifier, this);
+		output_set_notifier(nullptr, s_output_notifier, this);
 		output_notifier_set = true;
 	}
 }
@@ -348,7 +348,7 @@ void lua_engine::emu_set_hook(lua_State *L)
 	if (strcmp(hookname, "output") == 0) {
 		hook_output_cb.set(L, 1);
 		if (!output_notifier_set) {
-			output_set_notifier(NULL, s_output_notifier, this);
+			output_set_notifier(nullptr, s_output_notifier, this);
 			output_notifier_set = true;
 		}
 	} else if (strcmp(hookname, "frame") == 0) {
@@ -475,7 +475,7 @@ luabridge::LuaRef lua_engine::l_machine_get_screens(const running_machine *r)
 	lua_State *L = luaThis->m_lua_state;
 	luabridge::LuaRef screens_table = luabridge::LuaRef::newTable(L);
 
-	for (device_t *dev = r->first_screen(); dev != NULL; dev = dev->next()) {
+	for (device_t *dev = r->first_screen(); dev != nullptr; dev = dev->next()) {
 		screen_device *sc = dynamic_cast<screen_device *>(dev);
 		if (sc && sc->configured() && sc->started() && sc->type()) {
 			screens_table[sc->tag()] = sc;
@@ -563,7 +563,7 @@ luabridge::LuaRef lua_engine::l_render_get_targets(const render_manager *r)
 luabridge::LuaRef lua_engine::devtree_dfs(device_t *root, luabridge::LuaRef devs_table)
 {
 	if (root) {
-		for (device_t *dev = root->first_subdevice(); dev != NULL; dev = dev->next()) {
+		for (device_t *dev = root->first_subdevice(); dev != nullptr; dev = dev->next()) {
 			if (dev && dev->configured() && dev->started()) {
 				devs_table[dev->tag()] = dev;
 				devtree_dfs(dev, devs_table);
@@ -603,7 +603,7 @@ luabridge::LuaRef lua_engine::l_dev_get_states(const device_t *d)
 	device_t *dev = const_cast<device_t *>(d);
 	lua_State *L = luaThis->m_lua_state;
 	luabridge::LuaRef st_table = luabridge::LuaRef::newTable(L);
-	for (const device_state_entry *s = dev->state().state_first(); s != NULL; s = s->next()) {
+	for (const device_state_entry *s = dev->state().state_first(); s != nullptr; s = s->next()) {
 		// XXX: refrain from exporting non-visible entries?
 		if (s) {
 			st_table[s->symbol()] = const_cast<device_state_entry *>(s);
@@ -972,7 +972,7 @@ int lua_engine::lua_screen::l_draw_text(lua_State *L)
 	ui_manager &ui = sc->machine().ui();
 	ui.draw_text_full(&rc, msg, x, y , (1.0f - x),
 						JUSTIFY_LEFT, WRAP_WORD, DRAW_NORMAL, textcolor,
-						UI_TEXT_BG_COLOR, NULL, NULL);
+						UI_TEXT_BG_COLOR, nullptr, nullptr);
 
 	return 0;
 }
@@ -982,13 +982,13 @@ void *lua_engine::checkparam(lua_State *L, int idx, const char *tname)
 	const char *name;
 
 	if(!lua_getmetatable(L, idx))
-	return 0;
+	return nullptr;
 
 	lua_rawget(L, LUA_REGISTRYINDEX);
 	name = lua_tostring(L, -1);
 	if(!name || strcmp(name, tname)) {
 	lua_pop(L, 1);
-	return 0;
+	return nullptr;
 	}
 	lua_pop(L, 1);
 
@@ -1113,7 +1113,7 @@ static void *serve_lua(void *param)
 
 lua_engine::lua_engine()
 {
-	m_machine = NULL;
+	m_machine = nullptr;
 	luaThis = this;
 	m_lua_state = luaL_newstate();  /* create state */
 	output_notifier_set = false;
@@ -1364,7 +1364,7 @@ void lua_engine::start_console()
 bool lua_engine::frame_hook()
 {
 	bool is_cb_hooked = false;
-	if (m_machine != NULL) {
+	if (m_machine != nullptr) {
 		// invoke registered callback (if any)
 		is_cb_hooked = hook_frame_cb.active();
 		if (is_cb_hooked) {
