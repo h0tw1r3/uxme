@@ -175,7 +175,7 @@ public:
 	void wrap_text(render_container *container, const char *origs, float x, float y, float origwrapwidth, int &totallines, std::vector<int> &xstart, std::vector<int> &xend, float text_size = 1.0f);
 
 	// draw an outlined box with given line color and filled with a texture
-	void draw_textured_box(render_container *container, float x0, float y0, float x1, float y1, rgb_t backcolor, rgb_t linecolor, render_texture *texture = NULL, UINT32 flags = PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
+	void draw_textured_box(render_container *container, float x0, float y0, float x1, float y1, rgb_t backcolor, rgb_t linecolor, render_texture *texture = nullptr, UINT32 flags = PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
 
 	// return text string width with given text size
 	float get_string_width_ex(const char *s, float text_size);
@@ -217,7 +217,7 @@ private:
 /***************************************************************************
     FUNCTION PROTOTYPES
 ***************************************************************************/
-rgb_t decode_ui_color(int id, running_machine *machine = NULL);
-int get_font_rows(running_machine *machine = NULL);
+rgb_t decode_ui_color(int id, running_machine *machine = nullptr);
+int get_font_rows(running_machine *machine = nullptr);
 
 #endif  /* __USRINTRF_H__ */

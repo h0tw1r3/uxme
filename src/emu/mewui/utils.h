@@ -17,14 +17,12 @@
 #include "render.h"
 #include "libjpeg/jpeglib.h"
 #include <algorithm>
-#undef realloc
-#include <fstream>
-#define realloc(x,y)    __error_realloc_is_dangerous__
 #include "drivenum.h"
+#include <map>
 
 #define MAX_CHAR_INFO            256
 #define MAX_CUST_FILTER          8
-#define MEWUI_VERSION_TAG        build_version
+#define MEWUI_VERSION_TAG        "# MEWUI INFO "
 
 // GLOBAL ENUMERATORS
 enum
@@ -169,22 +167,31 @@ enum
 // GLOBAL STRUCTURES
 struct ui_software_info
 {
+	ui_software_info() {}
+	ui_software_info(std::string sname, std::string lname, std::string pname, std::string y, std::string pub,
+		UINT8 s, std::string pa, const game_driver *d, std::string li, std::string i, std::string is, UINT8 em,
+		std::string plong, std::string u, std::string de, bool av)
+	{
+		shortname = sname; longname = lname; parentname = pname; year = y; publisher = pub;
+		supported = s; part = pa; driver = d; listname = li; interface = i; instance = is; startempty = em;
+		parentlongname = plong; usage = u; devicetype = de; available = av;
+	}
 	std::string shortname;
 	std::string longname;
 	std::string parentname;
 	std::string year;
 	std::string publisher;
-	UINT8 supported;
+	UINT8 supported = 0;
 	std::string part;
 	const game_driver *driver;
 	std::string listname;
 	std::string interface;
 	std::string instance;
-	UINT8 startempty;
+	UINT8 startempty = 0;
 	std::string parentlongname;
 	std::string usage;
 	std::string devicetype;
-	bool available;
+	bool available = false;
 
 	bool operator==(const ui_software_info& r)
 	{
@@ -265,7 +272,7 @@ struct sw_custfltr
 // GLOBAL FUNCTIONS
 
 // advanced search function
-int fuzzy_substring(const char *needle, const char *haystack);
+int fuzzy_substring(std::string needle, std::string haystack);
 int fuzzy_substring2(const char *needle, const char *haystack);
 
 // jpeg loader
@@ -277,14 +284,11 @@ void render_load_jpeg(_T &bitmap, emu_file &file, const char *dirname, const cha
 
 	bitmap_format format = bitmap.format();
 
-	UINT64 jpg_size = 0;
-	unsigned char *jpg_buffer = NULL;
-
 	// define file's full name
 	std::string fname;
 
 	if (!dirname)
-		fname.assign(filename);
+		fname = filename;
 	else
 		fname.assign(dirname).append(PATH_SEPARATOR).append(filename);
 
@@ -300,8 +304,8 @@ void render_load_jpeg(_T &bitmap, emu_file &file, const char *dirname, const cha
 	jpeg_create_decompress(&cinfo);
 
 	// allocates a buffer for the image
-	jpg_size = file.size();
-	jpg_buffer = global_alloc_array(unsigned char, jpg_size + 100);
+	UINT64 jpg_size = file.size();
+	unsigned char *jpg_buffer = global_alloc_array(unsigned char, jpg_size + 100);
 
 	// read data from the file and set them in the buffer
 	file.read(jpg_buffer, jpg_size);
@@ -328,14 +332,14 @@ void render_load_jpeg(_T &bitmap, emu_file &file, const char *dirname, const cha
 		jpeg_read_scanlines(&cinfo, buffer, 1);
 
 		if (s == 1)
-			for (int i = 0; i < w; i++)
+			for (int i = 0; i < w; ++i)
 				if (format == BITMAP_FORMAT_ARGB32)
 					bitmap.pix32(j, i) = rgb_t(0xFF, buffer[0][i], buffer[0][i], buffer[0][i]);
 				else
 					bitmap.pix32(j, i) = rgb_t(buffer[0][i], buffer[0][i], buffer[0][i]);
 
 		else if (s == 3)
-			for (int i = 0; i < w; i++)
+			for (int i = 0; i < w; ++i)
 				if (format == BITMAP_FORMAT_ARGB32)
 					bitmap.pix32(j, i) = rgb_t(0xFF, buffer[0][i * s], buffer[0][i * s + 1], buffer[0][i * s + 2]);
 				else
@@ -357,7 +361,6 @@ void render_load_jpeg(_T &bitmap, emu_file &file, const char *dirname, const cha
 	global_free_array(jpg_buffer);
 }
 
-// std::getline consistent line endings replacement
-std::ifstream &clean_getline(std::ifstream &is, std::string &line);
+std::string strtrimcarriage(std::string &str);
 
 #endif /* __MEWUI_UTILS_H__ */

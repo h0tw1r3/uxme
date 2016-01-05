@@ -57,22 +57,22 @@ void ui_menu_game_options::handle()
 //	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | UI_MENU_PROCESS_NOIMAGE);
 	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT);
 
-	if (m_event != NULL && m_event->itemref != NULL)
+	if (m_event != nullptr && m_event->itemref != nullptr)
 		switch ((FPTR)m_event->itemref)
 		{
 			case FILTER_MENU:
 			{
 				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(m_event->iptkey == IPT_UI_RIGHT) ? main_filters::actual++ : main_filters::actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? ++main_filters::actual : --main_filters::actual;
 					changed = true;
 				}
 				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
 					int total = main_filters::length;
 					std::vector<std::string> s_sel(total);
-					for (int index = 0; index < total; index++)
-						s_sel[index].assign(main_filters::text[index]);
+					for (int index = 0; index < total; ++index)
+						s_sel[index] = main_filters::text[index];
 
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &main_filters::actual)));
 				}
@@ -100,7 +100,7 @@ void ui_menu_game_options::handle()
 					std::vector<std::string> s_sel(total);
 					machine().inifile().current_category = 0;
 					for (size_t index = 0; index < total; ++index)
-						s_sel[index].assign(ifile.ini_index[index].name);
+						s_sel[index] = ifile.ini_index[index].name;
 
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &ifile.current_file, SELECTOR_INIFILE)));
 				}
@@ -126,7 +126,7 @@ void ui_menu_game_options::handle()
 					int total = ifile.ini_index[cfile].category.size();
 					std::vector<std::string> s_sel(total);
 					for (int index = 0; index < total; ++index)
-						s_sel[index].assign(ifile.ini_index[cfile].category[index].name);
+						s_sel[index] = ifile.ini_index[cfile].category[index].name;
 
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, s_sel, &ifile.current_category, SELECTOR_CATEGORY)));
 				}
@@ -165,7 +165,7 @@ void ui_menu_game_options::handle()
 				{
 					std::vector<std::string> text(screen_filters::length);
 					for (int x = 0; x < screen_filters::length; ++x)
-						text[x].assign(screen_filters::text[x]);
+						text[x] = screen_filters::text[x];
 
 					ui_menu::stack_push(auto_alloc_clear(machine(), ui_menu_selector(machine(), container, text, &screen_filters::actual)));
 				}
@@ -249,7 +249,7 @@ void ui_menu_game_options::populate()
 		item_append(fbuff.c_str(), inif.ini_index[afile].name.c_str(), arrow_flags, (void *)(FPTR)FILE_CATEGORY_FILTER);
 
 		arrow_flags = get_arrow_flags(0, inif.ini_index[afile].category.size() - 1, acategory);
-		fbuff.assign(" ^!Category");
+		fbuff = " ^!Category";
 		convert_command_glyph(fbuff);
 		item_append(fbuff.c_str(), inif.ini_index[afile].category[acategory].name.c_str(), arrow_flags, (void *)(FPTR)CATEGORY_FILTER);
 	}
@@ -257,7 +257,7 @@ void ui_menu_game_options::populate()
 	else if (main_filters::actual == FILTER_MANUFACTURER && c_mnfct::ui.size() > 0)
 	{
 		arrow_flags = get_arrow_flags(0, c_mnfct::ui.size() - 1, c_mnfct::actual);
-		fbuff.assign("^!Manufacturer");
+		fbuff = "^!Manufacturer";
 		convert_command_glyph(fbuff);
 		item_append(fbuff.c_str(), c_mnfct::ui[c_mnfct::actual].c_str(), arrow_flags, (void *)(FPTR)MANUFACT_CAT_FILTER);
 	}
@@ -273,28 +273,28 @@ void ui_menu_game_options::populate()
 	else if (main_filters::actual == FILTER_SCREEN)
 	{
 		arrow_flags = get_arrow_flags(0, screen_filters::length - 1, screen_filters::actual);
-		fbuff.assign("^!Screen type");
+		fbuff = "^!Screen type";
 		convert_command_glyph(fbuff);
 		item_append(fbuff.c_str(), screen_filters::text[screen_filters::actual], arrow_flags, (void *)(FPTR)SCREEN_CAT_FILTER);
 	}
 	// add custom subitem
 	else if (main_filters::actual == FILTER_CUSTOM)
 	{
-		fbuff.assign("^!Setup custom filter");
+		fbuff = "^!Setup custom filter";
 		convert_command_glyph(fbuff);
-		item_append(fbuff.c_str(), NULL, 0, (void *)(FPTR)CUSTOM_FILTER);
+		item_append(fbuff.c_str(), nullptr, 0, (void *)(FPTR)CUSTOM_FILTER);
 	}
 
-	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
+	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 
 	// add options items
-	item_append("Customize UI", NULL, 0, (void *)(FPTR)CUSTOM_MENU);
-	item_append("Display Options", NULL, 0, (void *)(FPTR)DISPLAY_MENU);
-	item_append("Sound Options", NULL, 0, (void *)(FPTR)SOUND_MENU);
-	item_append("Miscellaneous Options", NULL, 0, (void *)(FPTR)MISC_MENU);
-	item_append("Device Mapping", NULL, 0, (void *)(FPTR)CONTROLLER_MENU);
-	item_append("General Inputs", NULL, 0, (void *)(FPTR)CGI_MENU);
-	item_append(MENU_SEPARATOR_ITEM, NULL, 0, NULL);
+	item_append("Customize UI", nullptr, 0, (void *)(FPTR)CUSTOM_MENU);
+	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
+	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
+	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
+	item_append("Device Mapping", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
+	item_append("General Inputs", nullptr, 0, (void *)(FPTR)CGI_MENU);
+	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 
 	custombottom = 2.0f * machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
 	customtop = machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
@@ -309,7 +309,7 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 	float width;
 	ui_manager &mui = machine().ui();
 	mui.draw_text_full(container, "Settings", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
-	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, NULL);
+	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
 	width += 2 * UI_BOX_LR_BORDER;
 	float maxwidth = MAX(origx2 - origx1, width);
 
@@ -329,7 +329,7 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 
 	// draw the text within it
 	mui.draw_text_full(container, "Settings", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
-	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, NULL, NULL);
+	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 }
 
 //-------------------------------------------------

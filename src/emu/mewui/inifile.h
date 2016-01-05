@@ -15,20 +15,6 @@
 
 #include "mewui/utils.h"
 
-// category structure
-struct IniCategoryIndex
-{
-	std::string name;
-	long offset;
-};
-
-// ini file structure
-struct IniFileIndex
-{
-	std::string name;
-	std::vector<IniCategoryIndex> category;
-};
-
 //-------------------------------------------------
 //  INIFILE MANAGER
 //-------------------------------------------------
@@ -36,6 +22,22 @@ struct IniFileIndex
 class inifile_manager
 {
 public:
+	// category structure
+	struct IniCategoryIndex
+	{
+		IniCategoryIndex(std::string _name, long _offset) { name = _name; offset = _offset; }
+		std::string name;
+		long offset;
+	};
+
+	// ini file structure
+	struct IniFileIndex
+	{
+		IniFileIndex(std::string _name, std::vector<IniCategoryIndex> _category) { name = _name; category = _category; }
+		std::string name;
+		std::vector<IniCategoryIndex> category;
+	};
+
 	// construction/destruction
 	inifile_manager(running_machine &machine);
 
@@ -51,17 +53,19 @@ public:
 
 private:
 	// init category index
-	void init_category(std::vector<IniCategoryIndex> &index, std::string &filename);
+	void init_category(std::string &filename);
 
 	// init file index
 	void directory_scan();
 
-	// file open/close
+	// file open/close/seek
 	bool ParseOpen(const char *filename);
+	void ParseClose() { if (fp != nullptr) fclose(fp); }
 
 	// internal state
 	running_machine &m_machine;  // reference to our machine
 	std::string     m_fullpath;
+	FILE			*fp = nullptr;
 };
 
 //-------------------------------------------------
@@ -75,7 +79,7 @@ public:
 	favorite_manager(running_machine &machine);
 
 	// favorite indices
-	std::vector<ui_software_info> m_favorite_list;
+	std::vector<ui_software_info> m_list;
 
 	// getters
 	running_machine &machine() const { return m_machine; }
@@ -98,8 +102,10 @@ public:
 	void remove_favorite_game(ui_software_info &swinfo);
 
 private:
+	const char *favorite_filename = "favorites.ini";
+	
 	// current
-	int m_current_favorite;
+	int m_current;
 
 	// parse file mewui_favorite
 	void parse_favorite();
