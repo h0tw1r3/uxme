@@ -1,0 +1,49 @@
+# -*-Shell-script-*-
+
+# error handling setup
+set -o nounset -o pipefail -o errtrace
+
+format_version () {
+	echo $1 | sed 's/[a-z]*\([0-9]\)/\1./'
+}
+
+git_tag_previous() {
+	git for-each-ref refs/tags --sort=-committerdate --format='%(objecttype) %(refname:short)' | grep ^tag | cut -d' ' -f2- | awk '/'$(git_tag_bare)'/{print a}{a=$0}'
+}
+
+git_tag_mame_commit() {
+	git tag -l -n1 $(git_tag_bare) | awk '{print $2}'
+}
+
+git_tag_prev_mame_commit() {
+	git tag -l -n1 $(git_tag_previous) | awk '{print $2}'
+}
+
+git_tag_clean() {
+	git describe --tag | sed 's/-[^-]*$//'
+}
+
+git_tag_bare() {
+	git describe --tag --abbrev=0
+}
+
+error() {
+	local lc="$BASH_COMMAND" rc=$?
+	decho "ERROR in $0 : line $1 exit code $2"
+	decho "      [$lc]"
+	exit $2
+}
+trap 'error ${LINENO} ${?}' ERR
+
+function decho() {
+    command echo $(date +"[%d-%h-%Y %H:%M:%S %Z]") "$*"
+}
+
+# override commands
+function pushd() {
+    command pushd "$@" >/dev/null
+}
+function popd() {
+    command popd "$@" >/dev/null
+}
+

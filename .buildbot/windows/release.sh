@@ -1,19 +1,21 @@
 #!/bin/sh
 
-# switch to the buildbot directory
+# BEGIN: common script bootstrap
 SCRIPT_PATH="${BASH_SOURCE[0]}";
 if ([ -h "${SCRIPT_PATH}" ]) then
-  while([ -h "${SCRIPT_PATH}" ]) do SCRIPT_PATH=`readlink "${SCRIPT_PATH}"`; done
+	while([ -h "${SCRIPT_PATH}" ]) do SCRIPT_PATH=`readlink "${SCRIPT_PATH}"`; done
 fi
 pushd . > /dev/null
 cd `dirname ${SCRIPT_PATH}` > /dev/null
 SCRIPT_PATH=`pwd`;
-popd  > /dev/null
+popd > /dev/null
 cd "$SCRIPT_PATH/.."
+. ./common
+# END: common script bootstrap
 
-APPNAME=$1
-BUILD=$2
-ARCH=$3
+APPNAME=uxme
+BUILD=$1
+ARCH=$2
 COMPILER=mingw-gcc
 EXE=.exe
 
@@ -28,14 +30,14 @@ BIN=../build/$COMPILER/bin/$ARCH/$BUILD
 PKG=../build/$COMPILER/pkg/$ARCH/$BUILD
 
 if [ ! -d "$BIN" ]; then
-    echo "Invalid options, cant find the release directory"
+    decho "Invalid options, cant find the release directory"
     exit 1
 fi
 if [ -d "$PKG" ]; then
-    echo "Clean $PKG"
+    decho "Clean $PKG"
     rm -rf "$PKG"
 fi
-echo "Create $PKG"
+decho "Create $PKG"
 mkdir -p "$PKG"/tools
 
 cp "$BIN/${APPNAME}${EXE}" "$PKG"/
@@ -59,14 +61,13 @@ cp -r ../samples "$PKG"/
 cp -r ../artwork "$PKG"/
 cp -r resources/dirs/* "$PKG"/
 
-GITVERSION=$(git describe --tag --abbrev=0)
-./changelog.sh $GITVERSION > "$PKG"/CHANGELOG.md
+./changelog.sh > "$PKG"/CHANGELOG.md
 
-VERSION=$(grep '^#define BARE_BUILD_VERSION' ../src/version.cpp | sed 's/.*"\(.*\)"$/\1/')
+VERSION=$(format_version $(git_tag_clean))
 
-pushd "$PKG" >/dev/null
+pushd "$PKG"
 cd ..
-ln -s "$BUILD" "${APPNAME}-${VERSION}"
+ln -fs "$BUILD" "${APPNAME}-${VERSION}"
 7za a -mpass=4 -mfb=255 -y -tzip -l "${BUILD}.zip" "${APPNAME}-${VERSION}"
 unlink "${APPNAME}-${VERSION}"
 popd >/dev/null

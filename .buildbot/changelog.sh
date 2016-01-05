@@ -1,27 +1,26 @@
 #!/bin/sh
 
-VERSION=$1
+. ${0%/*}/common
+
 IFS=$'\r\n'
 
-echo -e "# Changelog $VERSION #"
+echo -e "# Changelog $(format_version $(git_tag_clean)) #"
 
-RANGE="${VERSION}..HEAD"
-i=0
-for author in $(git --no-pager log --no-merges --pretty=format:"%an" ${RANGE} | sort | uniq -c) ;
+RANGE="$(git_tag_previous)..HEAD"
+
+echo -e "\n## UXME commits ##"
+
+for author in $(git --no-pager log --first-parent --no-merges --pretty=format:"%an" ${RANGE} | sort | uniq -c) ;
 do
-	[ $i -eq 0 ] && echo -e "\n## Commits made after ${TAG} ##"
 	name=$(echo $author | sed 's/^\ *\([0-9]*\)\ \(.*\)$/\2/')
 	count=$(echo $author | sed 's/^\ *\([0-9]*\)\ \(.*\)$/\1/')
 	echo -e "\n### $name ($count commits)\n"
 	git --no-pager log --author="$name" --date=short --no-merges --pretty=format:"* %s" ${RANGE} | grep -s -v "(nw)\| NW\| nw" || true
-	(( i++ ))
 done
 
-MAMEVERSION="mame$(echo $VERSION | sed 's/[^0-9]//g')"
-PREVMAMEVERSION=$(git describe --tag --abbrev=0 ${MAMEVERSION}^)
-RANGE="${PREVMAMEVERSION}..${MAMEVERSION}"
+RANGE="$(git_tag_prev_mame_commit)..$(git_tag_mame_commit)"
 
-echo -e "\n## Commits"
+echo -e "\n## MAME commits ##"
 
 for author in $(git --no-pager log --no-merges --pretty=format:"%an" ${RANGE} | sort | uniq -c) ;
 do
