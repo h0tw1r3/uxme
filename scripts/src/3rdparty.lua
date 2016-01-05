@@ -275,6 +275,11 @@ end
 		buildoptions {
 			"-Wno-enum-conversion",
 		}
+		if _OPTIONS["targetos"]=="macosx" then
+			buildoptions_c {
+				"-Wno-unknown-attributes",
+			}
+		end
 	end
 	configuration { }
 
