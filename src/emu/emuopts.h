@@ -198,6 +198,8 @@ enum
 #define OPTION_AUTOBOOT_DELAY       "autoboot_delay"
 #define OPTION_AUTOBOOT_SCRIPT      "autoboot_script"
 
+#define OPTION_CONSOLE              "console"
+
 #define OPTION_HISCORE              "hiscore"
 
 // MEWUI core directory options
@@ -433,6 +435,8 @@ public:
 	const char *autoboot_command() const { return value(OPTION_AUTOBOOT_COMMAND); }
 	int autoboot_delay() const { return int_value(OPTION_AUTOBOOT_DELAY); }
 	const char *autoboot_script() const { return value(OPTION_AUTOBOOT_SCRIPT); }
+
+	bool console() const { return bool_value(OPTION_CONSOLE); }
 
 	bool hiscore() const { return bool_value(OPTION_HISCORE); }
 
