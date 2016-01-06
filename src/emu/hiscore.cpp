@@ -32,48 +32,26 @@ static struct
 
 static void copy_to_memory (running_machine &machine, int cpu, int addr, UINT8 *source, int num_bytes)
 {
-	int i;
-	address_space *targetspace;
+	bool mem_as_data = (strstr(machine.system().source_file,"cinemat.c") > 0);
+	address_space *targetspace = &machine.cpu[cpu]->memory().space(mem_as_data ? AS_DATA : AS_PROGRAM);
 
-	if (strstr(machine.system().source_file,"cinemat.c") > 0)
-	{
-		targetspace = &machine.cpu[cpu]->memory().space(AS_DATA);
-	}
-	else
-	{
-		targetspace = &machine.cpu[cpu]->memory().space(AS_PROGRAM);
-	}
-
-	for (i=0; i<num_bytes; i++)
-	{
+	for (int i=0; i<num_bytes; i++)
 		targetspace->write_byte(addr+i, source[i]);
-	}
 }
 
 static void copy_from_memory (running_machine &machine, int cpu, int addr, UINT8 *dest, int num_bytes)
 {
-	int i;
-	address_space *targetspace;
+	bool mem_as_data = (strstr(machine.system().source_file,"cinemat.c") > 0);
+	address_space *targetspace = &machine.cpu[cpu]->memory().space(mem_as_data ? AS_DATA : AS_PROGRAM);
 
-	if (strstr(machine.system().source_file,"cinemat.c") > 0)
-	{
-		targetspace = &machine.cpu[cpu]->memory().space(AS_DATA);
-	}
-	else
-	{
-		targetspace = &machine.cpu[cpu]->memory().space(AS_PROGRAM);
-	}
-
-	for (i=0; i<num_bytes; i++)
-	{
+	for (int i=0; i<num_bytes; i++)
 		dest[i] = targetspace->read_byte(addr+i);
-	}
 }
 
 /*  hexstr2num extracts and returns the value of a hexadecimal field from the
     character buffer pointed to by pString.
     When hexstr2num returns, *pString points to the character following
-    the first non-hexadecimal digit, or NULL if an end-of-string marker
+    the first non-hexadecimal digit, or nullptr if an end-of-string marker
     (0x00) is encountered. */
 static UINT32 hexstr2num (const char **pString)
 {
@@ -88,17 +66,11 @@ static UINT32 hexstr2num (const char **pString)
 			int digit;
 
 			if (c>='0' && c<='9')
-			{
 				digit = c-'0';
-			}
 			else if (c>='a' && c<='f')
-			{
 				digit = 10+c-'a';
-			}
 			else if (c>='A' && c<='F')
-			{
 				digit = 10+c-'A';
-			}
 			else
 			{
 				/* not a hexadecimal digit */
@@ -120,7 +92,7 @@ static UINT32 hexstr2num (const char **pString)
     that no game name starts with a decimal digit. */
 static int is_mem_range (const char *pBuf)
 {
-	char c;
+	char c = 0;
 
 	for(;;)
 	{
@@ -151,28 +123,16 @@ static int matching_game_name (const char *pBuf, const char *name)
 static int safe_to_load (running_machine &machine)
 {
 	memory_range *mem_range = state.mem_range;
-	address_space *srcspace;
-
-	if (strstr(machine.system().source_file,"cinemat.c") > 0)
-	{
-		srcspace = &machine.cpu[mem_range->cpu]->memory().space(AS_DATA);
-	}
-	else
-	{
-		srcspace = &machine.cpu[mem_range->cpu]->memory().space(AS_PROGRAM);
-	}
+	bool mem_as_data = (strstr(machine.system().source_file,"cinemat.c") > 0);
+	address_space *srcspace = &machine.cpu[mem_range->cpu]->memory().space(mem_as_data ? AS_DATA: AS_PROGRAM);
 
 	while (mem_range)
 	{
 		if (srcspace->read_byte(mem_range->addr) != mem_range->start_value)
-		{
 			return 0;
-		}
 
 		if (srcspace->read_byte(mem_range->addr + mem_range->num_bytes - 1) != mem_range->end_value)
-		{
 			return 0;
-		}
 
 		mem_range = mem_range->next;
 	}
@@ -206,16 +166,15 @@ static void hiscore_load (running_machine &machine)
 
 		while (mem_range)
 		{
-			UINT8 *data = global_alloc_array(UINT8, mem_range->num_bytes);
+			std::unique_ptr<UINT8[]> data = std::make_unique<UINT8[]>(mem_range->num_bytes);
 
 			if (data)
 			{
 				/*  this buffer will almost certainly be small
 				    enough to be dynamically allocated, but let's
 				    avoid memory trashing just in case */
-				f.read(data, mem_range->num_bytes);
-				copy_to_memory (machine,mem_range->cpu, mem_range->addr, data, mem_range->num_bytes);
-				global_free_array(data);
+				f.read(data.get(), mem_range->num_bytes);
+				copy_to_memory (machine, mem_range->cpu, mem_range->addr, data.get(), mem_range->num_bytes);
 			}
 			mem_range = mem_range->next;
 		}
@@ -235,16 +194,15 @@ static void hiscore_save (running_machine &machine)
 
 		while (mem_range)
 		{
-			UINT8 *data = global_alloc_array(UINT8, mem_range->num_bytes);
+			std::unique_ptr<UINT8[]> data = std::make_unique<UINT8[]>(mem_range->num_bytes);
 
 			if (data)
 			{
 				/*  this buffer will almost certainly be small
 				    enough to be dynamically allocated, but let's
 				    avoid memory trashing just in case */
-				copy_from_memory (machine, mem_range->cpu, mem_range->addr, data, mem_range->num_bytes);
-				f.write(data, mem_range->num_bytes);
-				global_free_array(data);
+				copy_from_memory (machine, mem_range->cpu, mem_range->addr, data.get(), mem_range->num_bytes);
+				f.write(data.get(), mem_range->num_bytes);
 			}
 			mem_range = mem_range->next;
 		}
@@ -255,16 +213,10 @@ static void hiscore_save (running_machine &machine)
 /* call hiscore_update periodically (i.e. once per frame) */
 static TIMER_CALLBACK( hiscore_periodic )
 {
-	if (state.mem_range)
+	if (state.mem_range && !state.hiscores_have_been_loaded && safe_to_load(machine))
 	{
-		if (!state.hiscores_have_been_loaded)
-		{
-			if (safe_to_load(machine))
-			{
 				hiscore_load(machine);
 				timer->enable(false);
-			}
-		}
 	}
 }
 
@@ -284,28 +236,19 @@ void hiscore_init (running_machine &machine)
 	file_error filerr;
 	const char *name = machine.system().name;
 	state.hiscores_have_been_loaded = 0;
+	bool mem_as_data = (strstr(machine.system().source_file,"cinemat.c") > 0);
 
 	while (mem_range)
 	{
-		if (strstr(machine.system().source_file,"cinemat.c") > 0)
-		{
-			initspace = &machine.cpu[mem_range->cpu]->memory().space(AS_DATA);
-			initspace->write_byte(mem_range->addr, ~mem_range->start_value);
-			initspace->write_byte(mem_range->addr + mem_range->num_bytes-1, ~mem_range->end_value);
-			mem_range = mem_range->next;
-		}
-		else
-		{
-			initspace = &machine.cpu[mem_range->cpu]->memory().space(AS_PROGRAM);
-			initspace->write_byte(mem_range->addr, ~mem_range->start_value);
-			initspace->write_byte(mem_range->addr + mem_range->num_bytes-1, ~mem_range->end_value);
-			mem_range = mem_range->next;
-		}
+		initspace = &machine.cpu[mem_range->cpu]->memory().space(mem_as_data ? AS_DATA : AS_PROGRAM);
+		initspace->write_byte(mem_range->addr, ~mem_range->start_value);
+		initspace->write_byte(mem_range->addr + mem_range->num_bytes-1, ~mem_range->end_value);
+		mem_range = mem_range->next;
 	}
 
 	state.mem_range = nullptr;
 	emu_file f(machine.options().dat_path(), OPEN_FLAG_READ);
-	filerr = f.open("hiscore", ".dat");
+	filerr = f.open("hiscore.dat");
 
 	if(filerr == FILERR_NONE)
 	{
@@ -318,9 +261,7 @@ void hiscore_init (running_machine &machine)
 			if (mode == FIND_NAME)
 			{
 				if (matching_game_name (buffer, name))
-				{
 					mode = FIND_DATA;
-				}
 			}
 			else if (is_mem_range (buffer))
 			{
@@ -341,13 +282,9 @@ void hiscore_init (running_machine &machine)
 						while (last && last->next) last = last->next;
 
 						if (last == nullptr)
-						{
 							state.mem_range = mem_range;
-						}
 						else
-						{
 							last->next = mem_range;
-						}
 					}
 
 					mode = FETCH_DATA;

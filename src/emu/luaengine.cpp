@@ -9,7 +9,6 @@
 ***************************************************************************/
 
 #include <limits>
-#include <thread>
 #include "lua.hpp"
 #include "luabridge/Source/LuaBridge/LuaBridge.h"
 #include <signal.h>
@@ -18,6 +17,7 @@
 #include "ui/ui.h"
 #include "cheat.h"
 #include "luaengine.h"
+#include <thread>
 
 //**************************************************************************
 //  LUA ENGINE
