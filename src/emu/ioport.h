@@ -367,9 +367,9 @@ enum ioport_type
 		IPT_UI_PASTE,
 		IPT_UI_SAVE_STATE,
 		IPT_UI_LOAD_STATE,
-		IPT_UI_TOGGLE_AUTOFIRE,			// autofire toggle button
 		IPT_UI_TAPE_START,
 		IPT_UI_TAPE_STOP,
+		IPT_UI_TOGGLE_AUTOFIRE,			// autofire toggle button
 		IPT_UI_SHOW_CLOCK,
 
 		// additional MEWUI options
@@ -1052,7 +1052,6 @@ public:
 	bool analog_invert() const { return ((m_flags & ANALOG_FLAG_INVERT) != 0); }
 
 	UINT8 impulse() const { return m_impulse; }
-	UINT8 autofire() const { return m_autofire; }
 	const char *name() const;
 	const char *specific_name() const { return m_name; }
 	const input_seq &seq(input_seq_type seqtype = SEQ_TYPE_STANDARD) const;
@@ -1145,8 +1144,6 @@ private:
 	// data relevant to analog control types
 	ioport_value                m_min;              // minimum value for absolute axes
 	ioport_value                m_max;              // maximum value for absolute axes
-	UINT8                       m_autofire;         // autofire
-	UINT8                       m_autopressed;      // autofire pressed
 	INT32                       m_sensitivity;      // sensitivity (100=normal)
 	INT32                       m_delta;            // delta to apply each frame a digital inc/dec key is pressed
 	INT32                       m_centerdelta;      // delta to apply each frame no digital inputs are pressed
@@ -1181,6 +1178,8 @@ struct ioport_field_live
 	bool                    last;               // were we pressed last time?
 	bool                    toggle;             // current toggle setting
 	digital_joystick::direction_t joydir;       // digital joystick direction index
+	UINT8                   autofire;           // autofire
+	UINT8                   autopressed;        // autofire pressed
 	std::string             name;               // overridden name
 };
 
