@@ -18,6 +18,7 @@ The *Unofficial* eXtended Machine Emulator is a fork of the popular software emu
 * [MEWUI][mewui] _(dankan1890)_
 * Change working directory on startup
 * Mechanical systems (pinball) not compiled
+* Windows: Joystick player assignment (mameuifx)
 
 *Features that came from related projects or forums may have been refactored for easy cherry-picking by others.*
 *Applicable credits are designated in (). If you would like information added here, [submit an issue][issue].*
