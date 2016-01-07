@@ -385,6 +385,21 @@ static DISCRETE_SOUND_START(bzone)
 
 DISCRETE_SOUND_END
 
+/* Translation table for one-joystick emulation */
+static UINT8 one_joy_trans[] =
+{
+	0x00,0x0A,0x05,0x00,0x06,0x02,0x04,0x00,
+	0x09,0x08,0x01,0x00,0x00,0x00,0x00,0x00
+};
+
+READ8_MEMBER(bzone_state::bzone_IN3_r)
+{
+	int res = (ioport("IN3")->read());
+	if (ioport("SELECT")->read() == 1)
+		res |= one_joy_trans[(ioport("FAKE")->read() & 0x0f)];
+	return res;
+}
+
 WRITE8_MEMBER(bzone_state::bzone_sounds_w)
 {
 	m_discrete->write(space, BZ_INPUT, data);
@@ -399,7 +414,7 @@ MACHINE_CONFIG_FRAGMENT( bzone_audio )
 	MCFG_SPEAKER_STANDARD_MONO("mono")
 
 	MCFG_SOUND_ADD("pokey", POKEY, BZONE_MASTER_CLOCK / 8)
-	MCFG_POKEY_ALLPOT_R_CB(IOPORT("IN3"))
+	MCFG_POKEY_ALLPOT_R_CB(READ8(bzone_state,bzone_IN3_r))
 	MCFG_POKEY_OUTPUT_RC(RES_K(10), CAP_U(0.015), 5.0)
 	MCFG_SOUND_ROUTE_EX(0, "discrete", 1.0, 0)
 

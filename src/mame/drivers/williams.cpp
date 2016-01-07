@@ -713,10 +713,12 @@ static INPUT_PORTS_START( defender )
 	PORT_BIT( 0x10, IP_ACTIVE_HIGH, IPT_START2 )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_START1 )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_BUTTON5 ) PORT_NAME(DEF_STR( Reverse ))
-	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_2WAY
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_2WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x00)
+	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_JOYSTICK_DOWN) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
 
 	PORT_START("IN1")
-	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_2WAY
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_2WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x00)
+	PORT_BIT( 0x01, IP_ACTIVE_HIGH, IPT_JOYSTICK_UP ) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
 	PORT_BIT( 0xfe, IP_ACTIVE_HIGH, IPT_UNKNOWN )
 
 	PORT_START("IN2")
@@ -728,6 +730,15 @@ static INPUT_PORTS_START( defender )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_COIN2 )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_TILT )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START("SELECT")
+	PORT_CONFNAME( 0x01, 0x00, "Controller Type" )
+	PORT_CONFSETTING(    0x00, "Real" )
+	PORT_CONFSETTING(    0x01, "8-way Joystick" )
+
+	PORT_START("FAKE")      /* for fake 8-way control */
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
 INPUT_PORTS_END
 
 
@@ -883,6 +894,15 @@ static INPUT_PORTS_START( stargate )
 	PORT_BIT( 0x20, IP_ACTIVE_HIGH, IPT_COIN2 )
 	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_TILT )
 	PORT_BIT( 0x80, IP_ACTIVE_HIGH, IPT_UNKNOWN )
+
+	PORT_START("SELECT")
+	PORT_CONFNAME( 0x01, 0x00, "Controller Type" )
+	PORT_CONFSETTING(    0x00, "Real" )
+	PORT_CONFSETTING(    0x01, "8-way Joystick" )
+
+	PORT_START("FAKE")      /* for fake 8-way control */
+	PORT_BIT( 0x02, IP_ACTIVE_HIGH, IPT_JOYSTICK_RIGHT ) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
+	PORT_BIT( 0x40, IP_ACTIVE_HIGH, IPT_JOYSTICK_LEFT ) PORT_8WAY PORT_CONDITION("SELECT",0x01,EQUALS,0x01)
 INPUT_PORTS_END
 
 
@@ -1473,6 +1493,14 @@ static MACHINE_CONFIG_START( williams, williams_state )
 MACHINE_CONFIG_END
 
 
+static MACHINE_CONFIG_DERIVED( stargate, williams )
+
+	/* pia */
+	MCFG_DEVICE_MODIFY("pia_0")
+	MCFG_PIA_READPA_HANDLER(READ8(williams_state, stargate_input_port_0_r))
+MACHINE_CONFIG_END
+
+
 static MACHINE_CONFIG_DERIVED( defender, williams )
 
 	/* basic machine hardware */
@@ -1495,6 +1523,26 @@ static MACHINE_CONFIG_DERIVED( defender, williams )
 
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(12, 304-1, 7, 247-1)
+
+	/* pia */
+	MCFG_DEVICE_MODIFY("pia_0")
+	MCFG_PIA_READPA_HANDLER(READ8(williams_state, defender_input_port_0_r))
+MACHINE_CONFIG_END
+
+
+static MACHINE_CONFIG_DERIVED( mayday, defender ) // needs the defender control hack removing
+
+	/* pia */
+	MCFG_DEVICE_MODIFY("pia_0")
+	MCFG_PIA_READPA_HANDLER(IOPORT("IN0"))
+MACHINE_CONFIG_END
+
+
+static MACHINE_CONFIG_DERIVED( colony7, defender ) // needs the defender control hack removing
+
+	/* pia */
+	MCFG_DEVICE_MODIFY("pia_0")
+	MCFG_PIA_READPA_HANDLER(IOPORT("IN0"))
 MACHINE_CONFIG_END
 
 
@@ -1502,6 +1550,10 @@ static MACHINE_CONFIG_DERIVED( jin, defender ) // needs a different screen size 
 	/* basic machine hardware */
 	MCFG_SCREEN_MODIFY("screen")
 	MCFG_SCREEN_VISIBLE_AREA(0, 315, 7, 247-1)
+
+	/* pia */
+	MCFG_DEVICE_MODIFY("pia_0")
+	MCFG_PIA_READPA_HANDLER(IOPORT("IN0"))
 MACHINE_CONFIG_END
 
 
@@ -3067,16 +3119,16 @@ GAME( 1980, zero2,      defender, defender,       defender, williams_state, defn
 GAME( 1980, defcmnd,    defender, defender,       defender, williams_state, defender, ROT0,   "bootleg", "Defense Command (Defender bootleg)", MACHINE_SUPPORTS_SAVE )
 GAME( 1981, defence,    defender, defender,       defender, williams_state, defender, ROT0,   "bootleg (Outer Limits)", "Defence Command (Defender bootleg)", MACHINE_SUPPORTS_SAVE )
 GAME( 1981, startrkd,   defender, defender,       defender, williams_state, defender, ROT0,   "bootleg", "Star Trek (Defender bootleg)", MACHINE_SUPPORTS_SAVE )
-GAME( 1980, mayday,     0,        defender,       mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 1)", MACHINE_SUPPORTS_SAVE ) // original by Hoei, which one of these 3 sets is bootleg/licensed/original is unknown
-GAME( 1980, maydaya,    mayday,   defender,       mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 2)", MACHINE_SUPPORTS_SAVE )
-GAME( 1980, maydayb,    mayday,   defender,       mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 3)", MACHINE_SUPPORTS_SAVE )
-GAME( 1980, batlzone,   mayday,   defender,       mayday, williams_state,   mayday,   ROT0,   "bootleg (Video Game)", "Battle Zone (bootleg of Mayday)", MACHINE_SUPPORTS_SAVE )
-GAME( 1981, colony7,    0,        defender,       colony7, williams_state,  defender, ROT270, "Taito", "Colony 7 (set 1)", MACHINE_SUPPORTS_SAVE )
-GAME( 1981, colony7a,   colony7,  defender,       colony7, williams_state,  defender, ROT270, "Taito", "Colony 7 (set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1980, mayday,     0,        mayday,         mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 1)", MACHINE_SUPPORTS_SAVE ) // original by Hoei, which one of these 3 sets is bootleg/licensed/original is unknown
+GAME( 1980, maydaya,    mayday,   mayday,         mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 2)", MACHINE_SUPPORTS_SAVE )
+GAME( 1980, maydayb,    mayday,   mayday,         mayday, williams_state,   mayday,   ROT0,   "Hoei", "Mayday (set 3)", MACHINE_SUPPORTS_SAVE )
+GAME( 1980, batlzone,   mayday,   mayday,         mayday, williams_state,   mayday,   ROT0,   "bootleg (Video Game)", "Battle Zone (bootleg of Mayday)", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, colony7,    0,        colony7,        colony7, williams_state,  defender, ROT270, "Taito", "Colony 7 (set 1)", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, colony7a,   colony7,  colony7,        colony7, williams_state,  defender, ROT270, "Taito", "Colony 7 (set 2)", MACHINE_SUPPORTS_SAVE )
 GAME( 1982, jin,        0,        jin,            jin, williams_state,      defender, ROT90,  "Falcon", "Jin", MACHINE_SUPPORTS_SAVE )
 
 /* Standard Williams hardware */
-GAME( 1981, stargate,   0,        williams,       stargate, williams_state, stargate, ROT0,   "Williams / Vid Kidz", "Stargate", MACHINE_SUPPORTS_SAVE )
+GAME( 1981, stargate,   0,        stargate,       stargate, williams_state, stargate, ROT0,   "Williams / Vid Kidz", "Stargate", MACHINE_SUPPORTS_SAVE )
 GAME( 1982, robotron,   0,        williams,       robotron, williams_state, robotron, ROT0,   "Williams / Vid Kidz", "Robotron: 2084 (Solid Blue label)", MACHINE_SUPPORTS_SAVE )
 GAME( 1982, robotronyo, robotron, williams,       robotron, williams_state, robotron, ROT0,   "Williams / Vid Kidz", "Robotron: 2084 (Yellow/Orange label)", MACHINE_SUPPORTS_SAVE )
 GAME( 1982, joust,      0,        williams_muxed, joust, williams_state,    joust,    ROT0,   "Williams", "Joust (White/Green label)", MACHINE_SUPPORTS_SAVE )

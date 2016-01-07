@@ -42,6 +42,7 @@ public:
 	DECLARE_MACHINE_START(redbaron);
 	INTERRUPT_GEN_MEMBER(bzone_interrupt);
 	DECLARE_WRITE8_MEMBER(bzone_sounds_w);
+	DECLARE_READ8_MEMBER(bzone_IN3_r);
 };
 
 

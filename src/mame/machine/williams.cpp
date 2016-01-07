@@ -483,6 +483,35 @@ WRITE8_MEMBER(williams2_state::williams2_7segment_w)
  *
  *************************************/
 
+READ8_MEMBER(williams_state::defender_input_port_0_r)
+{
+	/* read the standard keys and the cheat keys */
+
+	int keys = ioport("IN0")->read();
+
+	if (ioport("SELECT")->read() == 1)
+	{
+		int altkeys = ioport("FAKE")->read();
+
+		/* modify the standard keys with the cheat keys */
+		if (altkeys)
+		{
+			keys |= altkeys;
+			address_space &cpu0space = m_maincpu->space(AS_PROGRAM);
+			UINT8 val = cpu0space.read_byte(0xa0bb);
+			if (val == 0xfd)
+			{
+				if (keys & 0x02)
+					keys = (keys & 0xfd) | 0x40;
+				else if (keys & 0x40)
+					keys = (keys & 0xbf) | 0x02;
+			}
+		}
+	}
+
+	return keys;
+}
+
 MACHINE_START_MEMBER(williams_state,defender)
 {
 }
@@ -507,6 +536,43 @@ WRITE8_MEMBER(williams_state::defender_video_control_w)
 WRITE8_MEMBER(williams_state::defender_bank_select_w)
 {
 	m_bankc000->set_bank(data & 0x0f);
+}
+
+
+
+/*************************************
+ *
+ *  Stargate-specific routines
+ *
+ *************************************/
+
+READ8_MEMBER(williams_state::stargate_input_port_0_r)
+{
+	/* read the standard keys and the cheat keys */
+
+	int keys = ioport("IN0")->read();
+
+	if (ioport("SELECT")->read() == 1)
+	{
+		int altkeys = ioport("FAKE")->read();
+
+		/* modify the standard keys with the cheat keys */
+		if (altkeys)
+		{
+			keys |= altkeys;
+			address_space &cpu0space = m_maincpu->space(AS_PROGRAM);
+			UINT8 val = cpu0space.read_byte(0x9c92);
+			if (val == 0xfd)
+			{
+				if (keys & 0x02)
+					keys = (keys & 0xfd) | 0x40;
+				else if (keys & 0x40)
+					keys = (keys & 0xbf) | 0x02;
+			}
+		}
+	}
+
+	return keys;
 }
 
 

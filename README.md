@@ -20,6 +20,10 @@ The *Unofficial* eXtended Machine Emulator is a fork of the popular software emu
 * Mechanical systems (pinball) not compiled
 * Windows: Joystick player assignment (mameuifx)
 
+### Emulation hacks
+
+* Optional single joystick control for Defender, Stargate, and Battlezone
+
 *Features that came from related projects or forums may have been refactored for easy cherry-picking by others.*
 *Applicable credits are designated in (). If you would like information added here, [submit an issue][issue].*
 

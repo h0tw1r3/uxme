@@ -94,6 +94,8 @@ public:
 	DECLARE_WRITE_LINE_MEMBER(williams_port_select_w);
 	DECLARE_READ8_MEMBER(williams_49way_port_0_r);
 	DECLARE_READ8_MEMBER(williams_input_port_49way_0_5_r);
+	DECLARE_READ8_MEMBER(defender_input_port_0_r);
+	DECLARE_READ8_MEMBER(stargate_input_port_0_r);
 	DECLARE_WRITE_LINE_MEMBER(lottofun_coin_lock_w);
 
 	void state_save_register();
