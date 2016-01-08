@@ -16,7 +16,19 @@
 #define MAX_CONFIG_LINE_SIZE 16
 
 static emu_timer *timer;
+static emu_timer *mutetimer;
 static int faststart_frames;
+
+/*  matching_game_name is used to skip over lines until we find <gamename>: */
+static int matching_game_name (const char *pBuf, const char *name)
+{
+	while (*name)
+	{
+		if (*name++ != *pBuf++)
+			return 0;
+	}
+	return (*pBuf == ':');
+}
 
 void faststart_load (running_machine &machine)
 {
@@ -29,14 +41,14 @@ void faststart_load (running_machine &machine)
 	if(filerr == FILERR_NONE)
 	{
 		char buffer[MAX_CONFIG_LINE_SIZE];
-		enum { FIND_NAME, FIND_DATA, FETCH_DATA } mode;
+		enum { FIND_NAME, FIND_DATA } mode;
 		mode = FIND_NAME;
 
 		while (f.gets(buffer, MAX_CONFIG_LINE_SIZE))
 		{
 			if (mode == FIND_NAME)
 			{
-				if (strncmp(name, buffer, strlen(name)) == 0)
+				if (matching_game_name(buffer, name))
 					mode = FIND_DATA;
 			}
 			else if (atoi(buffer) > 0)
@@ -52,7 +64,14 @@ void faststart_load (running_machine &machine)
 static TIMER_CALLBACK( faststart_done )
 {
 	timer->enable(false);
+	machine.sound().system_mute(false);
 	machine.video().set_faststart(false);
+}
+
+static TIMER_CALLBACK( faststart_mute )
+{
+	mutetimer->enable(false);
+	machine.sound().system_mute(true);
 }
 
 void faststart_init (running_machine &machine)
@@ -61,7 +80,7 @@ void faststart_init (running_machine &machine)
 
 	if (faststart != nullptr && faststart[0] != 0)
 	{
-		if (strcmp(faststart, "auto") == 0)
+		if (strcmp(faststart, "dat") == 0)
 			faststart_load(machine);
 		else
 			faststart_frames = atoi(faststart);
@@ -72,8 +91,13 @@ void faststart_init (running_machine &machine)
 			timer = machine.scheduler().timer_alloc(FUNC(faststart_done));
 			timer->adjust(faststart_time, 0, machine.first_screen()->frame_period());
 			machine.video().set_faststart(true);
+			if (machine.options().fast_start_skip())
+			{
+				mutetimer = machine.scheduler().timer_alloc(FUNC(faststart_mute));
+				mutetimer->adjust(attotime::zero);
+			}
 		}
-		else if (!(strcmp(faststart, "auto") == 0) && strcmp(faststart, "0") != 0)
+		else if (!(strcmp(faststart, "dat") == 0) && strcmp(faststart, "0") != 0)
 		{
 			osd_printf_error("Invalid value '%s' for option 'faststart'.\n", faststart);
 		}
