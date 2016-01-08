@@ -1715,6 +1715,15 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 	if (ui_input_pressed(machine, IPT_UI_SHOW_CLOCK))
 		machine.ui().set_show_clock(!machine.ui().show_clock());
 
+	// toggle mute
+	if (ui_input_pressed(machine, IPT_UI_MUTE))
+	{
+		static bool muted = true;
+		machine.sound().system_mute(muted);
+		machine.popmessage("Mute %s", muted ? "Enabled" : "Disabled");
+		muted = !muted;
+	}
+
 	// increment frameskip?
 	if (ui_input_pressed(machine, IPT_UI_FRAMESKIP_INC))
 		machine.ui().increase_frameskip();

@@ -885,7 +885,7 @@ sound_stream *sound_manager::stream_alloc(device_t &device, int inputs, int outp
 void sound_manager::set_attenuation(int attenuation)
 {
 	m_attenuation = attenuation;
-	machine().osd().set_mastervolume(m_muted ? -32 : m_attenuation);
+	machine().osd().set_mastervolume(m_muted ? -48 : m_attenuation);
 }
 
 

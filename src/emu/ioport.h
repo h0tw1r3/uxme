@@ -371,6 +371,7 @@ enum ioport_type
 		IPT_UI_TAPE_STOP,
 		IPT_UI_TOGGLE_AUTOFIRE,			// autofire toggle button
 		IPT_UI_SHOW_CLOCK,
+		IPT_UI_MUTE,
 
 		// additional MEWUI options
 		IPT_UI_HISTORY,
