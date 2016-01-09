@@ -18,6 +18,8 @@
 //  CONSTANTS
 //============================================================
 
+#define WINOPTION_INIPATH               "inipath"
+
 // performance options
 #define WINOPTION_PRIORITY              "priority"
 #define WINOPTION_PROFILE               "profile"

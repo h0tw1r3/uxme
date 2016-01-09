@@ -263,9 +263,15 @@ static LONG WINAPI exception_filter(struct _EXCEPTION_POINTERS *info);
 //  OPTIONS
 //**************************************************************************
 
+#ifndef INI_PATH
+#define INI_PATH ".;ini;%PROGRAMDATA%\\APP_NAME"
+#endif
+
 // struct definitions
 const options_entry windows_options::s_option_entries[] =
 {
+	{ WINOPTION_INIPATH,                         INI_PATH,        OPTION_STRING,     "path to ini files" },
+
 	// performance options
 	{ NULL,                                           NULL,       OPTION_HEADER,     "WINDOWS PERFORMANCE OPTIONS" },
 	{ WINOPTION_PRIORITY "(-15-1)",                   "0",        OPTION_INTEGER,    "thread priority for the main game thread; range from -15 to 1" },
@@ -446,9 +452,11 @@ int main(int argc, char *argv[])
 windows_options::windows_options()
 : osd_options()
 {
+	std::string ini_path(INI_PATH);
 	add_entries(s_option_entries);
+	strreplace(ini_path,"APP_NAME", emulator_info::get_appname_lower());
+	set_default_value(WINOPTION_INIPATH, ini_path.c_str());
 }
-
 
 //============================================================
 //  control_handler
