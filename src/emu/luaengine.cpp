@@ -858,8 +858,11 @@ int lua_engine::lua_screen::l_snapshot(lua_State *L)
 	luaL_argcheck(L, lua_isstring(L, 2), 2, "filename (string) expected");
 	if (!sd->machine().render().is_live(*sd))
 		return 0;
+	std::string snapstr(filename);
 	emu_file file(sd->machine().options().snapshot_directory(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-	file_error filerr = file.open(filename);
+	strreplace(snapstr, "/", PATH_SEPARATOR);
+	strreplace(snapstr, "%g", sd->machine().basename());
+	file_error filerr = file.open(snapstr.c_str());
 	if (filerr != FILERR_NONE)
 		return 0;
 	sd->machine().video().save_snapshot(sd, file);
