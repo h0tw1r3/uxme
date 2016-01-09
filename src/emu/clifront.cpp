@@ -1627,10 +1627,16 @@ void cli_frontend::execute_commands(const char *exename)
 	// createconfig?
 	if (strcmp(m_options.command(), CLICOMMAND_CREATECONFIG) == 0)
 	{
-		// attempt to open the output file
-		emu_file file(OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
+		// attempt to open the output file in the first available folder
+		emu_file file(m_options.ini_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE);
 		if (file.open(emulator_info::get_configname(), ".ini") != FILERR_NONE)
-			throw emu_fatalerror("Unable to create file %s.ini\n",emulator_info::get_configname());
+		{
+			file.set_openflags(OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
+			if (file.open(emulator_info::get_configname(), ".ini") != FILERR_NONE)
+				throw emu_fatalerror("Unable to create file %s.ini\n",emulator_info::get_configname());
+		}
+
+		osd_printf_info("Created: %s\n", file.fullpath());
 
 		// generate the updated INI
 		std::string initext;
@@ -1730,37 +1736,6 @@ void cli_frontend::change_working_directory()
 	{
 		if (osd_chdir(m_options.chdir_path()) != 0)
 			throw emu_fatalerror(MAMERR_FATALERROR, "Failed to change working directory '%s'", m_options.chdir_path());
-	}
-	else
-	{
-		// try ini path's in order (see sdlmain and emuopts) that
-		// have an ini file
-		bool changedpath = false;
-		emu_file file(m_options.ini_path(), OPEN_FLAG_READ);
-		file_error filerr = file.open(emulator_info::get_configname(), ".ini");
-		if (filerr == FILERR_NONE)
-		{
-			if (osd_chdir(file.dirname()) == 0)
-				changedpath = true;
-		}
-		file.close();
-
-		// that didn't work (no existing ini), so let file create the folder
-		if (!changedpath)
-		{
-			emu_file file(m_options.ini_path(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-			file_error filerr = file.open(emulator_info::get_configname(), ".ini");
-			file.remove_on_close();
-			if (filerr == FILERR_NONE)
-			{
-				if (osd_chdir(file.dirname()) == 0)
-					changedpath = true;
-			}
-			file.close();
-		}
-
-		if (!changedpath)
-			throw emu_fatalerror(MAMERR_FATALERROR, "Failed to change working directory");
 	}
 
 	// never save option
