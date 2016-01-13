@@ -586,7 +586,7 @@ float ui_manager::get_string_width(const char *s)
 
 void ui_manager::draw_outlined_box(render_container *container, float x0, float y0, float x1, float y1, rgb_t backcolor)
 {
-	draw_outlined_box(container, x0, y0, x1, y1, UI_BORDER_COLOR, backcolor);
+	draw_outlined_box(container, x0, y0, x1, y1, backcolor, backcolor);
 }
 
 
