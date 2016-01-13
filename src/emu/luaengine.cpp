@@ -869,6 +869,30 @@ int lua_engine::lua_screen::l_snapshot(lua_State *L)
 	file.close();
 	return 1;
 }
+
+//-------------------------------------------------
+//  screen_type - return screen type
+//  -> manager:machine().screens[":screen"]:type()
+//-------------------------------------------------
+
+int lua_engine::lua_screen::l_type(lua_State *L)
+{
+	screen_device *sd = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sd) {
+		return 0;
+	}
+
+	switch (sd->screen_type())
+	{
+		case SCREEN_TYPE_RASTER:    lua_pushliteral(L, "raster"); break;
+		case SCREEN_TYPE_VECTOR:    lua_pushliteral(L, "vector"); break;
+		case SCREEN_TYPE_LCD:       lua_pushliteral(L, "lcd"); break;
+		default:                    lua_pushliteral(L, "unknown"); break;
+	}
+
+	return 1;
+}
+
 //-------------------------------------------------
 //  draw_box - draw a box on a screen container
 //  -> manager:machine().screens[":screen"]:draw_box(x1, y1, x2, y2, bgcolor, linecolor)
@@ -1335,6 +1359,7 @@ void lua_engine::initialize()
 				.addCFunction ("width", &lua_screen::l_width)
 				.addCFunction ("refresh", &lua_screen::l_refresh)
 				.addCFunction ("snapshot", &lua_screen::l_snapshot)
+				.addCFunction ("type", &lua_screen::l_type)
 			.endClass()
 			.deriveClass <screen_device, lua_screen> ("screen_dev")
 				.addFunction ("frame_number", &screen_device::frame_number)

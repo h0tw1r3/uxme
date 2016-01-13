@@ -140,6 +140,7 @@ private:
 		int l_aspect(lua_State *L);
 		int l_pixel_aspect(lua_State *L);
 		int l_refresh(lua_State *L);
+		int l_type(lua_State *L);
 		int l_draw_box(lua_State *L);
 		int l_draw_line(lua_State *L);
 		int l_draw_text(lua_State *L);
