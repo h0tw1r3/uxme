@@ -336,7 +336,7 @@ public:
 	bool sleep() const { return m_sleep; }
 	float speed() const { return float_value(OPTION_SPEED); }
 	bool refresh_speed() const { return m_refresh_speed; }
-	const char *fast_start() const { return value(OPTION_FASTSTART); }
+	int fast_start() const { return int_value(OPTION_FASTSTART); }
 	bool fast_start_skip() const { return bool_value(OPTION_FASTSTART_SKIP); }
 
 	// core rotation options

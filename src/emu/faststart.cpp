@@ -18,6 +18,7 @@
 static emu_timer *timer;
 static emu_timer *mutetimer;
 static int faststart_frames;
+static int faststart_type;
 
 /*  matching_game_name is used to skip over lines until we find <gamename>: */
 static int matching_game_name (const char *pBuf, const char *name)
@@ -41,11 +42,14 @@ void faststart_load (running_machine &machine)
 	if(filerr == FILERR_NONE)
 	{
 		char buffer[MAX_CONFIG_LINE_SIZE];
-		enum { FIND_NAME, FIND_DATA } mode;
+		enum { FIND_NAME, FIND_DATA, FIND_NEXT_DATA } mode;
 		mode = FIND_NAME;
 
 		while (f.gets(buffer, MAX_CONFIG_LINE_SIZE))
 		{
+			if (buffer[0] == '#')
+				continue;
+
 			if (mode == FIND_NAME)
 			{
 				if (matching_game_name(buffer, name))
@@ -54,6 +58,16 @@ void faststart_load (running_machine &machine)
 			else if (atoi(buffer) > 0)
 			{
 				faststart_frames = atoi(buffer);
+
+				if (faststart_type == 2 && mode == FIND_DATA)
+				{
+					mode = FIND_NEXT_DATA;
+					continue;
+				}
+				break;
+			}
+			else if (mode == FIND_NEXT_DATA)
+			{
 				break;
 			}
 		}
@@ -76,14 +90,11 @@ static TIMER_CALLBACK( faststart_mute )
 
 void faststart_init (running_machine &machine)
 {
-	const char *faststart = machine.options().fast_start();
+	faststart_type = machine.options().fast_start();
 
-	if (faststart != nullptr && faststart[0] != 0)
+	if (faststart_type > 0 && faststart_type < 3)
 	{
-		if (strcmp(faststart, "dat") == 0)
-			faststart_load(machine);
-		else
-			faststart_frames = atoi(faststart);
+		faststart_load(machine);
 
 		if (faststart_frames > 0)
 		{
@@ -97,10 +108,6 @@ void faststart_init (running_machine &machine)
 				mutetimer->adjust(attotime::zero);
 			}
 		}
-		else if (!(strcmp(faststart, "dat") == 0) && strcmp(faststart, "0") != 0)
-		{
-			osd_printf_error("Invalid value '%s' for option 'faststart'.\n", faststart);
-		}
-	}
-
+	} else if (faststart_type != 0)
+		osd_printf_error("Invalid value '%d' for option 'faststart'.\n", faststart_type);
 }
