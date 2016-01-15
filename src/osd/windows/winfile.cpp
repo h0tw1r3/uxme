@@ -20,6 +20,7 @@
 // MAMEOS headers
 #include "strconv.h"
 #include "winutil.h"
+#include "winutf8.h"
 
 #include "winfile.h"
 
@@ -48,7 +49,7 @@ extern const char *winfile_ptty_identifier;
 file_error osd_open(const char *orig_path, UINT32 openflags, osd_file **file, UINT64 *filesize)
 {
 	file_error filerr = FILERR_NONE;
-	char *path = NULL;
+	char *path = nullptr;
 
 	osd_subst_env(&path, orig_path);
 

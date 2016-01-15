@@ -204,7 +204,6 @@ public:
 	// getters
 	running_machine &machine() { assert(m_machine != nullptr); return *m_machine; }
 
-
 	virtual void debugger_update();
 
 	virtual void init_subsystems();
@@ -230,6 +229,8 @@ public:
 
 	// osd_output interface ...
 	virtual void output_callback(osd_output_channel channel, const char *msg, va_list args)  override;
+	bool verbose() const { return m_print_verbose; }
+	void set_verbose(bool print_verbose) { m_print_verbose = print_verbose; }
 
 protected:
 	virtual bool input_init();
@@ -239,6 +240,8 @@ private:
 	// internal state
 	running_machine *   m_machine;
 	osd_options& m_options;
+
+	bool m_print_verbose;
 
 	osd_module_manager m_mod_man;
 	font_module *m_font_module;

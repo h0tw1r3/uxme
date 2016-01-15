@@ -14,6 +14,7 @@
 // MAMEOS headers
 #include "strconv.h"
 #include "winutil.h"
+#include "strconv.h"
 
 //============================================================
 //  win_error_to_file_error
@@ -124,6 +125,18 @@ BOOL win_is_gui_application(void)
 	return is_gui_frontend;
 }
 
+//============================================================
+//  osd_subst_env
+//============================================================
+void osd_subst_env(char **dst, const char *src)
+{
+	TCHAR buffer[MAX_PATH];
+
+	TCHAR *t_src = tstring_from_utf8(src);
+	ExpandEnvironmentStrings(t_src, buffer, ARRAY_LENGTH(buffer));
+	*dst = utf8_from_tstring(buffer);
+}
+
 //-------------------------------------------------
 //  Universal way to get module handle
 //-------------------------------------------------
@@ -145,16 +158,4 @@ int osd_chdir(const char *path)
 	int retval = _chdir(path_expanded);
 	osd_free(path_expanded);
 	return retval;
-}
-
-//============================================================
-//  osd_subst_env
-//============================================================
-void osd_subst_env(char **dst, const char *src)
-{
-	TCHAR buffer[MAX_PATH];
-
-	TCHAR *t_src = tstring_from_utf8(src);
-	ExpandEnvironmentStrings(t_src, buffer, ARRAY_LENGTH(buffer));
-	*dst = utf8_from_tstring(buffer);
 }

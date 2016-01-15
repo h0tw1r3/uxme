@@ -768,6 +768,7 @@ function createMAMEProjects(_target, _subtarget, _name)
 	kind (LIBTYPE)
 	uuid (os.uuid("drv-" .. _target .."_" .. _subtarget .. "_" .._name))
 	addprojectflags()
+	precompiledheaders()
 
 	includedirs {
 		MAME_DIR .. "src/osd",
@@ -4304,6 +4305,7 @@ files {
 	MAME_DIR .. "src/mame/drivers/gammagic.cpp",
 	MAME_DIR .. "src/mame/drivers/gamtor.cpp",
 	MAME_DIR .. "src/mame/drivers/gei.cpp",
+	MAME_DIR .. "src/mame/drivers/gkigt.cpp",
 	MAME_DIR .. "src/mame/drivers/globalfr.cpp",
 	MAME_DIR .. "src/mame/drivers/globalvr.cpp",
 	MAME_DIR .. "src/mame/drivers/gluck2.cpp",
@@ -4455,6 +4457,7 @@ files {
 	MAME_DIR .. "src/mame/drivers/roul.cpp",
 	MAME_DIR .. "src/mame/drivers/savquest.cpp",
 	MAME_DIR .. "src/mame/drivers/sanremo.cpp",
+	MAME_DIR .. "src/mame/drivers/sanremmg.cpp",
 	MAME_DIR .. "src/mame/drivers/sealy.cpp",
 	MAME_DIR .. "src/mame/drivers/scm_500.cpp",
 	MAME_DIR .. "src/mame/drivers/sfbonus.cpp",

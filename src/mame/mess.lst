@@ -116,9 +116,11 @@ dcjp      // 1998 Sega Dreamcast (Japan)
 dc  // 1999 Sega Dreamcast (USA)
 dceu      // 1999 Sega Dreamcast (Europe)
 dcdev    // 1998 Sega HKT-0120 Sega Dreamcast Development Box
-dcprt    // 1998 Sega Katana Set 5 Prototype
 
 svmu     // 1998 Sega Visual Memory Unit
+
+// Sequential Circuits
+prpht600	// 1983 Sequential Circuits
 
 // Sony
 psj    // 1994 Sony PlayStation (Japan)
@@ -1290,6 +1292,7 @@ iq128    // 1997 Genius IQ 128 (Germany)
 iqtv512 // IQ TV512 (Germany)
 pc1000 // 1988 PreComputer 1000
 misterx // 1988 (Yeno) MisterX
+ordisava // 1988 Ordisavant (France)
 pc2000 // 1993 PreComputer 2000
 gl2000 // 1993 Genius Leader 2000
 gl2000p // 1993 Genius Leader 2000 Plus
@@ -2006,8 +2009,9 @@ pcm   // PC/M Mugler
 pecom32
 pecom64
 
-// Samsung SPC-1000
+// Samsung Electronics
 spc1000
+spc1500
 
 // PolyMorphic Systems
 poly88
@@ -2279,11 +2283,13 @@ mbdtower    // Milton Bradley
 // hh_tms1k ticalc1x.cpp
 tisr16
 tisr16ii
+ti1250
+ti125076
 ti1270
 ti1000
 ti30
 tiprog
-tibusan1
+tibusan
 wizatron
 lilprof
 lilprof78
@@ -2292,13 +2298,16 @@ dataman
 // hh_tms1k tispeak.cpp
 snspell
 snspellp
-snspella
-snspellb
+snspellua
+snspellub
 snspelluk
 snspelluka
 snspelljp
 snspellfr
 snspellit
+snspellc
+snspellca
+snspellcuk
 snmath
 snmathp
 snread
@@ -2365,6 +2374,7 @@ c80
 ds348 //Sigtron Daruma
 mc1000
 d6809
+mp68a
 mk85
 mk90
 elwro800
@@ -2802,3 +2812,4 @@ st1707
 st1708
 st1714
 sanfuze2
+marywu

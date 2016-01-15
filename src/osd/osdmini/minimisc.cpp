@@ -106,7 +106,7 @@ int osd_setenv(const char *name, const char *value, int overwrite)
 int osd_subst_env(char **dst, const char *src)
 {
 	*dst = (char *)osd_malloc_array(strlen(src) + 1);
-	if (*dst != NULL)
+	if (*dst != nullptr)
 		strcpy(*dst, src);
 
 	return 0;
