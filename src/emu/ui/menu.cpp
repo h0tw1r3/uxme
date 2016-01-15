@@ -614,8 +614,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 			// if we're on the top line, display the up arrow
 			if (linenum == 0 && top_line != 0)
 			{
-				draw_arrow(
-									container,
+				draw_arrow(container,
 									0.5f * (x1 + x2) - 0.5f * ud_arrow_width,
 									line_y + 0.25f * line_height,
 									0.5f * (x1 + x2) + 0.5f * ud_arrow_width,
@@ -629,8 +628,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 			// if we're on the bottom line, display the down arrow
 			else if (linenum == visible_lines - 1 && itemnum != item.size() - 1)
 			{
-				draw_arrow(
-									container,
+				draw_arrow(container,
 									0.5f * (x1 + x2) - 0.5f * ud_arrow_width,
 									line_y + 0.25f * line_height,
 									0.5f * (x1 + x2) + 0.5f * ud_arrow_width,
@@ -648,12 +646,12 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 			// draw the subitem left-justified
 			else if (pitem.subtext == nullptr && (pitem.flags & MENU_FLAG_MEWUI_HISTORY) != 0)
 				machine().ui().draw_text_full(container, itemtext, effective_left, line_y, effective_width,
-				                              JUSTIFY_LEFT, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr);
+					JUSTIFY_LEFT, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr);
 
 			// if we don't have a subitem, just draw the string centered
 			else if (pitem.subtext == nullptr)
 				machine().ui().draw_text_full(container, itemtext, effective_left, line_y, effective_width,
-							JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr);
+					JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr);
 
 			// otherwise, draw the item on the left and the subitem text on the right
 			else
@@ -694,8 +692,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 				// apply arrows
 				if (itemnum == selected && (pitem.flags & MENU_FLAG_LEFT_ARROW))
 				{
-					draw_arrow(
-										container,
+					draw_arrow(container,
 										effective_left + effective_width - subitem_width - gutter_width,
 										line_y + 0.1f * line_height,
 										effective_left + effective_width - subitem_width - gutter_width + lr_arrow_width,
@@ -705,8 +702,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 				}
 				if (itemnum == selected && (pitem.flags & MENU_FLAG_RIGHT_ARROW))
 				{
-					draw_arrow(
-										container,
+					draw_arrow(container,
 										effective_left + effective_width + gutter_width - lr_arrow_width,
 										line_y + 0.1f * line_height,
 										effective_left + effective_width + gutter_width,
@@ -729,7 +725,7 @@ void ui_menu::draw(bool customonly, bool noimage, bool noinput)
 
 		// compute the multi-line target width/height
 		machine().ui().draw_text_full(container, pitem.subtext, 0, 0, visible_width * 0.75f,
-					JUSTIFY_RIGHT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
+		                              JUSTIFY_RIGHT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
 
 		// determine the target location
 		target_x = visible_left + visible_width - target_width - UI_BOX_LR_BORDER;
@@ -777,7 +773,7 @@ void ui_menu::draw_text_box()
 
 	// compute the multi-line target width/height
 	machine().ui().draw_text_full(container, text, 0, 0, 1.0f - 2.0f * UI_BOX_LR_BORDER - 2.0f * gutter_width,
-				JUSTIFY_LEFT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
+	                              JUSTIFY_LEFT, WRAP_WORD, DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &target_width, &target_height);
 	target_height += 2.0f * line_height;
 	if (target_height > 1.0f - 2.0f * UI_BOX_TB_BORDER)
 		target_height = floorf((1.0f - 2.0f * UI_BOX_TB_BORDER) / line_height) * line_height;
@@ -809,13 +805,12 @@ void ui_menu::draw_text_box()
 				JUSTIFY_LEFT, WRAP_WORD, DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 
 	// draw the "return to prior menu" text with a hilight behind it
-	highlight(
-						container,
-						target_x + 0.5f * UI_LINE_WIDTH,
-						target_y + target_height - line_height,
-						target_x + target_width - 0.5f * UI_LINE_WIDTH,
-						target_y + target_height,
-						UI_SELECTED_BG_COLOR);
+	highlight(container,
+		target_x + 0.5f * UI_LINE_WIDTH,
+		target_y + target_height - line_height,
+		target_x + target_width - 0.5f * UI_LINE_WIDTH,
+		target_y + target_height,
+		UI_SELECTED_BG_COLOR);
 	machine().ui().draw_text_full(container, backtext, target_x, target_y + target_height - line_height, target_width,
 				JUSTIFY_CENTER, WRAP_TRUNCATE, DRAW_NORMAL, UI_SELECTED_COLOR, UI_SELECTED_BG_COLOR, nullptr, nullptr);
 
@@ -881,7 +876,7 @@ void ui_menu::handle_events(UINT32 flags)
 				break;
 
 			// caught scroll event
-			case UI_EVENT_MOUSE_SCROLL:
+			case UI_EVENT_MOUSE_WHEEL:
 				if ((flags & UI_MENU_PROCESS_ONLYCHAR) == 0)
 				{
 					if (local_menu_event.zdelta > 0)
@@ -1406,7 +1401,7 @@ void ui_menu::draw_select_game(bool noinput)
 	mouse_button = FALSE;
 	if (!noinput)
 	{
-		mouse_target = ui_input_find_mouse(machine(), &mouse_target_x, &mouse_target_y, &mouse_button);
+		mouse_target = machine().ui_input().find_mouse(&mouse_target_x, &mouse_target_y, &mouse_button);
 		if (mouse_target != nullptr)
 			if (mouse_target->map_point_container(mouse_target_x, mouse_target_y, *container, mouse_x, mouse_y))
 				mouse_hit = TRUE;
@@ -1849,7 +1844,7 @@ void ui_menu::handle_main_keys(UINT32 flags)
 	}
 
 	// handle a toggle cheats request
-	if (!ui_error && ui_input_pressed_repeat(machine(), IPT_UI_TOGGLE_CHEAT, 0))
+	if (!ui_error && machine().ui_input().pressed_repeat(IPT_UI_TOGGLE_CHEAT, 0))
 		machine().cheat().set_enable(!machine().cheat().enabled());
 
 	// see if any other UI keys are pressed
@@ -1875,7 +1870,7 @@ void ui_menu::handle_main_events(UINT32 flags)
 	ui_event local_menu_event;
 
 	// loop while we have interesting events
-	while (!stop && ui_input_pop_event(machine(), &local_menu_event))
+	while (!stop && machine().ui_input().pop_event(&local_menu_event))
 	{
 		switch (local_menu_event.event_type)
 		{
@@ -2016,7 +2011,7 @@ void ui_menu::handle_main_events(UINT32 flags)
 			break;
 
 			// caught scroll event
-		case UI_EVENT_MOUSE_SCROLL:
+		case UI_EVENT_MOUSE_WHEEL:
 			if (local_menu_event.zdelta > 0)
 			{
 				if (selected >= visible_items || selected == 0 || ui_error)
@@ -2058,14 +2053,15 @@ void ui_menu::handle_main_events(UINT32 flags)
 void ui_menu::draw_ume_box(float x1, float y1, float x2, float y2)
 {
 	float text_size = 0.65f;
-	float line_height = machine().ui().get_line_height() * text_size;
+	ui_manager &mui = machine().ui();
+	float line_height = mui.get_line_height() * text_size;
 	float maxwidth = 0.0f;
 
 	for (int x = 0; x < ume_filters::length; x++)
 	{
 		float width;
 		// compute width of left hand side
-		machine().ui().draw_text_full(container, ume_filters::text[x], 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_NEVER,
+		mui.draw_text_full(container, ume_filters::text[x], 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_NEVER,
 			DRAW_NONE, UI_TEXT_COLOR, ARGB_BLACK, &width, nullptr, text_size);
 		width += 2 * UI_BOX_LR_BORDER;
 		maxwidth = MAX(maxwidth, width);
@@ -2073,7 +2069,7 @@ void ui_menu::draw_ume_box(float x1, float y1, float x2, float y2)
 
 	x2 = x1 + maxwidth;
 
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
 
 	// take off the borders
 	x1 += UI_BOX_LR_BORDER;
@@ -2102,7 +2098,7 @@ void ui_menu::draw_ume_box(float x1, float y1, float x2, float y2)
 		if (bgcolor != UI_TEXT_BG_COLOR)
 			container->add_rect(x1, y1, x2, y1 + line_height, bgcolor, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
 
-		machine().ui().draw_text_full(container, ume_filters::text[filter], x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
+		mui.draw_text_full(container, ume_filters::text[filter], x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
 			DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr, text_size);
 
 		y1 += line_height;
@@ -2115,12 +2111,13 @@ void ui_menu::draw_ume_box(float x1, float y1, float x2, float y2)
 
 float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 {
-	float line_height = machine().ui().get_line_height();
+	ui_manager &mui = machine().ui();
+	float line_height = mui.get_line_height();
 	float midl = (x2 - x1) * 0.5f;
 
 	// add outlined box for options
 	//machine().ui().draw_outlined_box(container, x1, y1, x2, y2, rgb_t(0xEF, 0x12, 0x47, 0x7B));
-	machine().ui().draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_BACKGROUND_COLOR);
 
 	// add separator line
 	container->add_line(x1 + midl, y1, x1 + midl, y1 + line_height, UI_LINE_WIDTH, UI_BORDER_COLOR, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
@@ -2156,7 +2153,7 @@ float ui_menu::draw_right_box_title(float x1, float y1, float x2, float y2)
 			container->add_rect(x1 + UI_LINE_WIDTH, y1 + UI_LINE_WIDTH, x1 + midl - UI_LINE_WIDTH, y1 + line_height,
 			bgcolor, PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_TEXWRAP(TRUE));
 
-		machine().ui().draw_text_full(container, buffer[cells].c_str(), x1 + UI_LINE_WIDTH, y1, midl - UI_LINE_WIDTH,
+		mui.draw_text_full(container, buffer[cells].c_str(), x1 + UI_LINE_WIDTH, y1, midl - UI_LINE_WIDTH,
 			JUSTIFY_CENTER, WRAP_NEVER, DRAW_NORMAL, fgcolor, bgcolor, nullptr, nullptr);
 		x1 = x1 + midl;
 	}
@@ -2600,7 +2597,7 @@ void ui_menu::draw_palette_menu()
 	// locate mouse
 	mouse_hit = false;
 	mouse_button = false;
-	mouse_target = ui_input_find_mouse(machine(), &mouse_target_x, &mouse_target_y, &mouse_button);
+	mouse_target = machine().ui_input().find_mouse(&mouse_target_x, &mouse_target_y, &mouse_button);
 	if (mouse_target != nullptr)
 		if (mouse_target->map_point_container(mouse_target_x, mouse_target_y, *container, mouse_x, mouse_y))
 			mouse_hit = true;

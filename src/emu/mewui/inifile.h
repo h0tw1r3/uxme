@@ -30,10 +30,12 @@ public:
 		long offset;
 	};
 
+	using categoryindex = std::vector<IniCategoryIndex>;
+
 	// ini file structure
 	struct IniFileIndex
 	{
-		IniFileIndex(std::string _name, std::vector<IniCategoryIndex> _category) { name = _name; category = _category; }
+		IniFileIndex(std::string _name, categoryindex _category) { name = _name; category = _category; }
 		std::string name;
 		std::vector<IniCategoryIndex> category;
 	};
@@ -59,8 +61,8 @@ private:
 	void directory_scan();
 
 	// file open/close/seek
-	bool ParseOpen(const char *filename);
-	void ParseClose() { if (fp != nullptr) fclose(fp); }
+	bool parseopen(const char *filename);
+	void parseclose() { if (fp != nullptr) fclose(fp); }
 
 	// internal state
 	running_machine &m_machine;  // reference to our machine

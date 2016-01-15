@@ -2,7 +2,7 @@
 // copyright-holders:Dankan1890
 /***************************************************************************
 
-    mewui/datfile.c
+    mewui/datfile.cpp
 
     MEWUI DATs manager.
 
@@ -32,46 +32,67 @@ static std::string TAG_STORY_R("# version");
 static std::string TAG_COMMAND_SEPARATOR("-----------------------------------------------");
 
 //-------------------------------------------------
+//  Statics
+//-------------------------------------------------
+datfile_manager::dataindex datfile_manager::m_histidx;
+datfile_manager::dataindex datfile_manager::m_mameidx;
+datfile_manager::dataindex datfile_manager::m_messidx;
+datfile_manager::dataindex datfile_manager::m_cmdidx;
+datfile_manager::dataindex datfile_manager::m_sysidx;
+datfile_manager::dataindex datfile_manager::m_storyidx;
+datfile_manager::drvindex datfile_manager::m_drvidx;
+datfile_manager::drvindex datfile_manager::m_messdrvidx;
+datfile_manager::drvindex datfile_manager::m_menuidx;
+datfile_manager::swindex datfile_manager::m_swindex;
+std::string datfile_manager::m_history_rev;
+std::string datfile_manager::m_mame_rev;
+std::string datfile_manager::m_mess_rev;
+std::string datfile_manager::m_sysinfo_rev;
+std::string datfile_manager::m_story_rev;
+bool datfile_manager::first_run = true;
+
+//-------------------------------------------------
 // ctor
 //-------------------------------------------------
 datfile_manager::datfile_manager(running_machine &machine) : m_machine(machine)
 {
-	if (machine.options().enabled_dats())
+	if (machine.options().enabled_dats() && first_run)
 	{
-		if (ParseOpen("mameinfo.dat"))
+		first_run = false;
+		if (parseopen("mameinfo.dat"))
 		{
 			init_mameinfo();
-			ParseClose();
+			parseclose();
 		}
 
-		if (ParseOpen("command.dat"))
+		if (parseopen("command.dat"))
 		{
 			init_command();
-			ParseClose();
+			parseclose();
 		}
 
-		if (ParseOpen("story.dat"))
+		if (parseopen("story.dat"))
 		{
 			init_storyinfo();
-			ParseClose();
+			parseclose();
 		}
 
-		if (ParseOpen("messinfo.dat"))
+		if (parseopen("messinfo.dat"))
 		{
 			init_messinfo();
-			ParseClose();
+			parseclose();
 		}
 
-		if (ParseOpen("sysinfo.dat"))
+		if (parseopen("sysinfo.dat"))
 		{
 			init_sysinfo();
-			ParseClose();
+			parseclose();
 		}
 
-		if (ParseOpen("history.dat"))
+		if (parseopen("history.dat"))
 		{
 			init_history();
-			ParseClose();
+			parseclose();
 		}
 	}
 }
@@ -79,7 +100,6 @@ datfile_manager::datfile_manager(running_machine &machine) : m_machine(machine)
 //-------------------------------------------------
 //  initialize sysinfo.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_sysinfo()
 {
 	int swcount = 0;
@@ -91,7 +111,6 @@ void datfile_manager::init_sysinfo()
 //-------------------------------------------------
 //  initialize story.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_storyinfo()
 {
 	int swcount = 0;
@@ -102,7 +121,6 @@ void datfile_manager::init_storyinfo()
 //-------------------------------------------------
 //  initialize history.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_history()
 {
 	int swcount = 0;
@@ -115,7 +133,6 @@ void datfile_manager::init_history()
 //-------------------------------------------------
 //  initialize mameinfo.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_mameinfo()
 {
 	int drvcount = 0;
@@ -128,7 +145,6 @@ void datfile_manager::init_mameinfo()
 //-------------------------------------------------
 //  initialize messinfo.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_messinfo()
 {
 	int drvcount = 0;
@@ -141,7 +157,6 @@ void datfile_manager::init_messinfo()
 //-------------------------------------------------
 //  initialize command.dat index
 //-------------------------------------------------
-
 void datfile_manager::init_command()
 {
 	int swcount = 0;
@@ -152,32 +167,31 @@ void datfile_manager::init_command()
 //-------------------------------------------------
 //  load software info
 //-------------------------------------------------
-
 void datfile_manager::load_software_info(std::string &softlist, std::string &buffer, std::string &softname, std::string &parentname)
 {
 	// Load history text
-	if (!m_swindex.empty() && ParseOpen("history.dat"))
+	if (!m_swindex.empty() && parseopen("history.dat"))
 	{
 		// Find software in software list index
 		if (m_swindex.find(softlist) == m_swindex.end())
 			return;
 
-		std::vector<Itemsindex>::iterator m_itemsiter;
-		m_itemsiter = std::find_if(m_swindex[softlist].begin(), m_swindex[softlist].end(), [softname](Itemsindex const& n) { return n.name == softname; });
-		if (m_itemsiter == m_swindex[softlist].end())
-			m_itemsiter = std::find_if(m_swindex[softlist].begin(), m_swindex[softlist].end(), [parentname](Itemsindex const& n) { return n.name == parentname; });
+		drvindex::iterator itemsiter;
+		itemsiter = m_swindex[softlist].find(softname);
+		if (itemsiter == m_swindex[softlist].end() && !parentname.empty())
+			itemsiter = m_swindex[softlist].find(parentname);
 
-		if (m_itemsiter == m_swindex[softlist].end())
+		if (itemsiter == m_swindex[softlist].end())
 			return;
 
-		long s_offset = (*m_itemsiter).offset;
+		long s_offset = (*itemsiter).second;
 		char rbuf[64*1024];
 		fseek(fp, s_offset, SEEK_SET);
-//		size_t tend = TAG_END.size();
 		std::string readbuf;
 		while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 		{
-			strtrimcarriage(readbuf.assign(rbuf));
+			chartrimcarriage(rbuf);
+			readbuf = rbuf;
 
 			// end entry when a end tag is encountered
 			if (readbuf == TAG_END)
@@ -186,18 +200,17 @@ void datfile_manager::load_software_info(std::string &softlist, std::string &buf
 			// add this string to the buffer
 			buffer.append(readbuf).append("\n");
 		}
-		ParseClose();
+		parseclose();
 	}
 }
 
 //-------------------------------------------------
 //  load_data_info
 //-------------------------------------------------
-
 void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer, int type)
 {
-	std::unordered_map<const game_driver *, long> index_idx;
-	std::vector<Itemsindex> driver_idx;
+	dataindex index_idx;
+	drvindex driver_idx;
 	std::string tag;
 	std::string filename;
 
@@ -232,7 +245,7 @@ void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer
 			break;
 	}
 
-	if (ParseOpen(filename.c_str()))
+	if (parseopen(filename.c_str()))
 	{
 		load_data_text(drv, buffer, index_idx, tag);
 
@@ -241,21 +254,20 @@ void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer
 			load_driver_text(drv, buffer, driver_idx, TAG_DRIVER);
 
 		// cleanup mameinfo double line spacing
-		if (tag == TAG_MAME)
+		if (tag == TAG_MAME || type == MEWUI_SYSINFO_LOAD)
 			strreplace(buffer, "\n\n", "\n");
 
-		ParseClose();
+		parseclose();
 	}
 }
 
 //-------------------------------------------------
 //  load a game text into the buffer
 //-------------------------------------------------
-
-void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer, DrvIndex &idx, std::string &tag)
+void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer, dataindex &idx, std::string &tag)
 {
-	std::unordered_map<const game_driver *, long>::iterator m_itemsiter = idx.find(drv);
-	if (m_itemsiter == idx.end())
+	dataindex::iterator itemsiter = idx.find(drv);
+	if (itemsiter == idx.end())
 	{
 		int cloneof = driver_list::non_bios_clone(*drv);
 		if (cloneof == -1)
@@ -263,20 +275,20 @@ void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer
 		else
 		{
 			const game_driver *c_drv = &driver_list::driver(cloneof);
-			m_itemsiter = idx.find(c_drv);
-			if (m_itemsiter == idx.end())
+			itemsiter = idx.find(c_drv);
+			if (itemsiter == idx.end())
 				return;
 		}
 	}
 
-	long s_offset = (*m_itemsiter).second;
+	long s_offset = (*itemsiter).second;
 	fseek(fp, s_offset, SEEK_SET);
-//	size_t ttag = tag.size();
 	char rbuf[64 * 1024];
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		strtrimcarriage(readbuf.assign(rbuf));
+		chartrimcarriage(rbuf);
+		readbuf = rbuf;
 
 		// end entry when a end tag is encountered
 		if (readbuf == TAG_END)
@@ -295,28 +307,24 @@ void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer
 //  load a driver name and offset into an
 //  indexed array
 //-------------------------------------------------
-
-void datfile_manager::load_driver_text(const game_driver *drv, std::string &buffer, std::vector<Itemsindex> &idx, std::string &tag)
+void datfile_manager::load_driver_text(const game_driver *drv, std::string &buffer, drvindex &idx, std::string &tag)
 {
-	std::string s;
-	core_filename_extract_base(s, drv->source_file);
-	size_t index = 0;
-	for (index = 0; index < idx.size() && idx[index].name != s; ++index) ;
+	std::string s(core_filename_extract_base(drv->source_file));
+	drvindex::const_iterator index = idx.find(s);
 
 	// if driver not found, return
-	if (index == idx.size())
+	if (index == idx.end())
 		return;
 
 	buffer.append("\n--- DRIVER INFO ---\n").append("Driver: ").append(s).append("\n\n");
-	long s_offset = idx[index].offset;
+	long s_offset = (*index).second;
 	fseek(fp, s_offset, SEEK_SET);
-//	size_t tend = TAG_END.size();
-//	size_t ttag = tag.size();
 	char rbuf[64 * 1024];
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		strtrimcarriage(readbuf.assign(rbuf));
+		chartrimcarriage(rbuf);
+		readbuf = rbuf;
 
 		// end entry when a end tag is encountered
 		if (readbuf == TAG_END)
@@ -335,8 +343,7 @@ void datfile_manager::load_driver_text(const game_driver *drv, std::string &buff
 //  load a game name and offset into an
 //  indexed array (mameinfo)
 //-------------------------------------------------
-
-int datfile_manager::index_mame_mess_info(DrvIndex &index, std::vector<Itemsindex> &index_drv, int &drvcount)
+int datfile_manager::index_mame_mess_info(dataindex &index, drvindex &index_drv, int &drvcount)
 {
 	std::string name;
 	size_t t_mame = TAG_MAMEINFO_R.size();
@@ -347,7 +354,8 @@ int datfile_manager::index_mame_mess_info(DrvIndex &index, std::vector<Itemsinde
 	std::string readbuf, xid;
 	while (fgets(rbuf, 2048, fp) != nullptr)
 	{
-		strtrimcarriage(readbuf.assign(rbuf));
+		chartrimcarriage(rbuf);
+		readbuf = rbuf;
 
 		if (m_mame_rev.empty() && readbuf.compare(0, t_mame, TAG_MAMEINFO_R) == 0)
 		{
@@ -364,7 +372,8 @@ int datfile_manager::index_mame_mess_info(DrvIndex &index, std::vector<Itemsinde
 		else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
 		{
 			fgets(rbuf, 2048, fp);
-			strtrimcarriage(xid.assign(rbuf));
+			chartrimcarriage(rbuf);
+			xid = rbuf;
 			name = readbuf.substr(t_info + 1);
 			if (xid == TAG_MAME)
 			{
@@ -375,7 +384,7 @@ int datfile_manager::index_mame_mess_info(DrvIndex &index, std::vector<Itemsinde
 			}
 			else if (xid == TAG_DRIVER)
 			{
-				index_drv.emplace_back(name, ftell(fp));
+				index_drv.emplace(name, ftell(fp));
 				drvcount++;
 			}
 		}
@@ -387,8 +396,7 @@ int datfile_manager::index_mame_mess_info(DrvIndex &index, std::vector<Itemsinde
 //  load a game name and offset into an
 //  indexed array
 //-------------------------------------------------
-
-int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
+int datfile_manager::index_datafile(dataindex &index, int &swcount)
 {
 	std::string  readbuf, name;
 	size_t t_hist = TAG_HISTORY_R.size();
@@ -396,11 +404,11 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 	size_t t_sysinfo = TAG_SYSINFO_R.size();
 	size_t t_info = TAG_INFO.size();
 	size_t t_bio = TAG_BIO.size();
-	std::string carriage("\r\n");
 	char rbuf[2048];
 	while (fgets(rbuf, 2048, fp) != nullptr)
 	{
-		strtrimcarriage(readbuf.assign(rbuf));
+		chartrimcarriage(rbuf);
+		readbuf = rbuf;
 
 		if (m_history_rev.empty() && readbuf.compare(0, t_hist, TAG_HISTORY_R) == 0)
 		{
@@ -413,10 +421,7 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 			m_sysinfo_rev = readbuf.substr(t_sysinfo + 1, found - t_sysinfo);
 		}
 		else if (m_story_rev.empty() && readbuf.compare(0, t_story, TAG_STORY_R) == 0)
-		{
-			size_t found = readbuf.find_first_of(carriage, t_story + 1);
-			m_story_rev = readbuf.substr(t_story + 1, found - t_story);
-		}
+			m_story_rev = readbuf.substr(t_story + 1);
 
 		// TAG_INFO identifies the driver
 		else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
@@ -433,7 +438,7 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 				{
 					// copy data and validate driver
 					int len = found - curpoint;
-					strtrimcarriage(name.assign(readbuf.substr(curpoint, len)));
+					name = readbuf.substr(curpoint, len);
 
 					// validate driver
 					int game_index = driver_list::find(name.c_str());
@@ -446,7 +451,7 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 				// if comma not found, copy data while until reach the end of string
 				else if (curpoint < ends)
 				{
-					strtrimcarriage(name.assign(readbuf.substr(curpoint)));
+					name = readbuf.substr(curpoint);
 					int game_index = driver_list::find(name.c_str());
 					if (game_index != -1)
 							index.emplace(&driver_list::driver(game_index), ftell(fp));
@@ -460,6 +465,7 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 		else if (!readbuf.empty() && readbuf[0] == DATAFILE_TAG[0])
 		{
 			fgets(rbuf, 2048, fp);
+			chartrimcarriage(rbuf);
 			std::string readbuf_2(rbuf);
 
 			// TAG_BIO identifies software list
@@ -478,12 +484,12 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 					// found it
 					if (found != std::string::npos)
 					{
-						strtrimcarriage(name.assign(s_list.substr(curpoint, found - curpoint)));
+						name = s_list.substr(curpoint, found - curpoint);
 						curpoint = found + 1;
 					}
 					else
 					{
-						strtrimcarriage(name.assign(s_list));
+						name = s_list;
 						curpoint = ends;
 					}
 
@@ -501,10 +507,10 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 						if (found != std::string::npos)
 						{
 							// copy data
-							strtrimcarriage(name.assign(s_roms.substr(cpoint, found - cpoint)));
+							name = s_roms.substr(cpoint, found - cpoint);
 
 							// add a SoftwareItem
-							m_swindex[lname].emplace_back(name, ftell(fp));
+							m_swindex[lname].emplace(name, ftell(fp));
 
 							// update current point
 							cpoint = found + 1;
@@ -517,10 +523,10 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 								break;
 
 							// copy data
-							strtrimcarriage(name.assign(s_roms.substr(cpoint)));
+							name = s_roms.substr(cpoint);
 
 							// add a SoftwareItem
-							m_swindex[lname].emplace_back(name, ftell(fp));
+							m_swindex[lname].emplace(name, ftell(fp));
 
 							// update current point
 							cpoint = cends;
@@ -535,10 +541,9 @@ int datfile_manager::index_datafile(DrvIndex &index, int &swcount)
 }
 
 //---------------------------------------------------------
-//	ParseOpen - Open up file for reading
+//	parseopen - Open up file for reading
 //---------------------------------------------------------
-
-bool datfile_manager::ParseOpen(const char *filename)
+bool datfile_manager::parseopen(const char *filename)
 {
 	// MAME core file parsing functions fail in recognizing UNICODE chars in UTF-8 without BOM,
 	// so it's better and faster use standard C fileio functions.
@@ -559,11 +564,10 @@ bool datfile_manager::ParseOpen(const char *filename)
 //-------------------------------------------------
 //  create the menu index
 //-------------------------------------------------
-
-void datfile_manager::index_menuidx(const game_driver *drv, DrvIndex &idx, std::vector<Itemsindex> &index)
+void datfile_manager::index_menuidx(const game_driver *drv, dataindex &idx, drvindex &index)
 {
-	std::unordered_map<const game_driver *, long>::iterator m_itemsiter = idx.find(drv);
-	if (m_itemsiter == idx.end())
+	dataindex::iterator itemsiter = idx.find(drv);
+	if (itemsiter == idx.end())
 	{
 		int cloneof = driver_list::non_bios_clone(*drv);
 		if (cloneof == -1)
@@ -571,21 +575,22 @@ void datfile_manager::index_menuidx(const game_driver *drv, DrvIndex &idx, std::
 		else
 		{
 			const game_driver *c_drv = &driver_list::driver(cloneof);
-			m_itemsiter = idx.find(c_drv);
-			if (m_itemsiter == idx.end())
+			itemsiter = idx.find(c_drv);
+			if (itemsiter == idx.end())
 				return;
 		}
 	}
 
 	// seek to correct point in datafile
-	long s_offset = (*m_itemsiter).second;
+	long s_offset = (*itemsiter).second;
 	fseek(fp, s_offset, SEEK_SET);
 	size_t tinfo = TAG_INFO.size();
 	char rbuf[64 * 1024];
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		strtrimcarriage(readbuf.assign(rbuf));
+		chartrimcarriage(rbuf);
+		readbuf = rbuf;
 
 		if (!core_strnicmp(TAG_INFO.c_str(), readbuf.c_str(), tinfo))
 			break;
@@ -594,8 +599,8 @@ void datfile_manager::index_menuidx(const game_driver *drv, DrvIndex &idx, std::
 		if (readbuf == TAG_COMMAND)
 		{
 			fgets(rbuf, 64 * 1024, fp);
-			strtrimcarriage(readbuf.assign(rbuf));
-			index.emplace_back(readbuf, ftell(fp));
+			chartrimcarriage(rbuf);
+			index.emplace(rbuf, ftell(fp));
 		}
 	}
 }
@@ -603,23 +608,22 @@ void datfile_manager::index_menuidx(const game_driver *drv, DrvIndex &idx, std::
 //-------------------------------------------------
 //  load command text into the buffer
 //-------------------------------------------------
-
-void datfile_manager::load_command_info(std::string &buffer, const int sel)
+void datfile_manager::load_command_info(std::string &buffer, std::string sel)
 {
-	if (ParseOpen("command.dat"))
+	if (parseopen("command.dat"))
 	{
-		size_t tcs = TAG_COMMAND_SEPARATOR.size();
-
 		// open and seek to correct point in datafile
-		fseek(fp, m_menuidx[sel].offset, SEEK_SET);
+		long offset = m_menuidx[sel];
+		fseek(fp, offset, SEEK_SET);
 		char rbuf[64 * 1024];
 		std::string readbuf;
 		while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 		{
-			strtrimcarriage(readbuf.assign(rbuf));
+			chartrimcarriage(rbuf);
+			readbuf = rbuf;
 
 			// skip separator lines
-			if (!core_strnicmp(TAG_COMMAND_SEPARATOR.c_str(), readbuf.c_str(), tcs))
+			if (readbuf == TAG_COMMAND_SEPARATOR)
 				continue;
 
 			// end entry when a tag is encountered
@@ -629,22 +633,21 @@ void datfile_manager::load_command_info(std::string &buffer, const int sel)
 			// add this string to the buffer
 			buffer.append(readbuf).append("\n");;
 		}
-		ParseClose();
+		parseclose();
 	}
 }
 
 //-------------------------------------------------
 //  load submenu item for command.dat
 //-------------------------------------------------
-
 void datfile_manager::command_sub_menu(const game_driver *drv, std::vector<std::string> &menuitems)
 {
-	if (ParseOpen("command.dat"))
+	if (parseopen("command.dat"))
 	{
 		m_menuidx.clear();
 		index_menuidx(drv, m_cmdidx, m_menuidx);
 		for (auto & elem : m_menuidx)
-			menuitems.push_back(elem.name);
-		ParseClose();
+			menuitems.push_back(elem.first);
+		parseclose();
 	}
 }

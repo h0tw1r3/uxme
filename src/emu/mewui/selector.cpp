@@ -2,7 +2,7 @@
 // copyright-holders:Dankan1890
 /*********************************************************************
 
-    mewui/m_selector.c
+    mewui/m_selector.cpp
 
     Internal MEWUI user interface.
 
@@ -19,10 +19,10 @@
 //  ctor / dtor
 //-------------------------------------------------
 
-ui_menu_selector::ui_menu_selector(running_machine &machine, render_container *container, std::vector<std::string> s_sel, UINT16 *s_actual, int category, int _hover) : ui_menu(machine, container)
+ui_menu_selector::ui_menu_selector(running_machine &machine, render_container *container, std::vector<std::string> s_sel, UINT16 &s_actual, int category, int _hover) 
+	: ui_menu(machine, container), m_selector(s_actual)
 {
 	m_category = category;
-	m_selector = s_actual;
 	m_first_pass = true;
 	m_hover = _hover;
 	m_str_items = s_sel;
@@ -49,18 +49,18 @@ void ui_menu_selector::handle()
 		{
 			for (size_t idx = 0; idx < m_str_items.size(); ++idx)
 				if ((void*)&m_str_items[idx] == m_event->itemref)
-					*m_selector = idx;
+					m_selector = idx;
 
 			switch (m_category)
 			{
 				case SELECTOR_INIFILE:
-					machine().inifile().current_file = *m_selector;
+					machine().inifile().current_file = m_selector;
 					machine().inifile().current_category = 0;
 					ui_menu::menu_stack->parent->reset(UI_MENU_RESET_REMEMBER_REF);
 					break;
 
 				case SELECTOR_CATEGORY:
-					machine().inifile().current_category = *m_selector;
+					machine().inifile().current_category = m_selector;
 					ui_menu::menu_stack->parent->reset(UI_MENU_RESET_REMEMBER_REF);
 					break;
 
@@ -129,7 +129,7 @@ void ui_menu_selector::populate()
 		for (size_t index = 0, added = 0; index < m_str_items.size(); ++index)
 			if (m_str_items[index] != "_skip_")
 			{
-				if (m_first_pass && *m_selector == index)
+				if (m_first_pass && m_selector == index)
 					selected = added;
 
 				added++;
@@ -178,8 +178,7 @@ void ui_menu_selector::custom_render(void *selectedref, float top, float bottom,
 
 	// bottom text
 	// get the text for 'UI Select'
-	std::string ui_select_text;
-	machine().input().seq_name(ui_select_text, machine().ioport().type_seq(IPT_UI_SELECT, 0, SEQ_TYPE_STANDARD));
+	std::string ui_select_text = machine().input().seq_name(machine().ioport().type_seq(IPT_UI_SELECT, 0, SEQ_TYPE_STANDARD));
 	tempbuf.assign("Double click or press ").append(ui_select_text).append(" to select");
 
 	mui.draw_text_full(container, tempbuf.c_str(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_NEVER,

@@ -2,7 +2,7 @@
 // copyright-holders:Dankan1890
 /***************************************************************************
 
-    mewui/inifile.c
+    mewui/inifile.cpp
 
     MEWUI INIs file manager.
 
@@ -57,10 +57,10 @@ void inifile_manager::directory_scan()
 			tolower((UINT8)dir->name[length - 2]) == 'n' && tolower((UINT8)dir->name[length - 1]) == 'i')
 		{
 			// try to open file and indexing
-			if (ParseOpen(filename.c_str()))
+			if (parseopen(filename.c_str()))
 			{
 				init_category(filename);
-				ParseClose();
+				parseclose();
 			}
 		}
 	}
@@ -72,7 +72,7 @@ void inifile_manager::directory_scan()
 
 void inifile_manager::init_category(std::string &filename)
 {
-	std::vector<IniCategoryIndex> index;
+	categoryindex index;
 	char rbuf[2048];
 	std::string readbuf, name;
 	while (fgets(rbuf, 2048, fp) != nullptr)
@@ -109,7 +109,7 @@ void inifile_manager::load_ini_category(std::vector<int> &temp_filter)
 	if (!core_stricmp(filename.c_str(), "category.ini") || !core_stricmp(filename.c_str(), "alltime.ini"))
 		search_clones = true;
 
-	if (ParseOpen(filename.c_str()))
+	if (parseopen(filename.c_str()))
 	{
 		fseek(fp, offset, SEEK_SET);
 		int num_game = driver_list::total();
@@ -117,7 +117,8 @@ void inifile_manager::load_ini_category(std::vector<int> &temp_filter)
 		std::string readbuf;
 		while (fgets(rbuf, 2048, fp) != nullptr)
 		{
-			strtrimcarriage(readbuf.assign(rbuf));
+			chartrimcarriage(rbuf);
+			readbuf = rbuf;
 
 			if (readbuf.empty() || readbuf[0] == '[')
 				break;
@@ -137,15 +138,15 @@ void inifile_manager::load_ini_category(std::vector<int> &temp_filter)
 			else if (dfind != -1)
 				temp_filter.push_back(dfind);
 		}
-		ParseClose();
+		parseclose();
 	}
 }
 
 //---------------------------------------------------------
-//	ParseOpen - Open up file for reading
+//	parseopen - Open up file for reading
 //---------------------------------------------------------
 
-bool inifile_manager::ParseOpen(const char *filename)
+bool inifile_manager::parseopen(const char *filename)
 {
 	// MAME core file parsing functions fail in recognizing UNICODE chars in UTF-8 without BOM,
 	// so it's better and faster use standard C fileio functions.
@@ -219,17 +220,17 @@ void favorite_manager::add_favorite_game()
 			const software_info *swinfo = image->software_entry();
 			const software_part *part = image->part_entry();
 			ui_software_info tmpmatches;
-			if (swinfo->shortname()) tmpmatches.shortname = swinfo->shortname();
-			if (image->longname()) tmpmatches.longname = image->longname();
-			if (swinfo->parentname()) tmpmatches.parentname = swinfo->parentname();
-			if (image->year()) tmpmatches.year = image->year();
-			if (image->manufacturer()) tmpmatches.publisher = image->manufacturer();
+			tmpmatches.shortname = strensure(swinfo->shortname());
+			tmpmatches.longname = strensure(image->longname());
+			tmpmatches.parentname = strensure(swinfo->parentname());
+			tmpmatches.year = strensure(image->year());
+			tmpmatches.publisher = strensure(image->manufacturer());
 			tmpmatches.supported = image->supported();
-			if (part->name()) tmpmatches.part = part->name();
+			tmpmatches.part = strensure(part->name());
 			tmpmatches.driver = &machine().system();
-			if (image->software_list_name()) tmpmatches.listname = image->software_list_name();
-			if (part->interface()) tmpmatches.interface = part->interface();
-			if (image->instance_name()) tmpmatches.instance = image->instance_name();
+			tmpmatches.listname = strensure(image->software_list_name());
+			tmpmatches.interface = strensure(part->interface());
+			tmpmatches.instance = strensure(image->instance_name());
 			tmpmatches.startempty = 0;
 			tmpmatches.parentlongname.clear();
 			if (swinfo->parentname())
@@ -251,7 +252,7 @@ void favorite_manager::add_favorite_game()
 				if (!strcmp(flist->name(), "usage"))
 					tmpmatches.usage = flist->value();
 
-			if (image->image_type_name()) tmpmatches.devicetype = image->image_type_name();
+			tmpmatches.devicetype = strensure(image->image_type_name());
 			tmpmatches.available = true;
 			software_avail = true;
 			m_list.push_back(tmpmatches);
@@ -362,7 +363,6 @@ void favorite_manager::parse_favorite()
 	if (file.open(favorite_filename) == FILERR_NONE)
 	{
 		char readbuf[1024];
-		std::string text;
 		file.gets(readbuf, 1024);
 
 		while (readbuf[0] == '[')
@@ -371,38 +371,38 @@ void favorite_manager::parse_favorite()
 		while (file.gets(readbuf, 1024))
 		{
 			ui_software_info tmpmatches;
-			tmpmatches.shortname = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.shortname = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.longname = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.longname = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.parentname = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.parentname = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.year = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.year = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.publisher = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.publisher = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
 			tmpmatches.supported = atoi(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.part = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.part = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			text = strtrimcarriage(text.assign(readbuf));
-			int dx = driver_list::find(text.c_str());
+			chartrimcarriage(readbuf);
+			int dx = driver_list::find(readbuf);
 			if (dx == -1) continue;
 			tmpmatches.driver = &driver_list::driver(dx);
 			file.gets(readbuf, 1024);
-			tmpmatches.listname = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.listname = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.interface = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.interface = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.instance = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.instance = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
 			tmpmatches.startempty = atoi(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.parentlongname = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.parentlongname = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.usage = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.usage = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
-			tmpmatches.devicetype = strtrimcarriage(text.assign(readbuf));
+			tmpmatches.devicetype = chartrimcarriage(readbuf);
 			file.gets(readbuf, 1024);
 			tmpmatches.available = atoi(readbuf);
 			m_list.push_back(tmpmatches);
