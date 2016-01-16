@@ -463,7 +463,7 @@ void rom_load_manager::display_loading_rom_message(const char *name, bool from_l
 {
 	char buffer[200];
 
-	if (romdata->machine().options().skip_loading())
+	if (machine().options().skip_loading())
 		return;
 
 	if (name != nullptr)

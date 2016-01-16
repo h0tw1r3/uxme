@@ -1711,11 +1711,11 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 		machine.ui().set_show_fps(!machine.ui().show_fps());
 
 	// toggle clock display
-	if (ui_input_pressed(machine, IPT_UI_SHOW_CLOCK))
+	if (machine.ui_input().pressed(IPT_UI_SHOW_CLOCK))
 		machine.ui().set_show_clock(!machine.ui().show_clock());
 
 	// toggle mute
-	if (ui_input_pressed(machine, IPT_UI_MUTE))
+	if (machine.ui_input().pressed(IPT_UI_MUTE))
 	{
 		static bool muted = true;
 		machine.sound().system_mute(muted);
@@ -1736,7 +1736,7 @@ UINT32 ui_manager::handler_ingame(running_machine &machine, render_container *co
 		machine.video().toggle_throttle();
 
 	// toggle autofire
-	if (ui_input_pressed(machine, IPT_UI_TOGGLE_AUTOFIRE))
+	if (machine.ui_input().pressed(IPT_UI_TOGGLE_AUTOFIRE))
 	{
 		int autofire_toggle = machine.ioport().get_autofire_toggle();
 		autofire_toggle ^= 1;
