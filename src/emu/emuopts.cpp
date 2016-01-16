@@ -187,6 +187,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SKIP_DISCLAIMER,                            "0",         OPTION_BOOLEAN,    "skip disclaimer screen" },
 	{ OPTION_SKIP_WARNINGS,                              "0",         OPTION_BOOLEAN,    "skip warning screen" },
 	{ OPTION_SKIP_LOADING,                               "0",         OPTION_BOOLEAN,    "skip loading screen" },
+	{ OPTION_RENDER_BOX,                                 "0",         OPTION_BOOLEAN,    "render white border on UI message screens" },
 	{ OPTION_UI_FONT,                                    "default",   OPTION_STRING,     "specify a font to use" },
 	{ OPTION_RAMSIZE ";ram",                             nullptr,        OPTION_STRING,     "size of RAM (if supported by driver)" },
 	{ OPTION_CONFIRM_QUIT,                               "0",         OPTION_BOOLEAN,    "display confirm quit screen on exit" },

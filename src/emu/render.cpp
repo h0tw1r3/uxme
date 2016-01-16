@@ -955,6 +955,9 @@ render_target::render_target(render_manager &manager, const char *layoutfile, UI
 	m_orientation = m_base_orientation;
 	m_layerconfig = m_base_layerconfig;
 
+	// white box
+	m_draw_outer_box = manager.machine().options().render_box();
+
 	// load the layout files
 	load_layout_files(layoutfile, flags & RENDER_CREATE_SINGLE_FILE);
 
@@ -1330,7 +1333,7 @@ render_primitive_list &render_target::get_primitives(bool include_ui)
 		}
 
 	// if we are not in the running stage, draw an outer box
-	else
+	else if (m_draw_outer_box)
 	{
 		render_primitive *prim = list.alloc(render_primitive::QUAD);
 		set_render_bounds_xy(&prim->bounds, 0.0f, 0.0f, (float)m_width, (float)m_height);
