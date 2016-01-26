@@ -185,13 +185,12 @@ void datfile_manager::load_software_info(std::string &softlist, std::string &buf
 			return;
 
 		long s_offset = (*itemsiter).second;
-		char rbuf[64*1024];
+		char rbuf[64 * 1024];
 		fseek(fp, s_offset, SEEK_SET);
 		std::string readbuf;
 		while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 		{
-			chartrimcarriage(rbuf);
-			readbuf = rbuf;
+			readbuf = chartrimcarriage(rbuf);
 
 			// end entry when a end tag is encountered
 			if (readbuf == TAG_END)
@@ -253,7 +252,7 @@ void datfile_manager::load_data_info(const game_driver *drv, std::string &buffer
 		if (!driver_idx.empty())
 			load_driver_text(drv, buffer, driver_idx, TAG_DRIVER);
 
-		// cleanup mameinfo double line spacing
+		// cleanup mameinfo and sysinfo double line spacing
 		if (tag == TAG_MAME || type == MEWUI_SYSINFO_LOAD)
 			strreplace(buffer, "\n\n", "\n");
 
@@ -287,8 +286,7 @@ void datfile_manager::load_data_text(const game_driver *drv, std::string &buffer
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		chartrimcarriage(rbuf);
-		readbuf = rbuf;
+		readbuf = chartrimcarriage(rbuf);
 
 		// end entry when a end tag is encountered
 		if (readbuf == TAG_END)
@@ -323,8 +321,7 @@ void datfile_manager::load_driver_text(const game_driver *drv, std::string &buff
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		chartrimcarriage(rbuf);
-		readbuf = rbuf;
+		readbuf = chartrimcarriage(rbuf);
 
 		// end entry when a end tag is encountered
 		if (readbuf == TAG_END)
@@ -350,30 +347,30 @@ int datfile_manager::index_mame_mess_info(dataindex &index, drvindex &index_drv,
 	size_t t_mess = TAG_MESSINFO_R.size();
 	size_t t_info = TAG_INFO.size();
 
-	char rbuf[2048];
+	char rbuf[64 * 1024];
 	std::string readbuf, xid;
-	while (fgets(rbuf, 2048, fp) != nullptr)
+	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		chartrimcarriage(rbuf);
-		readbuf = rbuf;
-
+		readbuf = chartrimcarriage(rbuf);
 		if (m_mame_rev.empty() && readbuf.compare(0, t_mame, TAG_MAMEINFO_R) == 0)
 		{
 			size_t found = readbuf.find(" ", t_mame + 1);
 			m_mame_rev = readbuf.substr(t_mame + 1, found - t_mame);
 		}
-		else if (m_mess_rev.empty() && readbuf.compare(0, t_mess, TAG_MESSINFO_R) == 0)
+		else if (m_mess_rev.empty())
 		{
-			size_t found = readbuf.find(" ", t_mess + 1);
-			m_mess_rev = readbuf.substr(t_mess + 1, found - t_mess);
+			size_t foundtag = readbuf.find(TAG_MESSINFO_R);
+			if (foundtag != std::string::npos)
+			{
+				size_t found = readbuf.find(" ", foundtag + t_mess + 1);
+				m_mess_rev = readbuf.substr(foundtag + t_mess + 1, found - t_mess - foundtag);
+			}
 		}
-	
-		// TAG_INFO
 		else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
 		{
-			fgets(rbuf, 2048, fp);
-			chartrimcarriage(rbuf);
-			xid = rbuf;
+			// TAG_INFO
+			fgets(rbuf, 64 * 1024, fp);
+			xid = chartrimcarriage(rbuf);
 			name = readbuf.substr(t_info + 1);
 			if (xid == TAG_MAME)
 			{
@@ -404,11 +401,10 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 	size_t t_sysinfo = TAG_SYSINFO_R.size();
 	size_t t_info = TAG_INFO.size();
 	size_t t_bio = TAG_BIO.size();
-	char rbuf[2048];
-	while (fgets(rbuf, 2048, fp) != nullptr)
+	char rbuf[64 * 1024];
+	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		chartrimcarriage(rbuf);
-		readbuf = rbuf;
+		readbuf = chartrimcarriage(rbuf);
 
 		if (m_history_rev.empty() && readbuf.compare(0, t_hist, TAG_HISTORY_R) == 0)
 		{
@@ -426,8 +422,8 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 		// TAG_INFO identifies the driver
 		else if (readbuf.compare(0, t_info, TAG_INFO) == 0)
 		{
-			int curpoint = t_info + 1;
-			int ends = readbuf.length();
+			int curpoint = ++t_info;
+			int ends = readbuf.size();
 			while (curpoint < ends)
 			{
 				// search for comma
@@ -437,8 +433,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 				if (found != std::string::npos)
 				{
 					// copy data and validate driver
-					int len = found - curpoint;
-					name = readbuf.substr(curpoint, len);
+					name = readbuf.substr(curpoint, found - curpoint);
 
 					// validate driver
 					int game_index = driver_list::find(name.c_str());
@@ -446,7 +441,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 						index.emplace(&driver_list::driver(game_index), ftell(fp));
 
 					// update current point
-					curpoint = found + 1;
+					curpoint = ++found;
 				}
 				// if comma not found, copy data while until reach the end of string
 				else if (curpoint < ends)
@@ -454,7 +449,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 					name = readbuf.substr(curpoint);
 					int game_index = driver_list::find(name.c_str());
 					if (game_index != -1)
-							index.emplace(&driver_list::driver(game_index), ftell(fp));
+						index.emplace(&driver_list::driver(game_index), ftell(fp));
 
 					// update current point
 					curpoint = ends;
@@ -464,9 +459,8 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 		// search for software info
 		else if (!readbuf.empty() && readbuf[0] == DATAFILE_TAG[0])
 		{
-			fgets(rbuf, 2048, fp);
-			chartrimcarriage(rbuf);
-			std::string readbuf_2(rbuf);
+			fgets(rbuf, 64 * 1024, fp);
+			std::string readbuf_2(chartrimcarriage(rbuf));
 
 			// TAG_BIO identifies software list
 			if (readbuf_2.compare(0, t_bio, TAG_BIO) == 0)
@@ -474,7 +468,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 				size_t eq_sign = readbuf.find("=");
 				std::string s_list(readbuf.substr(1, eq_sign - 1));
 				std::string s_roms(readbuf.substr(eq_sign + 1));
-				int ends = s_list.length();
+				int ends = s_list.size();
 				int curpoint = 0;
 
 				while (curpoint < ends)
@@ -485,7 +479,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 					if (found != std::string::npos)
 					{
 						name = s_list.substr(curpoint, found - curpoint);
-						curpoint = found + 1;
+						curpoint = ++found;
 					}
 					else
 					{
@@ -496,7 +490,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 					// search for a software list in the index, if not found then allocates
 					std::string lname(name);
 					int cpoint = 0;
-					int cends = s_roms.length();
+					int cends = s_roms.size();
 
 					while (cpoint < cends)
 					{
@@ -513,7 +507,7 @@ int datfile_manager::index_datafile(dataindex &index, int &swcount)
 							m_swindex[lname].emplace(name, ftell(fp));
 
 							// update current point
-							cpoint = found + 1;
+							cpoint = ++found;
 							swcount++;
 						}
 						else
@@ -589,8 +583,7 @@ void datfile_manager::index_menuidx(const game_driver *drv, dataindex &idx, drvi
 	std::string readbuf;
 	while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 	{
-		chartrimcarriage(rbuf);
-		readbuf = rbuf;
+		readbuf = chartrimcarriage(rbuf);
 
 		if (!core_strnicmp(TAG_INFO.c_str(), readbuf.c_str(), tinfo))
 			break;
@@ -608,19 +601,18 @@ void datfile_manager::index_menuidx(const game_driver *drv, dataindex &idx, drvi
 //-------------------------------------------------
 //  load command text into the buffer
 //-------------------------------------------------
-void datfile_manager::load_command_info(std::string &buffer, std::string sel)
+void datfile_manager::load_command_info(std::string &buffer, std::string &sel)
 {
 	if (parseopen("command.dat"))
 	{
 		// open and seek to correct point in datafile
-		long offset = m_menuidx[sel];
+		long offset = m_menuidx.at(sel);
 		fseek(fp, offset, SEEK_SET);
 		char rbuf[64 * 1024];
 		std::string readbuf;
 		while (fgets(rbuf, 64 * 1024, fp) != nullptr)
 		{
-			chartrimcarriage(rbuf);
-			readbuf = rbuf;
+			readbuf = chartrimcarriage(rbuf);
 
 			// skip separator lines
 			if (readbuf == TAG_COMMAND_SEPARATOR)

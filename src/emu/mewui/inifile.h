@@ -37,7 +37,7 @@ public:
 	{
 		IniFileIndex(std::string _name, categoryindex _category) { name = _name; category = _category; }
 		std::string name;
-		std::vector<IniCategoryIndex> category;
+		categoryindex category;
 	};
 
 	// construction/destruction
@@ -52,6 +52,9 @@ public:
 	// files indices
 	std::vector<IniFileIndex> ini_index;
 	static UINT16 current_file, current_category;
+
+	std::string actual_category() { return ini_index[current_file].name; }
+	std::string actual_file() { return ini_index[current_file].category[current_category].name; }
 
 private:
 	// init category index

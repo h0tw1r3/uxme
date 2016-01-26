@@ -147,13 +147,13 @@ ui_menu_font_ui::ui_menu_font_ui(running_machine &machine, render_container *con
 
 	m_bold = (strreplace(name, "[B]", "") + strreplace(name, "[b]", "") > 0);
 	m_italic = (strreplace(name, "[I]", "") + strreplace(name, "[i]", "") > 0);
-	m_fonts.actual = 0;
+	m_actual = 0;
 
-	for (size_t index = 0; index < m_fonts.ui.size(); index++)
+	for (size_t index = 0; index < m_fonts.size(); index++)
 	{
-		if (m_fonts.ui[index] == name)
+		if (m_fonts[index] == name)
 		{
-			m_fonts.actual = index;
+			m_actual = index;
 			break;
 		}
 	}
@@ -186,10 +186,10 @@ ui_menu_font_ui::ui_menu_font_ui(running_machine &machine, render_container *con
 
 int CALLBACK ui_menu_font_ui::EnumFontFamiliesExProc(const LOGFONT *lpelfe, const TEXTMETRIC *lpntme, DWORD FontType, LPARAM lParam)
 {
-	c_uifonts *lpc = (c_uifonts*)lParam;
+	std::vector<std::string> *lpc = (std::vector<std::string>*)lParam;
 	std::string utf((char *)lpelfe->lfFaceName);
 	if (utf[0] != '@')
-		lpc->ui.push_back(utf);
+		lpc->push_back(utf);
 
 	return 1;
 }
@@ -210,10 +210,10 @@ void ui_menu_font_ui::list()
 	ReleaseDC( nullptr, hDC );
 
 	// sort
-	std::stable_sort(m_fonts.ui.begin(), m_fonts.ui.end());
+	std::stable_sort(m_fonts.begin(), m_fonts.end());
 
 	// add default string to the top of array
-	m_fonts.ui.insert(m_fonts.ui.begin(), std::string("default"));
+	m_fonts.insert(m_fonts.begin(), std::string("default"));
 }
 #endif
 
@@ -227,8 +227,8 @@ ui_menu_font_ui::~ui_menu_font_ui()
 	emu_options &moptions = machine().options();
 
 #ifdef MEWUI_WINDOWS
-	std::string name(m_fonts.ui[m_fonts.actual]);
-	if (m_fonts.ui[m_fonts.actual] != "default")
+	std::string name(m_fonts[m_actual]);
+	if (m_fonts[m_actual] != "default")
 	{
 		if (m_italic)
 			name.insert(0, "[I]");
@@ -277,12 +277,12 @@ void ui_menu_font_ui::handle()
 			case MUI_FNT:
 				if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 				{
-					(m_event->iptkey == IPT_UI_RIGHT) ? m_fonts.actual++ : m_fonts.actual--;
+					(m_event->iptkey == IPT_UI_RIGHT) ? m_actual++ : m_actual--;
 					changed = true;
 				}
 				else if (m_event->iptkey == IPT_UI_SELECT)
 				{
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_selector>(machine(), container, m_fonts.ui, m_fonts.actual)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_selector>(machine(), container, m_fonts, m_actual)));
 					changed = true;
 				}
 				break;
@@ -314,8 +314,8 @@ void ui_menu_font_ui::populate()
 
 #ifdef MEWUI_WINDOWS
 	// add fonts option
-	arrow_flags = get_arrow_flags(0, m_fonts.ui.size() - 1, m_fonts.actual);
-	std::string name(m_fonts.ui[m_fonts.actual]);
+	arrow_flags = get_arrow_flags(0, m_fonts.size() - 1, m_actual);
+	std::string name(m_fonts[m_actual]);
 	item_append("UI Font", name.c_str(), arrow_flags, (void *)(FPTR)MUI_FNT);
 
 	if (name != "default")
@@ -437,13 +437,11 @@ ui_menu_colors_ui::ui_menu_colors_ui(running_machine &machine, render_container 
 
 ui_menu_colors_ui::~ui_menu_colors_ui()
 {
-	std::string error_string;
-	char dec_color[65];
-
+	std::string error_string, dec_color;
 	for (int index = 1; index < MUI_RESTORE; index++)
 	{
-		sprintf(dec_color, "%x", (UINT32)m_color_table[index].color);
-		machine().options().set_value(m_color_table[index].option, dec_color, OPTION_PRIORITY_CMDLINE, error_string);
+		strprintf(dec_color, "%x", (UINT32)m_color_table[index].color);
+		machine().options().set_value(m_color_table[index].option, dec_color.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
 	}
 }
 
@@ -997,8 +995,8 @@ ui_menu_palette_sel::palcolor ui_menu_palette_sel::m_palette[] = {
 //  ctor
 //-------------------------------------------------
 
-ui_menu_palette_sel::ui_menu_palette_sel(running_machine &machine, render_container *container, rgb_t &_color) : ui_menu(machine, container),
-	m_original(_color)
+ui_menu_palette_sel::ui_menu_palette_sel(running_machine &machine, render_container *container, rgb_t &_color)
+	: ui_menu(machine, container), m_original(_color)
 {
 }
 

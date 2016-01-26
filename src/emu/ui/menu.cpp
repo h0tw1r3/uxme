@@ -80,10 +80,10 @@ render_texture *ui_menu::star_texture;
 render_texture *ui_menu::toolbar_texture[MEWUI_TOOLBAR_BUTTONS];
 render_texture *ui_menu::sw_toolbar_texture[MEWUI_TOOLBAR_BUTTONS];
 render_texture *ui_menu::icons_texture[MAX_ICONS_RENDER];
-bitmap_argb32 *ui_menu::snapx_bitmap;
-bitmap_argb32 *ui_menu::no_avail_bitmap;
-bitmap_argb32 *ui_menu::star_bitmap;
-bitmap_argb32 *ui_menu::bgrnd_bitmap;
+std::unique_ptr<bitmap_argb32> ui_menu::snapx_bitmap;
+std::unique_ptr<bitmap_argb32> ui_menu::no_avail_bitmap;
+std::unique_ptr<bitmap_argb32> ui_menu::star_bitmap;
+std::unique_ptr<bitmap_argb32> ui_menu::bgrnd_bitmap;
 bitmap_argb32 *ui_menu::icons_bitmap[MAX_ICONS_RENDER];
 std::unique_ptr<bitmap_rgb32> ui_menu::hilight_main_bitmap;
 bitmap_argb32 *ui_menu::toolbar_bitmap[MEWUI_TOOLBAR_BUTTONS];
@@ -132,14 +132,12 @@ inline bool ui_menu::exclusive_input_pressed(int key, int repeat)
 
 void ui_menu::init(running_machine &machine)
 {
-	int x;
-
 	// initialize the menu stack
 	ui_menu::stack_reset(machine);
 
 	// create a texture for hilighting items
 	hilight_bitmap = std::make_unique<bitmap_rgb32>(256, 1);
-	for (x = 0; x < 256; x++)
+	for (int x = 0; x < 256; x++)
 	{
 		int alpha = 0xff;
 		if (x < 25) alpha = 0xff * x / 25;
@@ -171,20 +169,21 @@ void ui_menu::exit(running_machine &machine)
 	ui_menu::clear_free_list(machine);
 
 	// free textures
-	machine.render().texture_free(hilight_texture);
-	machine.render().texture_free(arrow_texture);
-	machine.render().texture_free(snapx_texture);
-	machine.render().texture_free(hilight_main_texture);
-	machine.render().texture_free(bgrnd_texture);
-	machine.render().texture_free(star_texture);
+	render_manager &mre = machine.render();
+	mre.texture_free(hilight_texture);
+	mre.texture_free(arrow_texture);
+	mre.texture_free(snapx_texture);
+	mre.texture_free(hilight_main_texture);
+	mre.texture_free(bgrnd_texture);
+	mre.texture_free(star_texture);
 
 	for (auto & elem : icons_texture)
-		machine.render().texture_free(elem);
+		mre.texture_free(elem);
 
 	for (int i = 0; i < MEWUI_TOOLBAR_BUTTONS; i++)
 	{
-		machine.render().texture_free(sw_toolbar_texture[i]);
-		machine.render().texture_free(toolbar_texture[i]);
+		mre.texture_free(sw_toolbar_texture[i]);
+		mre.texture_free(toolbar_texture[i]);
 	}
 }
 
@@ -434,10 +433,8 @@ void *ui_menu::get_selection()
 
 void ui_menu::set_selection(void *selected_itemref)
 {
-	int itemnum;
-
 	selected = -1;
-	for (itemnum = 0; itemnum < item.size(); itemnum++)
+	for (int itemnum = 0; itemnum < item.size(); itemnum++)
 		if (item[itemnum].ref == selected_itemref)
 		{
 			selected = itemnum;
@@ -1295,16 +1292,16 @@ void ui_menu::init_mewui(running_machine &machine)
 	hilight_main_texture->set_bitmap(*hilight_main_bitmap, hilight_main_bitmap->cliprect(), TEXFORMAT_ARGB32);
 
 	// create a texture for snapshot
-	snapx_bitmap = auto_alloc(machine, bitmap_argb32);
+	snapx_bitmap = std::make_unique<bitmap_argb32>(0, 0);
 	snapx_texture = mrender.texture_alloc(render_texture::hq_scale);
 
 	// allocates and sets the default "no available" image
-	no_avail_bitmap = auto_alloc(machine, bitmap_argb32(256, 256));
+	no_avail_bitmap = std::make_unique<bitmap_argb32>(256, 256);
 	UINT32 *dst = &no_avail_bitmap->pix32(0);
 	memcpy(dst, no_avail_bmp, 256 * 256 * sizeof(UINT32));
 
 	// allocates and sets the favorites star image
-	star_bitmap = auto_alloc(machine, bitmap_argb32(32, 32));
+	star_bitmap = std::make_unique<bitmap_argb32>(32, 32);
 	dst = &star_bitmap->pix32(0);
 	memcpy(dst, favorite_star_bmp, 32 * 32 * sizeof(UINT32));
 	star_texture = mrender.texture_alloc();
@@ -1318,7 +1315,7 @@ void ui_menu::init_mewui(running_machine &machine)
 	}
 
 	// create a texture for main menu background
-	bgrnd_bitmap = auto_alloc(machine, bitmap_argb32);
+	bgrnd_bitmap = std::make_unique<bitmap_argb32>(0, 0);
 	bgrnd_texture = mrender.texture_alloc(render_texture::hq_scale);
 
 	emu_options &mopt = machine.options();

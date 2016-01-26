@@ -2,7 +2,7 @@
 // copyright-holders:Dankan1890
 /*********************************************************************
 
-    mewui/auditmenu.c
+    mewui/auditmenu.cpp
 
     Internal MEWUI user interface.
 
@@ -13,7 +13,9 @@
 #include "ui/menu.h"
 #include "audit.h"
 #include "mewui/auditmenu.h"
-#include "mewui/utils.h"
+#include <algorithm>
+
+extern const char MEWUI_VERSION_TAG[];
 
 //-------------------------------------------------
 //  sort

@@ -254,21 +254,19 @@ protected:
 	int visible_lines;        // main box visible lines
 	int right_visible_lines;  // right box lines
 
+	static std::unique_ptr<bitmap_argb32> snapx_bitmap;
 	static render_texture *snapx_texture;
-	static bitmap_argb32 *snapx_bitmap;
 
 private:
-	static bitmap_argb32 *no_avail_bitmap, *bgrnd_bitmap, *star_bitmap;
+	static std::unique_ptr<bitmap_argb32> no_avail_bitmap, bgrnd_bitmap, star_bitmap;
 	static std::unique_ptr<bitmap_rgb32> hilight_main_bitmap;
 	static render_texture *hilight_main_texture, *bgrnd_texture, *star_texture;
-	static render_texture *icons_texture[];
 	static bitmap_argb32 *icons_bitmap[];
+	static render_texture *icons_texture[];
 
 	// toolbar
-	static render_texture *toolbar_texture[];
-	static bitmap_argb32 *toolbar_bitmap[];
-	static render_texture *sw_toolbar_texture[];
-	static bitmap_argb32 *sw_toolbar_bitmap[];
+	static bitmap_argb32 *toolbar_bitmap[], *sw_toolbar_bitmap[];
+	static render_texture *toolbar_texture[], *sw_toolbar_texture[];
 
 	// draw game list
 	void draw_select_game(bool noinput);
@@ -285,8 +283,6 @@ private:
 	void handle_main_events(UINT32 flags);
 
 	void draw_icon(int linenum, void *selectedref, float x1, float y1);
-
-
 };
 
 #endif  // __UI_MENU_H__
