@@ -26,6 +26,7 @@ ui_menu_misc_options::misc_option ui_menu_misc_options::m_options[] = {
 	{ 0, "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
 	{ 0, "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
 	{ 0, "Skip displaying loading messages at startup",     OPTION_SKIP_LOADING },
+	{ 0, "Render white border on UI message screens",       OPTION_RENDER_BORDER },
 	{ 0, "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
 	{ 0, "Use image as background",                         OPTION_USE_BACKGROUND },
 	{ 0, "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },

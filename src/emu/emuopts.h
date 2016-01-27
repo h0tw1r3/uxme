@@ -185,7 +185,7 @@ enum
 #define OPTION_SKIP_DISCLAIMER      "skip_disclaimer"
 #define OPTION_SKIP_WARNINGS        "skip_warnings"
 #define OPTION_SKIP_LOADING         "skip_loading"
-#define OPTION_RENDER_BOX           "render_box"
+#define OPTION_RENDER_BORDER        "render_border"
 #define OPTION_UI_FONT              "uifont"
 #define OPTION_RAMSIZE              "ramsize"
 
@@ -370,7 +370,7 @@ public:
 	bool skip_disclaimer() const { return bool_value(OPTION_SKIP_DISCLAIMER); }
 	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS); }
 	bool skip_loading() const { return bool_value(OPTION_SKIP_LOADING); }
-	bool render_box() const { return bool_value(OPTION_RENDER_BOX); }
+	bool render_border() const { return bool_value(OPTION_RENDER_BORDER); }
 	const char *ui_font() const { return value(OPTION_UI_FONT); }
 	const char *ram_size() const { return value(OPTION_RAMSIZE); }
 

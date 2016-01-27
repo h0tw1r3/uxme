@@ -956,7 +956,7 @@ render_target::render_target(render_manager &manager, const char *layoutfile, UI
 	m_layerconfig = m_base_layerconfig;
 
 	// white box
-	m_draw_outer_box = manager.machine().options().render_box();
+	m_draw_outer_box = manager.machine().options().render_border();
 
 	// load the layout files
 	load_layout_files(layoutfile, flags & RENDER_CREATE_SINGLE_FILE);
