@@ -60,12 +60,16 @@ cp -r ../hlsl "$PKG"/
 cp -r ../samples "$PKG"/
 cp -r ../artwork "$PKG"/
 cp -r resources/dirs/* "$PKG"/
-
 ./changelog.sh > "$PKG"/CHANGELOG.md
 
 VERSION=$(format_version $(git_tag_clean))
 
 pushd "$PKG"
+if [ ! -d dat ]; then
+	mkdir dat
+fi
+curl -s -L https://build.zaplabs.com/project/uxme/faststart.dat > dat/faststart.dat
+
 cd ..
 ln -fs "$BUILD" "${APPNAME}-${VERSION}"
 7za a -mpass=4 -mfb=255 -y -tzip -l "${BUILD}.zip" "${APPNAME}-${VERSION}"

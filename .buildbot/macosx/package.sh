@@ -76,6 +76,10 @@ decho "Defaults..."
 cp -r ../{hash,hlsl,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
 cp -r resources/dirs/* "${APPCONTENT}"/Resources/defaults/
 cp -r resources/fonts "${APPCONTENT}"/Resources/Fonts
+if [ ! -d "${APPCONTENT}"/Resources/defaults/dat ]; then
+	mkdir "${APPCONTENT}"/Resources/defaults/dat
+fi
+curl -s -L https://build.zaplabs.com/project/uxme/faststart.dat > "${APPCONTENT}"/Resources/defaults/dat/faststart.dat
 
 # dmg
 decho "Dmg..."
