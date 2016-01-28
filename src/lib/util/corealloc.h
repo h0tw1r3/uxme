@@ -31,7 +31,13 @@
 #define global_free(_ptr)                           do { delete _ptr; } while (0)
 #define global_free_array(_ptr)                     do { delete[] _ptr; } while (0)
 
-
+#if defined(__APPLE__)
+namespace std
+{
+	template<class T>
+	using remove_extent_t = typename remove_extent<T>::type;
+}
+#endif
 
 template<typename _Tp, typename... _Args>
 inline _Tp* global_alloc_clear(_Args&&... __args)
