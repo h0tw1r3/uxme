@@ -197,6 +197,8 @@ files {
 	MAME_DIR .. "src/emu/mewui/selsoft.h",
 	MAME_DIR .. "src/emu/mewui/sndmenu.cpp",
 	MAME_DIR .. "src/emu/mewui/sndmenu.h",
+	MAME_DIR .. "src/emu/mewui/statemenu.cpp",
+	MAME_DIR .. "src/emu/mewui/statemenu.h",
 	MAME_DIR .. "src/emu/mewui/starimg.h",
 	MAME_DIR .. "src/emu/mewui/toolbar.h",
 	MAME_DIR .. "src/emu/mewui/utils.cpp",

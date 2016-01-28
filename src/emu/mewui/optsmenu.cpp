@@ -19,6 +19,7 @@
 #include "mewui/ctrlmenu.h"
 #include "mewui/dsplmenu.h"
 #include "mewui/miscmenu.h"
+#include "mewui/statemenu.h"
 #include "mewui/optsmenu.h"
 #include "mewui/custmenu.h"
 #include "ui/inputmap.h"
@@ -176,6 +177,11 @@ void ui_menu_game_options::handle()
 					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_misc_options>(machine(), container)));
 				break;
 
+			case STATE_MENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_state_options>(machine(), container)));
+				break;
+
 			case SOUND_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_sound_options>(machine(), container)));
@@ -301,6 +307,7 @@ void ui_menu_game_options::populate()
 	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
 	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
 	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
+	item_append("State/Playback Options", nullptr, 0, (void *)(FPTR)STATE_MENU);
 	item_append("Controller Options", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
 	item_append("General Inputs", nullptr, 0, (void *)(FPTR)CGI_MENU);
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
