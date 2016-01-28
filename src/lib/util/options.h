@@ -127,6 +127,7 @@ public:
 
 	// getters
 	entry *first() const { return m_entrylist.first(); }
+	entry *find(const char *option) { return m_entrymap.find(option)->second; }
 	const char *command() const { return m_command.c_str(); }
 
 	// configuration

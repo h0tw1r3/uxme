@@ -301,7 +301,7 @@ void ui_menu_game_options::populate()
 	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
 	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
 	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
-	item_append("Device Mapping", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
+	item_append("Controller Options", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
 	item_append("General Inputs", nullptr, 0, (void *)(FPTR)CGI_MENU);
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 
