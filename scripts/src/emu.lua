@@ -163,6 +163,8 @@ files {
 	MAME_DIR .. "src/emu/memory.h",
 	MAME_DIR .. "src/emu/mewui/auditmenu.cpp",
 	MAME_DIR .. "src/emu/mewui/auditmenu.h",
+	MAME_DIR .. "src/emu/mewui/artmenu.cpp",
+	MAME_DIR .. "src/emu/mewui/artmenu.h",
 	MAME_DIR .. "src/emu/mewui/cmddata.h",
 	MAME_DIR .. "src/emu/mewui/cmdrender.h",
 	MAME_DIR .. "src/emu/mewui/ctrlmenu.cpp",
