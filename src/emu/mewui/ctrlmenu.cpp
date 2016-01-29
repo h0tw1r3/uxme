@@ -17,24 +17,14 @@ const char *ui_menu_controller_mapping::m_device_status[] = { "none", "keyboard"
 
 ui_menu_controller_mapping::ctrl_option ui_menu_controller_mapping::m_options[] = {
 	{ 0, nullptr, nullptr },
-	{ 0, "Enable Mouse",                            OPTION_MOUSE },
-	{ 0, "Enable Lightgun",                         OPTION_JOYSTICK },
-	{ 0, "Enable Joystick",                         OPTION_LIGHTGUN },
-	{ 0, "Multiple keyboards as separate inputs",   OPTION_MULTIKEYBOARD },
-	{ 0, "Multiple mice as separate inputs",        OPTION_MULTIMOUSE },
-	{ 0, "Steadykey support",                       OPTION_STEADYKEY },
-	{ 0, "UI on top of emulated keyboard",          OPTION_UI_ACTIVE },
-	{ 0, "Lightun button 2 as offscreen reload",    OPTION_OFFSCREEN_RELOAD },
-	{ 0, "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
-	{ 0, "Simultaneous contradictory direction",    OPTION_JOYSTICK_CONTRADICTORY },
-	{ 0, "Lightgun Device Assignment",              OPTION_LIGHTGUN_DEVICE },
-	{ 0, "Trackball Device Assignment",             OPTION_TRACKBALL_DEVICE },
-	{ 0, "Pedal Device Assignment",                 OPTION_PEDAL_DEVICE },
-	{ 0, "Adstick Device Assignment",               OPTION_ADSTICK_DEVICE },
-	{ 0, "Paddle Device Assignment",                OPTION_PADDLE_DEVICE },
-	{ 0, "Dial Device Assignment",                  OPTION_DIAL_DEVICE },
-	{ 0, "Positional Device Assignment",            OPTION_POSITIONAL_DEVICE },
-	{ 0, "Mouse Device Assignment",                 OPTION_MOUSE_DEVICE }
+	{ 0, "Lightgun Device Assignment",   OPTION_LIGHTGUN_DEVICE },
+	{ 0, "Trackball Device Assignment",  OPTION_TRACKBALL_DEVICE },
+	{ 0, "Pedal Device Assignment",      OPTION_PEDAL_DEVICE },
+	{ 0, "Adstick Device Assignment",    OPTION_ADSTICK_DEVICE },
+	{ 0, "Paddle Device Assignment",     OPTION_PADDLE_DEVICE },
+	{ 0, "Dial Device Assignment",       OPTION_DIAL_DEVICE },
+	{ 0, "Positional Device Assignment", OPTION_POSITIONAL_DEVICE },
+	{ 0, "Mouse Device Assignment",      OPTION_MOUSE_DEVICE }
 };
 
 //-------------------------------------------------
@@ -44,17 +34,7 @@ ui_menu_controller_mapping::ctrl_option ui_menu_controller_mapping::m_options[] 
 ui_menu_controller_mapping::ui_menu_controller_mapping(running_machine &machine, render_container *container) : ui_menu(machine, container)
 {
 	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
-	{
-		switch (machine.options().find(m_options[d].option)->type())
-		{
-			case OPTION_BOOLEAN:
-				m_options[d].status = machine.options().bool_value(m_options[d].option);
-				break;
-			default:
-				m_options[d].status = check_status(machine.options().value(m_options[d].option), m_options[d].option);
-				break;
-		}
-	}
+		m_options[d].status = check_status(machine.options().value(m_options[d].option), m_options[d].option);
 }
 
 //-------------------------------------------------
@@ -65,17 +45,7 @@ ui_menu_controller_mapping::~ui_menu_controller_mapping()
 {
 	std::string error_string;
 	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
-	{
-		switch (machine().options().find(m_options[d].option)->type())
-		{
-			case OPTION_BOOLEAN:
-				machine().options().set_value(m_options[d].option, m_options[d].status, OPTION_PRIORITY_CMDLINE, error_string);
-				break;
-			default:
-				machine().options().set_value(m_options[d].option, m_device_status[m_options[d].status], OPTION_PRIORITY_CMDLINE, error_string);
-				break;
-		}
-	}
+		machine().options().set_value(m_options[d].option, m_device_status[m_options[d].status], OPTION_PRIORITY_CMDLINE, error_string);
 }
 
 //-------------------------------------------------
@@ -94,15 +64,7 @@ void ui_menu_controller_mapping::handle()
 		{
 			changed = true;
 			FPTR value = (FPTR)m_event->itemref;
-			switch (machine().options().find(m_options[value].option)->type())
-			{
-				case OPTION_BOOLEAN:
-					m_options[value].status = !m_options[value].status;
-					break;
-				default:
-					(m_event->iptkey == IPT_UI_RIGHT) ? m_options[value].status++ : m_options[value].status--;
-					break;
-			}
+			(m_event->iptkey == IPT_UI_RIGHT) ? m_options[value].status++ : m_options[value].status--;
 		}
 	}
 
@@ -119,16 +81,8 @@ void ui_menu_controller_mapping::populate()
 	// add options
 	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
 	{
-		switch (machine().options().find(m_options[d].option)->type())
-		{
-			case OPTION_BOOLEAN:
-				item_append(m_options[d].description, m_options[d].status ? "On" : "Off", m_options[d].status ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)(FPTR)d);
-				break;
-			default:
-				UINT32 arrow_flags = get_arrow_flags(0, ARRAY_LENGTH(m_device_status) - 1, m_options[d].status);
-				item_append(m_options[d].description, m_device_status[m_options[d].status], arrow_flags, (void *)(FPTR)d);
-				break;
-		}
+		UINT32 arrow_flags = get_arrow_flags(0, ARRAY_LENGTH(m_device_status) - 1, m_options[d].status);
+		item_append(m_options[d].description, m_device_status[m_options[d].status], arrow_flags, (void *)(FPTR)d);
 	}
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 	customtop =  machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
@@ -143,7 +97,7 @@ void ui_menu_controller_mapping::custom_render(void *selectedref, float top, flo
 	float width, maxwidth = origx2 - origx1;
 	ui_manager &mui = machine().ui();
 
-	mui.draw_text_full(container, "Controller Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Device Mapping", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
 	width += 2 * UI_BOX_LR_BORDER;
 	maxwidth = MAX(maxwidth, width);
@@ -163,7 +117,7 @@ void ui_menu_controller_mapping::custom_render(void *selectedref, float top, flo
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	mui.draw_text_full(container, "Controller Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Device Mapping", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 
 }

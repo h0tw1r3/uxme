@@ -270,6 +270,8 @@ struct sw_custfltr
 
 // GLOBAL FUNCTIONS
 
+int getprecisionchr(const char* s);
+
 // advanced search function
 int fuzzy_substring(std::string needle, std::string haystack);
 
