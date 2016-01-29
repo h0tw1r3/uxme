@@ -12,6 +12,7 @@
 #include "ui/ui.h"
 #include "ui/menu.h"
 #include "mewui/perfmenu.h"
+#include "mewui/utils.h"
 #include <limits>
 
 ui_menu_perf_menu::perf_option ui_menu_perf_menu::m_options[] = {
@@ -52,7 +53,7 @@ void ui_menu_perf_menu::handle()
 	bool changed = false;
 	emu_options::entry *entry;
 	emu_options &mopts = machine().options();
-	std::string error_string;
+	std::string error_string, tmptxt;
 	int i_cur;
 	float f_cur, f_step;
 
@@ -81,14 +82,27 @@ void ui_menu_perf_menu::handle()
 					changed = true;
 					f_cur = atof(entry->value());
 					if (entry->has_range())
+					{
 						f_step = atof(entry->minimum());
+						if (f_step <= 0.0f) {
+							int pmin = getprecisionchr(entry->minimum());
+							int pmax = getprecisionchr(entry->maximum());
+							tmptxt = '1' + std::string((pmin > pmax) ? pmin : pmax, '0');
+							f_step = 1 / atof(tmptxt.c_str());
+						}
+					}
 					else
-						f_step = 0.1f;
+					{
+						int precision = getprecisionchr(entry->default_value());
+						tmptxt = '1' + std::string(precision, '0');
+						f_step = 1 / atof(tmptxt.c_str());
+					}
 					if (m_event->iptkey == IPT_UI_LEFT)
 						f_cur -= f_step;
 					else
 						f_cur += f_step;
-					mopts.set_value(m_options[d].name, f_cur, OPTION_PRIORITY_CMDLINE, error_string);
+					strprintf(tmptxt, "%g", f_cur);
+					mopts.set_value(m_options[d].name, tmptxt.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
 					break;
 			}
 		}
@@ -172,7 +186,7 @@ void ui_menu_perf_menu::populate()
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
-	customtop =  machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
+	customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
 }
 
 //-------------------------------------------------

@@ -25,7 +25,7 @@ ui_menu_inp_menu::inp_option ui_menu_inp_menu::m_options[] = {
 	{ "Multiple mice as separate inputs",        OPTION_MULTIMOUSE },
 	{ "Steadykey support",                       OPTION_STEADYKEY },
 	{ "UI on top of emulated keyboard",          OPTION_UI_ACTIVE },
-	{ "Lightun button 2 as offscreen reload",    OPTION_OFFSCREEN_RELOAD },
+	{ "Lightgun button 2 as offscreen reload",    OPTION_OFFSCREEN_RELOAD },
 	{ "Joystick deadzone",                       OPTION_JOYSTICK_DEADZONE },
 	{ "Joystick saturation",                     OPTION_JOYSTICK_SATURATION },
 	{ "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
@@ -191,7 +191,7 @@ void ui_menu_inp_menu::populate()
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
-	customtop =  machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
+	customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
 }
 
 //-------------------------------------------------
@@ -203,7 +203,7 @@ void ui_menu_inp_menu::custom_render(void *selectedref, float top, float bottom,
 	float width, maxwidth = origx2 - origx1;
 	ui_manager &mui = machine().ui();
 
-	mui.draw_text_full(container, "Artwork Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Input Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
 	width += 2 * UI_BOX_LR_BORDER;
 	maxwidth = MAX(maxwidth, width);
@@ -223,7 +223,7 @@ void ui_menu_inp_menu::custom_render(void *selectedref, float top, float bottom,
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	mui.draw_text_full(container, "Artwork Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, "Input Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 
 }

@@ -183,7 +183,7 @@ void ui_menu_game_options::handle()
 
 			case STATE_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_state_options>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_state_menu>(machine(), container)));
 				break;
 
 			case PERF_MENU:

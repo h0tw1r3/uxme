@@ -13,52 +13,89 @@
 #include "ui/menu.h"
 #include "mewui/statemenu.h"
 #include "mewui/utils.h"
+#include <limits>
 
-ui_menu_state_options::state_option ui_menu_state_options::m_options[] = {
-	{ 0, nullptr, nullptr },
-	{ 0, "High score support",                              OPTION_HISCORE },
-	{ 0, "Automatic machine state save and restore",        OPTION_AUTOSAVE },
-	{ 0, "Bilinear snapshot filtering",                     OPTION_SNAPBILINEAR },
-	{ 0, "Burn-in snapshots",                               OPTION_BURNIN },
+ui_menu_state_menu::state_option ui_menu_state_menu::m_options[] = {
+	{ nullptr, nullptr },
+	{ "High score support",                              OPTION_HISCORE },
+	{ "Automatic machine state save and restore",        OPTION_AUTOSAVE },
+	{ "Bilinear snapshot filtering",                     OPTION_SNAPBILINEAR },
+	{ "Burn-in snapshots",                               OPTION_BURNIN },
 };
 
 //-------------------------------------------------
 //  ctor / dtor
 //-------------------------------------------------
 
-ui_menu_state_options::ui_menu_state_options(running_machine &machine, render_container *container) : ui_menu(machine, container)
+ui_menu_state_menu::ui_menu_state_menu(running_machine &machine, render_container *container) : ui_menu(machine, container)
 {
-	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
-		m_options[d].status = machine.options().bool_value(m_options[d].option);
 }
 
-ui_menu_state_options::~ui_menu_state_options()
+ui_menu_state_menu::~ui_menu_state_menu()
 {
-	std::string error_string;
-	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
-		machine().options().set_value(m_options[d].option, m_options[d].status, OPTION_PRIORITY_CMDLINE, error_string);
-	mewui_globals::reset = true;
 }
 
 //-------------------------------------------------
 //  handlethe options menu
 //-------------------------------------------------
 
-void ui_menu_state_options::handle()
+void ui_menu_state_menu::handle()
 {
 	bool changed = false;
+	emu_options::entry *entry;
+	emu_options &mopts = machine().options();
+	std::string error_string, tmptxt;
+	int i_cur;
+	float f_cur, f_step;
 
 	// process the menu
 	const ui_menu_event *m_event = process(0);
 	if (m_event != nullptr && m_event->itemref != nullptr)
 	{
-		if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT || m_event->iptkey == IPT_UI_SELECT)
+		if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
 		{
-			changed = true;
-			int value = (FPTR)m_event->itemref;
-			if (!strcmp(m_options[value].option, OPTION_ENLARGE_SNAPS))
-				mewui_globals::switch_image = true;
-			m_options[value].status = !m_options[value].status;
+			FPTR d = (FPTR)m_event->itemref;
+			entry = mopts.find(m_options[d].name);
+
+			switch (entry->type())
+			{
+				case OPTION_BOOLEAN:
+					changed = true;
+					mopts.set_value(m_options[d].name, !strcmp(entry->value(),"1") ? "0" : "1", OPTION_PRIORITY_CMDLINE, error_string);
+					break;
+				case OPTION_INTEGER:
+					changed = true;
+					i_cur = atof(entry->value());
+					(m_event->iptkey == IPT_UI_LEFT) ? i_cur-- : i_cur++;
+					mopts.set_value(m_options[d].name, i_cur, OPTION_PRIORITY_CMDLINE, error_string);
+					break;
+				case OPTION_FLOAT:
+					changed = true;
+					f_cur = atof(entry->value());
+					if (entry->has_range())
+					{
+						f_step = atof(entry->minimum());
+						if (f_step <= 0.0f) {
+							int pmin = getprecisionchr(entry->minimum());
+							int pmax = getprecisionchr(entry->maximum());
+							tmptxt = '1' + std::string((pmin > pmax) ? pmin : pmax, '0');
+							f_step = 1 / atof(tmptxt.c_str());
+						}
+					}
+					else
+					{
+						int precision = getprecisionchr(entry->default_value());
+						tmptxt = '1' + std::string(precision, '0');
+						f_step = 1 / atof(tmptxt.c_str());
+					}
+					if (m_event->iptkey == IPT_UI_LEFT)
+						f_cur -= f_step;
+					else
+						f_cur += f_step;
+					strprintf(tmptxt, "%g", f_cur);
+					mopts.set_value(m_options[d].name, tmptxt.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
+					break;
+			}
 		}
 	}
 
@@ -70,11 +107,74 @@ void ui_menu_state_options::handle()
 //  populate
 //-------------------------------------------------
 
-void ui_menu_state_options::populate()
+void ui_menu_state_menu::populate()
 {
-	// add options items
-	for (int opt = 1; opt < ARRAY_LENGTH(m_options); ++opt)
-		item_append(m_options[opt].description, m_options[opt].status ? "On" : "Off", m_options[opt].status ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)(FPTR)opt);
+	UINT32 arrow_flags;
+	emu_options::entry *entry;
+	emu_options &mopts = machine().options();
+	std::string tmptxt;
+	float f_min, f_max, f_cur;
+	int i_min, i_max, i_cur;
+
+	// add options
+	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
+	{
+		entry = mopts.find(m_options[d].name);
+
+		switch (entry->type())
+		{
+			case OPTION_BOOLEAN:
+				arrow_flags = mopts.bool_value(m_options[d].name) ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW;
+				item_append(m_options[d].description,
+						(arrow_flags == MENU_FLAG_RIGHT_ARROW) ? "On" : "Off",
+						arrow_flags,
+						(void *)(FPTR)d);
+				break;
+			case OPTION_INTEGER:
+				i_cur = atof(entry->value());
+				if (entry->has_range())
+				{
+					i_min = atof(entry->minimum());
+					i_max = atof(entry->maximum());
+				}
+				else
+				{
+					i_min = 0;
+					i_max = std::numeric_limits<int>::max();
+				}
+				arrow_flags = get_arrow_flags(i_min, i_max, i_cur);
+				item_append(m_options[d].description,
+						entry->value(),
+						arrow_flags,
+						(void *)(FPTR)d);
+				break;
+			case OPTION_FLOAT:
+				f_cur = atof(entry->value());
+				if (entry->has_range())
+				{
+					f_min = atof(entry->minimum());
+					f_max = atof(entry->maximum());
+				}
+				else
+				{
+					f_min = 0.0f;
+					f_max = std::numeric_limits<float>::max();
+				}
+				arrow_flags = get_arrow_flags(f_min, f_max, f_cur);
+				strprintf(tmptxt, "%g", f_cur);
+				item_append(m_options[d].description,
+						tmptxt.c_str(),
+						arrow_flags,
+						(void *)(FPTR)d);
+				break;
+			default:
+				arrow_flags = MENU_FLAG_RIGHT_ARROW;
+				item_append(m_options[d].description,
+					machine().options().value(m_options[d].name),
+					arrow_flags, (void *)(FPTR)d);
+				break;
+		}
+	}
 
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 	customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
@@ -84,7 +184,7 @@ void ui_menu_state_options::populate()
 //  perform our special rendering
 //-------------------------------------------------
 
-void ui_menu_state_options::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
+void ui_menu_state_menu::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
 	float width;
 	ui_manager &mui = machine().ui();

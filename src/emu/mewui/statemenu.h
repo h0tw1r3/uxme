@@ -15,11 +15,11 @@
 //-------------------------------------------------
 //  class stateellaneous options menu
 //-------------------------------------------------
-class ui_menu_state_options : public ui_menu
+class ui_menu_state_menu : public ui_menu
 {
 public:
-	ui_menu_state_options(running_machine &machine, render_container *container);
-	virtual ~ui_menu_state_options();
+	ui_menu_state_menu(running_machine &machine, render_container *container);
+	virtual ~ui_menu_state_menu();
 	virtual void populate() override;
 	virtual void handle() override;
 	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2) override;
@@ -27,9 +27,8 @@ public:
 private:
 	struct state_option
 	{
-		bool        status;
 		const char  *description;
-		const char  *option;
+		const char  *name;
 	};
 
 	static state_option m_options[];
