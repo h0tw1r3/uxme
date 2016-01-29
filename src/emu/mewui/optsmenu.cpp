@@ -20,6 +20,7 @@
 #include "mewui/dsplmenu.h"
 #include "mewui/miscmenu.h"
 #include "mewui/perfmenu.h"
+#include "mewui/rotmenu.h"
 #include "mewui/statemenu.h"
 #include "mewui/optsmenu.h"
 #include "mewui/custmenu.h"
@@ -188,6 +189,11 @@ void ui_menu_game_options::handle()
 					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_perf_menu>(machine(), container)));
 				break;
 
+			case ROT_MENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_rot_menu>(machine(), container)));
+				break;
+
 			case SOUND_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_sound_options>(machine(), container)));
@@ -313,6 +319,7 @@ void ui_menu_game_options::populate()
 	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
 	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
 	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
+	item_append("Rotation Options", nullptr, 0, (void *)(FPTR)ROT_MENU);
 	item_append("Performance Options", nullptr, 0, (void *)(FPTR)PERF_MENU);
 	item_append("State/Playback Options", nullptr, 0, (void *)(FPTR)STATE_MENU);
 	item_append("Controller Options", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
