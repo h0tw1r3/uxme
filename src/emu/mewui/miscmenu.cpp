@@ -22,7 +22,6 @@ ui_menu_misc_options::misc_option ui_menu_misc_options::m_options[] = {
 	{ 0, "Cheats",                                          OPTION_CHEAT },
 	{ 0, "Show mouse pointer",                              OPTION_UI_MOUSE },
 	{ 0, "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
-	{ 0, "Skip frame rendering when Faststart is active",   OPTION_FASTSTART_SKIP },
 	{ 0, "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
 	{ 0, "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
 	{ 0, "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
