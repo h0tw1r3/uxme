@@ -189,6 +189,8 @@ files {
 	MAME_DIR .. "src/emu/mewui/moptions.h",
 	MAME_DIR .. "src/emu/mewui/optsmenu.cpp",
 	MAME_DIR .. "src/emu/mewui/optsmenu.h",
+	MAME_DIR .. "src/emu/mewui/perfmenu.cpp",
+	MAME_DIR .. "src/emu/mewui/perfmenu.h",
 	MAME_DIR .. "src/emu/mewui/selector.cpp",
 	MAME_DIR .. "src/emu/mewui/selector.h",
 	MAME_DIR .. "src/emu/mewui/selgame.cpp",
