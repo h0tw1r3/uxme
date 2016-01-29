@@ -27,9 +27,8 @@ public:
 private:
 	struct misc_option
 	{
-		bool        status;
 		const char  *description;
-		const char  *option;
+		const char  *name;
 	};
 
 	static misc_option m_options[];
