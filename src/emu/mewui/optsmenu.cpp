@@ -11,6 +11,7 @@
 #include "emu.h"
 #include "ui/ui.h"
 #include "ui/menu.h"
+#include "mewui/menu.h"
 #include "mewui/datfile.h"
 #include "mewui/inifile.h"
 #include "mewui/selector.h"
@@ -18,16 +19,89 @@
 #include "mewui/sndmenu.h"
 #include "mewui/ctrlmenu.h"
 #include "mewui/dsplmenu.h"
-#include "mewui/miscmenu.h"
-#include "mewui/perfmenu.h"
-#include "mewui/rotmenu.h"
-#include "mewui/artmenu.h"
-#include "mewui/inpmenu.h"
-#include "mewui/statemenu.h"
 #include "mewui/optsmenu.h"
 #include "mewui/custmenu.h"
 #include "ui/inputmap.h"
 #include "rendfont.h"
+
+mewui_menu_option perf_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "Automatic frame skipping",                OPTION_AUTOFRAMESKIP },
+	{ "Fixed frame skip value",                  OPTION_FRAMESKIP },
+	{ "Seconds to run",                          OPTION_SECONDS_TO_RUN },
+	{ "Throttle",                                OPTION_THROTTLE },
+	{ "Sleep",                                   OPTION_SLEEP },
+	{ "Speed",                                   OPTION_SPEED },
+	{ "Auto adjust speed to lower than refresh", OPTION_REFRESHSPEED },
+	{ "Fast start",                              OPTION_FASTSTART },
+	{ "Fast start skip",                         OPTION_FASTSTART_SKIP }
+};
+
+mewui_menu_option rotate_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "Rotate game",                             OPTION_ROTATE },
+	{ "Rotate screen clockwise",                 OPTION_ROR },
+	{ "Rotate screen counterclockwise",          OPTION_ROL },
+	{ "Auto rotate screen clockwise",            OPTION_AUTOROR },
+	{ "Auto rotate screen counterclockwise",     OPTION_AUTOROL },
+	{ "Flip screen horizontally",                OPTION_FLIPX },
+	{ "Flip screen vertically",                  OPTION_FLIPY },
+};
+
+mewui_menu_option artwork_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "Artwork Crop",                            OPTION_ARTWORK_CROP },
+	{ "Use Backdrops",                           OPTION_USE_BACKDROPS },
+	{ "Use Overlays",                            OPTION_USE_OVERLAYS },
+	{ "Use Bezels",                              OPTION_USE_BEZELS },
+	{ "Use Control Panels",                      OPTION_USE_CPANELS },
+	{ "Use Marquees",                            OPTION_USE_MARQUEES },
+};
+
+mewui_menu_option state_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "High score support",                      OPTION_HISCORE },
+	{ "Automatic machine state save/restore",    OPTION_AUTOSAVE },
+	{ "Bilinear snapshot filtering",             OPTION_SNAPBILINEAR },
+	{ "Burn-in snapshots",                       OPTION_BURNIN },
+};
+
+mewui_menu_option input_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "Coin lockout",                            OPTION_COIN_LOCKOUT },
+	{ "Enable Mouse",                            OPTION_MOUSE },
+	{ "Enable Joystick",                         OPTION_JOYSTICK },
+	{ "Enable Lightgun",                         OPTION_LIGHTGUN },
+	{ "Multiple keyboards as separate inputs",   OPTION_MULTIKEYBOARD },
+	{ "Multiple mice as separate inputs",        OPTION_MULTIMOUSE },
+	{ "Steadykey support",                       OPTION_STEADYKEY },
+	{ "UI on top of emulated keyboard",          OPTION_UI_ACTIVE },
+	{ "Lightgun button 2 as offscreen reload",   OPTION_OFFSCREEN_RELOAD },
+	{ "Joystick deadzone",                       OPTION_JOYSTICK_DEADZONE },
+	{ "Joystick saturation",                     OPTION_JOYSTICK_SATURATION },
+	{ "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
+	{ "Simultaneous contradictory direction",    OPTION_JOYSTICK_CONTRADICTORY },
+	{ "Coin impulse",                            OPTION_COIN_IMPULSE },
+};
+
+mewui_menu_option misc_menu_options[] = {
+	{ nullptr, nullptr },
+	{ "Re-select last machine played",                   OPTION_REMEMBER_LAST },
+	{ "Enlarge images in the right panel",               OPTION_ENLARGE_SNAPS },
+	{ "DATs info",                                       OPTION_DATS_ENABLED },
+	{ "Cheats",                                          OPTION_CHEAT },
+	{ "Show mouse pointer",                              OPTION_UI_MOUSE },
+	{ "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
+	{ "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
+	{ "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
+	{ "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
+	{ "Skip displaying loading messages at startup",     OPTION_SKIP_LOADING },
+	{ "Render white border on UI message screens",       OPTION_RENDER_BORDER },
+	{ "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
+	{ "Use image as background",                         OPTION_USE_BACKGROUND },
+	{ "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },
+	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU }
+};
 
 //-------------------------------------------------
 //  ctor
@@ -178,27 +252,27 @@ void ui_menu_game_options::handle()
 
 			case MISC_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_misc_options>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "Miscellaneous Options", misc_menu_options, ARRAY_LENGTH(misc_menu_options))));
 				break;
 
 			case STATE_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_state_menu>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "State/Playback Options", state_menu_options, ARRAY_LENGTH(state_menu_options))));
 				break;
 
 			case PERF_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_perf_menu>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "Performance Options", perf_menu_options, ARRAY_LENGTH(perf_menu_options))));
 				break;
 
-			case ROT_MENU:
+			case ROTATE_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_rot_menu>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "Rotation Options", rotate_menu_options, ARRAY_LENGTH(rotate_menu_options))));
 				break;
 
-			case ART_MENU:
+			case ARTWORK_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_art_menu>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "Artwork Options", artwork_menu_options, ARRAY_LENGTH(artwork_menu_options))));
 				break;
 
 			case SOUND_MENU:
@@ -206,9 +280,9 @@ void ui_menu_game_options::handle()
 					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_sound_options>(machine(), container)));
 				break;
 
-			case INP_MENU:
+			case INPUT_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_inp_menu>(machine(), container)));
+					ui_menu::stack_push(auto_alloc_clear(machine(), <mewui_menu>(machine(), container, "Input Options", input_menu_options, ARRAY_LENGTH(input_menu_options))));
 				break;
 
 			case DISPLAY_MENU:
@@ -331,9 +405,9 @@ void ui_menu_game_options::populate()
 	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
 	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
 	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
-	item_append("Rotation Options", nullptr, 0, (void *)(FPTR)ROT_MENU);
-	item_append("Artwork Options", nullptr, 0, (void *)(FPTR)ART_MENU);
-	item_append("Input Options", nullptr, 0, (void *)(FPTR)INP_MENU);
+	item_append("Rotation Options", nullptr, 0, (void *)(FPTR)ROTATE_MENU);
+	item_append("Artwork Options", nullptr, 0, (void *)(FPTR)ARTWORK_MENU);
+	item_append("Input Options", nullptr, 0, (void *)(FPTR)INPUT_MENU);
 	item_append("Performance Options", nullptr, 0, (void *)(FPTR)PERF_MENU);
 	item_append("State/Playback Options", nullptr, 0, (void *)(FPTR)STATE_MENU);
 	item_append("Device Mapping", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);

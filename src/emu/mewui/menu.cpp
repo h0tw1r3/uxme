@@ -2,47 +2,31 @@
 // copyright-holders:Dankan1890
 /***************************************************************************
 
-    mewui/miscmenu.cpp
+    mewui/statemenu.cpp
 
-    MEWUI miscellaneous options menu.
+    MEWUI stateellaneous options menu.
 
 ***************************************************************************/
 
 #include "emu.h"
 #include "ui/ui.h"
 #include "ui/menu.h"
-#include "mewui/miscmenu.h"
+#include "mewui/menu.h"
 #include "mewui/utils.h"
 #include <limits>
-
-ui_menu_misc_options::misc_option ui_menu_misc_options::m_options[] = {
-	{ nullptr, nullptr },
-	{ "Re-select last machine played",                   OPTION_REMEMBER_LAST },
-	{ "Enlarge images in the right panel",               OPTION_ENLARGE_SNAPS },
-	{ "DATs info",                                       OPTION_DATS_ENABLED },
-	{ "Cheats",                                          OPTION_CHEAT },
-	{ "Show mouse pointer",                              OPTION_UI_MOUSE },
-	{ "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
-	{ "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
-	{ "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
-	{ "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
-	{ "Skip displaying loading messages at startup",     OPTION_SKIP_LOADING },
-	{ "Render white border on UI message screens",       OPTION_RENDER_BORDER },
-	{ "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
-	{ "Use image as background",                         OPTION_USE_BACKGROUND },
-	{ "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },
-	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU }
-};
 
 //-------------------------------------------------
 //  ctor / dtor
 //-------------------------------------------------
 
-ui_menu_misc_options::ui_menu_misc_options(running_machine &machine, render_container *container) : ui_menu(machine, container)
+mewui_menu::mewui_menu(running_machine &machine, render_container *container, const char *title, mewui_menu_option *options, int count ) : ui_menu(machine, container)
 {
+	m_title = (char*)title;
+	m_options = options;
+	m_count = count;
 }
 
-ui_menu_misc_options::~ui_menu_misc_options()
+mewui_menu::~mewui_menu()
 {
 }
 
@@ -50,7 +34,7 @@ ui_menu_misc_options::~ui_menu_misc_options()
 //  handlethe options menu
 //-------------------------------------------------
 
-void ui_menu_misc_options::handle()
+void mewui_menu::handle()
 {
 	bool changed = false;
 	emu_options::entry *entry;
@@ -118,7 +102,7 @@ void ui_menu_misc_options::handle()
 //  populate
 //-------------------------------------------------
 
-void ui_menu_misc_options::populate()
+void mewui_menu::populate()
 {
 	UINT32 arrow_flags;
 	emu_options::entry *entry;
@@ -128,7 +112,7 @@ void ui_menu_misc_options::populate()
 	int i_min, i_max, i_cur;
 
 	// add options
-	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
+	for (int d = 1; d < m_count; ++d)
 	{
 		entry = mopts.find(m_options[d].name);
 
@@ -195,12 +179,12 @@ void ui_menu_misc_options::populate()
 //  perform our special rendering
 //-------------------------------------------------
 
-void ui_menu_misc_options::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
+void mewui_menu::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
 	float width;
 	ui_manager &mui = machine().ui();
 
-	mui.draw_text_full(container, "Miscellaneous Options", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, m_title, 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
 	width += 2 * UI_BOX_LR_BORDER;
 	float maxwidth = MAX(origx2 - origx1, width);
@@ -220,6 +204,6 @@ void ui_menu_misc_options::custom_render(void *selectedref, float top, float bot
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	mui.draw_text_full(container, "Miscellaneous Options", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+	mui.draw_text_full(container, m_title, x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 }

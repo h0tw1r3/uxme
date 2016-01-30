@@ -9,29 +9,31 @@
 ***************************************************************************/
 #pragma once
 
-#ifndef __MEWUI_STATEMENU_H__
-#define __MEWUI_STATEMENU_H__
+#ifndef __MEWUI_MENU_H__
+#define __MEWUI_MENU_H__
+
+struct mewui_menu_option
+{
+	const char  *description;
+	const char  *name;
+};
 
 //-------------------------------------------------
-//  class stateellaneous options menu
+//  class mewui menu
 //-------------------------------------------------
-class ui_menu_state_menu : public ui_menu
+class mewui_menu : public ui_menu
 {
 public:
-	ui_menu_state_menu(running_machine &machine, render_container *container);
-	virtual ~ui_menu_state_menu();
+	mewui_menu(running_machine &machine, render_container *container, const char *title, mewui_menu_option *options, int count);
+	virtual ~mewui_menu();
 	virtual void populate() override;
 	virtual void handle() override;
 	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2) override;
 
 private:
-	struct state_option
-	{
-		const char  *description;
-		const char  *name;
-	};
-
-	static state_option m_options[];
+	char * m_title;
+	mewui_menu_option *m_options;
+	int m_count;
 };
 
-#endif /* __MEWUI_STATEMENU_H__ */
+#endif /* __MEWUI_MENU_H__ */
