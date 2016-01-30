@@ -26,26 +26,26 @@
 
 mewui_menu_option perf_menu_options[] = {
 	{ "Performance Options",                     nullptr },
-	{ "Automatic frame skipping",                OPTION_AUTOFRAMESKIP },
-	{ "Fixed frame skip value",                  OPTION_FRAMESKIP },
+	{ "Auto frame skip",                         OPTION_AUTOFRAMESKIP },
+	{ "Frame skip",                              OPTION_FRAMESKIP },
 	{ "Seconds to run",                          OPTION_SECONDS_TO_RUN },
 	{ "Throttle",                                OPTION_THROTTLE },
 	{ "Sleep",                                   OPTION_SLEEP },
 	{ "Speed",                                   OPTION_SPEED },
-	{ "Auto adjust speed to lower than refresh", OPTION_REFRESHSPEED },
+	{ "Refresh speed",                           OPTION_REFRESHSPEED },
 	{ "Fast start",                              OPTION_FASTSTART },
 	{ "Fast start skip",                         OPTION_FASTSTART_SKIP }
 };
 
 mewui_menu_option rotate_menu_options[] = {
 	{ "Rotation Options",                        nullptr },
-	{ "Rotate game",                             OPTION_ROTATE },
-	{ "Rotate screen clockwise",                 OPTION_ROR },
-	{ "Rotate screen counterclockwise",          OPTION_ROL },
-	{ "Auto rotate screen clockwise",            OPTION_AUTOROR },
-	{ "Auto rotate screen counterclockwise",     OPTION_AUTOROL },
-	{ "Flip screen horizontally",                OPTION_FLIPX },
-	{ "Flip screen vertically",                  OPTION_FLIPY },
+	{ "Rotate",                                  OPTION_ROTATE },
+	{ "Rotate right",                            OPTION_ROR },
+	{ "Rotate left",                             OPTION_ROL },
+	{ "Auto rotate right",                       OPTION_AUTOROR },
+	{ "Auto rotate left",                        OPTION_AUTOROL },
+	{ "Flip X",                                  OPTION_FLIPX },
+	{ "Flip Y",                                  OPTION_FLIPY },
 };
 
 mewui_menu_option artwork_menu_options[] = {
@@ -60,27 +60,27 @@ mewui_menu_option artwork_menu_options[] = {
 
 mewui_menu_option state_menu_options[] = {
 	{ "State/Playback Options",                  nullptr },
-	{ "High score support",                      OPTION_HISCORE },
-	{ "Automatic machine state save/restore",    OPTION_AUTOSAVE },
-	{ "Bilinear snapshot filtering",             OPTION_SNAPBILINEAR },
-	{ "Burn-in snapshots",                       OPTION_BURNIN },
+	{ "High score",                              OPTION_HISCORE },
+	{ "Automatic save/restore",                  OPTION_AUTOSAVE },
+	{ "Bilinear snapshot",                       OPTION_SNAPBILINEAR },
+	{ "Burn-in",                                 OPTION_BURNIN },
 };
 
 mewui_menu_option input_menu_options[] = {
 	{ "Input Options",                           nullptr },
 	{ "Coin lockout",                            OPTION_COIN_LOCKOUT },
-	{ "Enable Mouse",                            OPTION_MOUSE },
-	{ "Enable Joystick",                         OPTION_JOYSTICK },
-	{ "Enable Lightgun",                         OPTION_LIGHTGUN },
-	{ "Multiple keyboards as separate inputs",   OPTION_MULTIKEYBOARD },
-	{ "Multiple mice as separate inputs",        OPTION_MULTIMOUSE },
-	{ "Steadykey support",                       OPTION_STEADYKEY },
-	{ "UI on top of emulated keyboard",          OPTION_UI_ACTIVE },
-	{ "Lightgun button 2 as offscreen reload",   OPTION_OFFSCREEN_RELOAD },
+	{ "Mouse",                                   OPTION_MOUSE },
+	{ "Joystick",                                OPTION_JOYSTICK },
+	{ "Lightgun",                                OPTION_LIGHTGUN },
+	{ "Multi-keyboard",                          OPTION_MULTIKEYBOARD },
+	{ "Multi-mouse",                             OPTION_MULTIMOUSE },
+	{ "Steadykey",                               OPTION_STEADYKEY },
+	{ "UI active",                               OPTION_UI_ACTIVE },
+	{ "Offscreen reload",                        OPTION_OFFSCREEN_RELOAD },
 	{ "Joystick deadzone",                       OPTION_JOYSTICK_DEADZONE },
 	{ "Joystick saturation",                     OPTION_JOYSTICK_SATURATION },
 	{ "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
-	{ "Simultaneous contradictory direction",    OPTION_JOYSTICK_CONTRADICTORY },
+	{ "Simultaneous contradictory",              OPTION_JOYSTICK_CONTRADICTORY },
 	{ "Coin impulse",                            OPTION_COIN_IMPULSE },
 };
 
@@ -95,13 +95,13 @@ mewui_menu_option misc_menu_options[] = {
 	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU },
 	{ nullptr,                                           nullptr },
 	{ "Cheats",                                          OPTION_CHEAT },
-	{ "Show mouse pointer",                              OPTION_UI_MOUSE },
-	{ "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
-	{ "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
-	{ "Skip displaying disclaimer screen at startup",    OPTION_SKIP_DISCLAIMER },
-	{ "Skip displaying warning screen at startup",       OPTION_SKIP_WARNINGS },
-	{ "Skip displaying loading messages at startup",     OPTION_SKIP_LOADING },
-	{ "Render white border on UI message screens",       OPTION_RENDER_BORDER },
+	{ "UI mouse",                                        OPTION_UI_MOUSE },
+	{ "Confirm quit",                                    OPTION_CONFIRM_QUIT },
+	{ "Skip game infomation",                            OPTION_SKIP_GAMEINFO },
+	{ "Skip disclaimer screen",                          OPTION_SKIP_DISCLAIMER },
+	{ "Skip warnings",                                   OPTION_SKIP_WARNINGS },
+	{ "Skip loading messages",                           OPTION_SKIP_LOADING },
+	{ "Render border",                                   OPTION_RENDER_BORDER },
 };
 
 //-------------------------------------------------

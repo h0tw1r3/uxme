@@ -177,7 +177,7 @@ void mewui_menu::populate()
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
-	customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
+	custombottom = customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
 }
 
 //-------------------------------------------------
@@ -186,8 +186,13 @@ void mewui_menu::populate()
 
 void mewui_menu::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
 {
+	static int interval = 0;
+	static FPTR lastref = 0;
+
 	float width;
+	emu_options::entry *entry;
 	ui_manager &mui = machine().ui();
+	emu_options &mopts = machine().options();
 
 	mui.draw_text_full(container, m_options[0].description, 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
@@ -211,4 +216,48 @@ void mewui_menu::custom_render(void *selectedref, float top, float bottom, float
 	// draw the text within it
 	mui.draw_text_full(container, m_options[0].description, x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
 	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
+
+	if (selectedref != nullptr)
+	{
+		if (lastref == (FPTR)selectedref) {
+			if (interval <= 15) interval++;
+		} else {
+			lastref = (FPTR)selectedref;
+			interval = 0;
+		}
+
+		if (interval > 15)
+		{
+			entry = mopts.find(m_options[lastref].name);
+
+			mui.draw_text_full(container, entry->description(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+					DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
+
+			width += 2 * UI_BOX_LR_BORDER;
+			maxwidth = MAX(origx2 - origx1, width);
+
+			// compute our bounds
+			x1 = 0.5f - 0.5f * maxwidth;
+			x2 = x1 + maxwidth;
+			y1 = origy2 + UI_BOX_TB_BORDER;
+			y2 = origy2 + bottom;
+
+			// draw a box
+			mui.draw_outlined_box(container, x1, y1, x2, y2, UI_RED_COLOR);
+
+			// take off the borders
+			x1 += UI_BOX_LR_BORDER;
+			x2 -= UI_BOX_LR_BORDER;
+			y1 += UI_BOX_TB_BORDER;
+
+			// draw the text within it
+			mui.draw_text_full(container, entry->description(), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_NEVER,
+					DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
+		}
+	}
+	else
+	{
+		lastref = 0;
+		interval = 0;
+	}
 }
