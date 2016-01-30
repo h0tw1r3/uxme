@@ -44,7 +44,7 @@ void mewui_menu::handle()
 	float f_cur, f_step;
 
 	// process the menu
-	const ui_menu_event *m_event = process(0);
+	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | 0);
 	if (m_event != nullptr && m_event->itemref != nullptr)
 	{
 		if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
