@@ -1241,10 +1241,13 @@ $(GENIE): $(GENIE_SRC)
 
 3rdparty/genie/src/hosts/%.c:
 
-clean:
+.PHONY: genieclean
+genieclean:
+	$(SILENT) $(MAKE) $(MAKEPARAMS) -C 3rdparty/genie/build/gmake.$(GENIEOS) -f genie.make clean
+
+clean: genieclean
 	@echo Cleaning...
 	-@rm -rf $(BUILDDIR)
-	$(SILENT) $(MAKE) $(MAKEPARAMS) -C 3rdparty/genie/build/gmake.$(GENIEOS) -f genie.make clean
 
 GEN_FOLDERS := $(GENDIR)/$(TARGET)/layout/ $(GENDIR)/$(TARGET)/$(SUBTARGET)/
 
@@ -1261,8 +1264,10 @@ endif
 $(GEN_FOLDERS):
 	-$(call MKDIR,$@)
 
+genie: $(GENIE)
+
 generate: \
-		$(GENIE) \
+		genie \
 		$(GEN_FOLDERS) \
 		$(patsubst $(SRC)/%.lay,$(GENDIR)/%.lh,$(LAYOUTS))
 
