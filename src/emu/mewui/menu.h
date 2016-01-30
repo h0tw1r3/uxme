@@ -24,14 +24,13 @@ struct mewui_menu_option
 class mewui_menu : public ui_menu
 {
 public:
-	mewui_menu(running_machine &machine, render_container *container, const char *title, mewui_menu_option *options, int count);
+	mewui_menu(running_machine &machine, render_container *container, mewui_menu_option *options, int count);
 	virtual ~mewui_menu();
 	virtual void populate() override;
 	virtual void handle() override;
 	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2) override;
 
 private:
-	char * m_title;
 	mewui_menu_option *m_options;
 	int m_count;
 };
