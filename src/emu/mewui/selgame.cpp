@@ -2442,6 +2442,9 @@ void ui_mewui_select_game::arts_render(void *selectedref, float origx1, float or
 			if (!tmp_bitmap->valid())
 				render_load_jpeg(*tmp_bitmap, snapfile, fullname.c_str(), "0000.jpg");
 
+			if (!tmp_bitmap->valid())
+				render_load_png(*tmp_bitmap, snapfile, fullname.c_str(), "title.png");
+
 			// if fail, attemp to load from standard file
 			if (!tmp_bitmap->valid())
 			{
