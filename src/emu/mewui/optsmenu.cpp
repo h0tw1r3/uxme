@@ -93,6 +93,7 @@ mewui_menu_option misc_menu_options[] = {
 	{ "Use image as background",                         OPTION_USE_BACKGROUND },
 	{ "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },
 	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU },
+	{ "Info auto audit",                                 OPTION_INFO_AUTO_AUDIT },
 	{ nullptr,                                           nullptr },
 	{ "Cheats",                                          OPTION_CHEAT },
 	{ "UI mouse",                                        OPTION_UI_MOUSE },
