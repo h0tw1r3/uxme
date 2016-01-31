@@ -624,7 +624,7 @@ void lua_engine::l_option_set_value(emu_options::entry *e, std::string val)
 {
 	std::string error;
 	const char *c = val.c_str();
-	luaThis->machine().options().set_value(e->name(), c, OPTION_PRIORITY_DRIVER_INI, error);
+	luaThis->machine().options().set_value(e->name(), c, OPTION_PRIORITY_CMDLINE, error);
 	if (!error.empty()) {
 		lua_writestringerror("%s\n", error.c_str());
 	}
