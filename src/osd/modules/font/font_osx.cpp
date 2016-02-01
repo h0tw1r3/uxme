@@ -36,18 +36,19 @@ private:
 	CTFontRef m_font;
 };
 
-bool osd_font_osx::open(const char *font_path, const char *name, int &height)
+bool osd_font_osx::open(const char *font_path, const char *_name, int &height)
 {
 	m_font = NULL;
-	osd_printf_verbose("FONT NAME %s\n", name);
-#if 0
-	if (!strcmp(name, "default"))
-	{
-		name = "LucidaGrande";
-	}
-#endif
 
-	CFStringRef const font_name = CFStringCreateWithCString(NULL, name, kCFStringEncodingUTF8);
+	std::string name(_name);
+	if (name.compare("default")==0)
+	{
+		name = "Silom";
+	}
+
+	osd_printf_verbose("FONT NAME %s\n", name.c_str());
+
+	CFStringRef const font_name = CFStringCreateWithCString(NULL, name.c_str(), kCFStringEncodingUTF8);
 	if (kCFNotFound != CFStringFind(font_name, CFSTR(".BDF"), kCFCompareCaseInsensitive | kCFCompareBackwards | kCFCompareAnchored | kCFCompareNonliteral).location)
 	{
 		// handle bdf fonts in the core
@@ -68,7 +69,7 @@ bool osd_font_osx::open(const char *font_path, const char *name, int &height)
 
 	if (!ct_font)
 	{
-		osd_printf_verbose("Couldn't find/open font %s, using MAME default\n", name);
+		osd_printf_verbose("Couldn't find/open font %s, using MAME default\n", name.c_str());
 		return false;
 	}
 
