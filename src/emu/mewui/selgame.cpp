@@ -184,10 +184,18 @@ ui_mewui_select_game::ui_mewui_select_game(running_machine &machine, render_cont
 ui_mewui_select_game::~ui_mewui_select_game()
 {
 	std::string error_string, last_driver;
+	const game_driver *driver = nullptr;
+	ui_software_info *swinfo = nullptr;
 	emu_options &mopt = machine().options();
-	const game_driver *driver = (selected >= 0 && selected < item.size()) ? (const game_driver *)item[selected].ref : nullptr;
+	if (main_filters::actual == FILTER_FAVORITE_GAME)
+		swinfo = (selected > 0 && selected < item.size()) ? (ui_software_info *)item[selected].ref : nullptr;
+	else
+		driver = (selected > 0 && selected < item.size()) ? (const game_driver *)item[selected].ref : nullptr;
 	if ((FPTR)driver > 2)
 		last_driver = driver->name;
+
+	if ((FPTR)swinfo > 2)
+		last_driver = swinfo->shortname;
 
 	std::string filter(main_filters::text[main_filters::actual]);
 	if (main_filters::actual == FILTER_MANUFACTURER)
@@ -541,7 +549,6 @@ void ui_mewui_select_game::populate()
 	mewui_globals::redraw_icon = true;
 	mewui_globals::switch_image = true;
 	int old_item_selected = -1;
-	UINT32 flags_mewui = MENU_FLAG_MEWUI | MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW;
 
 	if (main_filters::actual != FILTER_FAVORITE_GAME)
 	{
@@ -591,7 +598,9 @@ void ui_mewui_select_game::populate()
 			// iterate over entries
 			for (size_t curitem = 0; curitem < m_displaylist.size(); ++curitem)
 			{
-				if (!reselect_last::driver.empty() && !(core_stricmp(m_displaylist[curitem]->name, reselect_last::driver.c_str())))
+				UINT32 flags_mewui = MENU_FLAG_MEWUI | MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW;
+
+				if (old_item_selected == -1 && !reselect_last::driver.empty() && m_displaylist[curitem]->name == reselect_last::driver)
 					old_item_selected = curitem;
 
 				bool cloneof = strcmp(m_displaylist[curitem]->parent, "0");
@@ -601,9 +610,10 @@ void ui_mewui_select_game::populate()
 					if (cx != -1 && ((driver_list::driver(cx).flags & MACHINE_IS_BIOS_ROOT) != 0))
 						cloneof = false;
 				}
+				if (cloneof)
+					flags_mewui |= MENU_FLAG_INVERT;
 
-				item_append(m_displaylist[curitem]->description, nullptr, (!cloneof) ? flags_mewui : (MENU_FLAG_INVERT | flags_mewui),
-				            (void *)m_displaylist[curitem]);
+				item_append(m_displaylist[curitem]->description, nullptr, flags_mewui, (void *)m_displaylist[curitem]);
 			}
 		}
 	}
@@ -612,13 +622,17 @@ void ui_mewui_select_game::populate()
 	else
 	{
 		m_search[0] = '\0';
-		flags_mewui |= MENU_FLAG_MEWUI_FAVORITE;
+		int curitem = 0;
 
 		// iterate over entries
 		for (auto & mfavorite : machine().favorite().m_list)
 		{
+			UINT32 flags_mewui = MENU_FLAG_MEWUI | MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW | MENU_FLAG_MEWUI_FAVORITE;
 			if (mfavorite.startempty == 1)
 			{
+				if (old_item_selected == -1 && !reselect_last::driver.empty() && mfavorite.shortname == reselect_last::driver)
+					old_item_selected = curitem;
+
 				bool cloneof = strcmp(mfavorite.driver->parent, "0");
 				if (cloneof)
 				{
@@ -626,11 +640,19 @@ void ui_mewui_select_game::populate()
 					if (cx != -1 && ((driver_list::driver(cx).flags & MACHINE_IS_BIOS_ROOT) != 0))
 						cloneof = false;
 				}
-				item_append(mfavorite.longname.c_str(), nullptr, (cloneof) ? (MENU_FLAG_INVERT | flags_mewui) : flags_mewui, (void *)&mfavorite);
+				if (cloneof)
+					flags_mewui |= MENU_FLAG_INVERT;
+
+				item_append(mfavorite.longname.c_str(), nullptr, flags_mewui, (void *)&mfavorite);
 			}
 			else
+			{
+				if (old_item_selected == -1 && !reselect_last::driver.empty() && mfavorite.shortname == reselect_last::driver)
+					old_item_selected = curitem;
 				item_append(mfavorite.longname.c_str(), mfavorite.devicetype.c_str(), 
 					mfavorite.parentname.empty() ? flags_mewui : (MENU_FLAG_INVERT | flags_mewui), (void *)&mfavorite);
+			}
+			curitem++;
 		}
 	}
 
