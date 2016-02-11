@@ -2,9 +2,9 @@
 // copyright-holders:Nicola Salmoria, Aaron Giles, Nathan Woods
 /***************************************************************************
 
-    ui/menu.h
+	ui/menu.h
 
-    Internal MAME menus for the user interface.
+	Internal MAME menus for the user interface.
 
 ***************************************************************************/
 
@@ -17,7 +17,7 @@
 
 
 /***************************************************************************
-    CONSTANTS
+	CONSTANTS
 ***************************************************************************/
 
 // flags for menu items
@@ -27,11 +27,11 @@
 #define MENU_FLAG_MULTILINE         (1 << 3)
 #define MENU_FLAG_REDTEXT           (1 << 4)
 #define MENU_FLAG_DISABLE           (1 << 5)
-#define MENU_FLAG_MEWUI             (1 << 6)
-#define MENU_FLAG_MEWUI_HISTORY     (1 << 7)
-#define MENU_FLAG_MEWUI_SWLIST      (1 << 8)
-#define MENU_FLAG_MEWUI_FAVORITE    (1 << 9)
-#define MENU_FLAG_MEWUI_PALETTE     (1 << 10)
+#define MENU_FLAG_UI                (1 << 6)
+#define MENU_FLAG_UI_HISTORY        (1 << 7)
+#define MENU_FLAG_UI_SWLIST         (1 << 8)
+#define MENU_FLAG_UI_FAVORITE       (1 << 9)
+#define MENU_FLAG_UI_PALETTE        (1 << 10)
 
 // special menu item for separators
 #define MENU_SEPARATOR_ITEM         "---"
@@ -55,32 +55,32 @@ enum ui_menu_reset_options
 
 
 /***************************************************************************
-    TYPE DEFINITIONS
+	TYPE DEFINITIONS
 ***************************************************************************/
 
 // menu-related events
 struct ui_menu_event
 {
-	void *          itemref;            // reference for the selected item
-	int             iptkey;	            // one of the IPT_* values from inptport.h
-	unicode_char    unichar;            // unicode character if iptkey == IPT_SPECIAL
+	void         *itemref;   // reference for the selected item
+	int          iptkey;     // one of the IPT_* values from inptport.h
+	unicode_char unichar;    // unicode character if iptkey == IPT_SPECIAL
 };
 
 struct ui_menu_pool
 {
-	ui_menu_pool *      next;           // chain to next one
-	UINT8 *             top;            // top of the pool
-	UINT8 *             end;            // end of the pool
+	ui_menu_pool   *next;    // chain to next one
+	UINT8          *top;     // top of the pool
+	UINT8          *end;     // end of the pool
 };
 
 
 class ui_menu_item
 {
 public:
-	const char *        text;
-	const char *        subtext;
-	UINT32              flags;
-	void *              ref;
+	const char  *text;
+	const char  *subtext;
+	UINT32      flags;
+	void        *ref;
 
 	inline bool is_selectable() const;
 };
@@ -93,18 +93,18 @@ public:
 
 	running_machine &machine() const { return m_machine; }
 
-	render_container *  container;          // render_container we render to
-	ui_menu_event       menu_event;         // the UI menu_event that occurred
-	ui_menu *           parent;             // pointer to parent menu
-	int                 resetpos;           // reset position
-	void *              resetref;           // reset reference
-	int                 selected;           // which item is selected
-	int                 hover;              // which item is being hovered over
-	int                 visitems;           // number of visible items
-	float               customtop;          // amount of extra height to add at the top
-	float               custombottom;       // amount of extra height to add at the bottom
-	ui_menu_pool *      pool;               // list of memory pools
-	std::vector<ui_menu_item>   item;       // array of items
+	render_container            *container;   // render_container we render to
+	ui_menu_event               menu_event;   // the UI menu_event that occurred
+	ui_menu                     *parent;      // pointer to parent menu
+	int                         resetpos;     // reset position
+	void                        *resetref;    // reset reference
+	int                         selected;     // which item is selected
+	int                         hover;        // which item is being hovered over
+	int                         visitems;     // number of visible items
+	float                       customtop;    // amount of extra height to add at the top
+	float                       custombottom; // amount of extra height to add at the bottom
+	ui_menu_pool                *pool;        // list of memory pools
+	std::vector<ui_menu_item>   item;         // array of items
 
 	// free all items in the menu, and all memory allocated from the memory pool
 	void reset(ui_menu_reset_options options);
@@ -180,7 +180,7 @@ private:
 	static render_texture *hilight_texture, *arrow_texture;
 
 	bool m_special_main_menu;
-	running_machine &   m_machine;          // machine we are attached to
+	running_machine &m_machine;  // machine we are attached to
 
 	void draw(bool customonly, bool noimage, bool noinput);
 	void draw_text_box();
@@ -191,9 +191,6 @@ private:
 	static void clear_free_list(running_machine &machine);
 	static void render_triangle(bitmap_argb32 &dest, bitmap_argb32 &source, const rectangle &sbounds, void *param);
 
-/*****************************************
-		MEWUI SECTION
-*****************************************/
 public:
 	int  visible_items;
 	bool ui_error;
@@ -203,9 +200,6 @@ public:
 	render_target *mouse_target;
 	INT32 mouse_target_x, mouse_target_y;
 	float mouse_x, mouse_y;
-
-	// draw UME box
-	void draw_ume_box(float x1, float y1, float x2, float y2);
 
 	// draw toolbar
 	void draw_toolbar(float x1, float y1, float x2, float y2, bool software = false);
@@ -220,7 +214,7 @@ public:
 	void draw_star(float x0, float y0);
 
 	// Global initialization
-	static void init_mewui(running_machine &machine);
+	static void init_ui(running_machine &machine);
 
 	// get arrows status
 	template <typename _T1, typename _T2, typename _T3>
@@ -244,7 +238,6 @@ protected:
 
 	// draw arrow
 	void draw_common_arrow(float origx1, float origy1, float origx2, float origy2, int current, int dmin, int dmax, float title);
-
 	void info_arrow(int ub, float origx1, float origx2, float oy1, float line_height, float text_size, float ud_arrow_width);
 
 	// images render

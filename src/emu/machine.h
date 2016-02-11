@@ -95,11 +95,10 @@ class image_manager;
 class rom_load_manager;
 class debugger_manager;
 class osd_interface;
-enum class config_type;
 class datfile_manager;
+enum class config_type;
 class inifile_manager;
 class favorite_manager;
-
 struct debugcpu_private;
 
 
@@ -375,6 +374,5 @@ private:
 	std::unique_ptr<inifile_manager>   m_inifile;      // internal data from inifile.c for INIs
 	std::unique_ptr<favorite_manager>  m_favorite;     // internal data from inifile.c for favorites
 };
-
 
 #endif  /* __MACHINE_H__ */

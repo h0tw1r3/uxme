@@ -20,6 +20,7 @@
 # SUBTARGET = tiny
 # TOOLS = 1
 # TESTS = 1
+# BENCHMARKS = 1
 # OSD = sdl
 
 # USE_BGFX = 1
@@ -485,6 +486,10 @@ ifdef TESTS
 PARAMS += --with-tests
 endif
 
+ifdef BENCHMARKS
+PARAMS += --with-benchmarks
+endif
+
 ifdef SYMBOLS
 PARAMS += --SYMBOLS='$(SYMBOLS)'
 endif
@@ -710,6 +715,7 @@ SCRIPTS = scripts/genie.lua \
 	scripts/src/sound.lua \
 	scripts/src/tools.lua \
 	scripts/src/tests.lua \
+	scripts/src/benchmarks.lua \
 	scripts/src/video.lua \
 	scripts/src/bus.lua \
 	scripts/src/netlist.lua \
@@ -1248,6 +1254,7 @@ genieclean:
 clean: genieclean
 	@echo Cleaning...
 	-@rm -rf $(BUILDDIR)
+	$(SILENT) $(MAKE) -C $(SRC)/devices/cpu/m68000 clean
 
 GEN_FOLDERS := $(GENDIR)/$(TARGET)/layout/ $(GENDIR)/$(TARGET)/$(SUBTARGET)/
 
@@ -1269,12 +1276,19 @@ genie: $(GENIE)
 generate: \
 		genie \
 		$(GEN_FOLDERS) \
-		$(patsubst $(SRC)/%.lay,$(GENDIR)/%.lh,$(LAYOUTS))
+		$(patsubst $(SRC)/%.lay,$(GENDIR)/%.lh,$(LAYOUTS)) \
+		$(SRC)/devices/cpu/m68000/m68kops.cpp
 
 $(GENDIR)/%.lh: $(SRC)/%.lay scripts/build/file2str.py | $(GEN_FOLDERS)
 	@echo Converting $<...
 	$(SILENT)$(PYTHON) scripts/build/file2str.py $< $@ layout_$(basename $(notdir $<))
 
+$(SRC)/devices/cpu/m68000/m68kops.cpp: $(SRC)/devices/cpu/m68000/m68k_in.cpp $(SRC)/devices/cpu/m68000/m68kmake.cpp
+ifeq ($(TARGETOS),asmjs)
+	$(SILENT) $(MAKE) -C $(SRC)/devices/cpu/m68000
+else
+	$(SILENT) $(MAKE) -C $(SRC)/devices/cpu/m68000 CC="$(CC)" CXX="$(CXX)"
+endif
 
 #-------------------------------------------------
 # Regression tests
@@ -1370,3 +1384,7 @@ cppcheck:
 	@echo Generate CppCheck analysis report
 	cppcheck --enable=all src/ $(CPPCHECK_PARAMS) -j9
 
+.PHONY: shaders
+
+shaders:
+	$(SILENT) $(MAKE) -C $(SRC)/osd/modules/render/bgfx rebuild

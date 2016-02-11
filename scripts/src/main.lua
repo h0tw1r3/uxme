@@ -88,7 +88,7 @@ end
 		targetextension ".bc"  
 		if os.getenv("EMSCRIPTEN") then
 			postbuildcommands {
-				os.getenv("EMSCRIPTEN") .. "/emcc -O3 -s DISABLE_EXCEPTION_CATCHING=2 -s USE_SDL=2 --memory-init-file 0 -s ALLOW_MEMORY_GROWTH=0 -s TOTAL_MEMORY=268435456 -s EXCEPTION_CATCHING_WHITELIST='[\"__ZN15running_machine17start_all_devicesEv\"]' -s EXPORTED_FUNCTIONS=\"['_main', '_malloc', '__Z14js_get_machinev', '__Z9js_get_uiv', '__Z12js_get_soundv', '__ZN10ui_manager12set_show_fpsEb', '__ZNK10ui_manager8show_fpsEv', '__ZN13sound_manager4muteEbh', '_SDL_PauseAudio']\" $(TARGET) -o " .. _MAKE.esc(MAME_DIR) .. _OPTIONS["target"] .. _OPTIONS["subtarget"] .. ".js --post-js " .. _MAKE.esc(MAME_DIR) .. "src/osd/sdl/emscripten_post.js",
+				os.getenv("EMSCRIPTEN") .. "/emcc -O3 -s DISABLE_EXCEPTION_CATCHING=2 -s USE_SDL=2 --memory-init-file 0 -s ALLOW_MEMORY_GROWTH=0 -s TOTAL_MEMORY=268435456 -s EXCEPTION_CATCHING_WHITELIST='[\"__ZN15running_machine17start_all_devicesEv\"]' -s EXPORTED_FUNCTIONS=\"['_main', '_malloc', '__Z14js_get_machinev', '__Z9js_get_uiv', '__Z12js_get_soundv', '__ZN10ui_manager12set_show_fpsEb', '__ZNK10ui_manager8show_fpsEv', '__ZN13sound_manager4muteEbh', '_SDL_PauseAudio']\" $(TARGET) -o " .. _MAKE.esc(MAME_DIR) .. _OPTIONS["target"] .. _OPTIONS["subtarget"] .. ".js --pre-js " .. _MAKE.esc(MAME_DIR) .. "src/osd/modules/sound/js_sound.js --post-js " .. _MAKE.esc(MAME_DIR) .. "src/osd/sdl/emscripten_post.js",
 			}
 		end
 
@@ -129,6 +129,8 @@ end
 		"7z",
 		"lua",
 		"lsqlite3",
+		"uv",
+		"http-parser",
 	}
 
 	if _OPTIONS["with-bundled-zlib"] then
@@ -179,11 +181,6 @@ end
 	
 	maintargetosdoptions(_target,_subtarget)
 
-	local layouttarget = _target
-	if (_target=="mewui") then
-		layouttarget = "mame"
-	end
-
 	includedirs {
 		MAME_DIR .. "src/osd",
 		MAME_DIR .. "src/emu",
@@ -192,7 +189,7 @@ end
 		MAME_DIR .. "src/lib",
 		MAME_DIR .. "src/lib/util",
 		MAME_DIR .. "3rdparty",
-		GEN_DIR  .. layouttarget .. "/layout",
+		GEN_DIR  .. _target .. "/layout",
 		GEN_DIR  .. "resource",
 	}
 
@@ -203,14 +200,14 @@ end
 	end
 
 	if _OPTIONS["targetos"]=="macosx" and (not override_resources) then
-		dependency {
-			{ "$(TARGET)" ,  GEN_DIR  .. "resource/" .. _subtarget .. "-Info.plist", true  },
-		}
 		linkoptions {
 			"-sectcreate __TEXT __info_plist " .. _MAKE.esc(GEN_DIR) .. "resource/" .. _subtarget .. "-Info.plist"
 		}
 		custombuildtask {
 			{ MAME_DIR .. "src/version.cpp" ,  GEN_DIR .. "resource/" .. _subtarget .. "-Info.plist",    {  MAME_DIR .. "scripts/build/verinfo.py" }, {"@echo Emitting " .. _subtarget .. "-Info.plist" .. "...",    PYTHON .. " $(1)  -p -b " .. _subtarget .. " $(<) > $(@)" }},
+		}
+		dependency {
+			{ "$(TARGET)" ,  GEN_DIR  .. "resource/" .. _subtarget .. "-Info.plist", true  },
 		}
 
 	end
@@ -251,8 +248,8 @@ end
 	
 if (_OPTIONS["SOURCES"] == nil) then 	
 	dependency {
-		{ "../../../../generated/" .. _target .. "/" .. _subtarget .. "/drivlist.cpp",  MAME_DIR .. "src/mame/mess.lst", true },
-		{ "../../../../generated/" .. _target .. "/" .. _subtarget .. "/drivlist.cpp" , MAME_DIR .. "src/mame/arcade.lst", true},
+		{ "../../../../generated/mame/mame/drivlist.cpp",  MAME_DIR .. "src/mame/mess.lst", true },
+		{ "../../../../generated/mame/mame/drivlist.cpp" , MAME_DIR .. "src/mame/arcade.lst", true},
 	}
 	custombuildtask {
 		{ MAME_DIR .. "src/".._target .."/" .. _subtarget ..".lst" ,  GEN_DIR  .. _target .. "/" .. _subtarget .."/drivlist.cpp",    {  MAME_DIR .. "scripts/build/makelist.py" }, {"@echo Building driver list...",    PYTHON .. " $(1) $(<) > $(@)" }},

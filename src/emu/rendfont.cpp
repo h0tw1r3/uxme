@@ -16,7 +16,7 @@
 #include "osdepend.h"
 #include "uismall.fh"
 
-#include "mewui/cmdrender.h"
+#include "ui/cmdrender.h"
 
 //**************************************************************************
 //  INLINE FUNCTIONS
@@ -270,7 +270,6 @@ void render_font::char_expand(unicode_char chnum, glyph &gl)
 		gl.bmwidth = gl.bitmap.width();
 		gl.bmheight = gl.bitmap.height();
 	}
-
 	// other formats need to parse their data
 	else
 	{

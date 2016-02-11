@@ -115,6 +115,5 @@ private:
 
 extern const char build_version[];
 extern const char bare_build_version[];
-extern const char mewui_version[];
 
 #endif  /* __MAME_H__ */

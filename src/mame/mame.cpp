@@ -2,7 +2,7 @@
 // copyright-holders:Aaron Giles
 /***************************************************************************
 
-    mess.c
+    mame.c
 
     Specific (per target) constants
 
