@@ -540,7 +540,7 @@ bool datfile_manager::parseopen(const char *filename)
 	// MAME core file parsing functions fail in recognizing UNICODE chars in UTF-8 without BOM,
 	// so it's better and faster use standard C fileio functions.
 
-	emu_file file(machine().ui().options().history_path(), OPEN_FLAG_READ);
+	emu_file file(machine().options().dat_path(), OPEN_FLAG_READ);
 	if (file.open(filename) != FILERR_NONE)
 		return false;
 

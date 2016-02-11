@@ -27,7 +27,7 @@ static const folders_entry s_folders_entry[] =
 	{ "ROMs",                OPTION_MEDIAPATH },
 	{ "UI",                  OPTION_UI_PATH },
 	{ "Samples",             OPTION_SAMPLEPATH },
-	{ "DATs",                OPTION_HISTORY_PATH },
+	{ "DATs",                OPTION_DATPATH },
 	{ "INIs",                OPTION_INIPATH },
 	{ "Extra INIs",          OPTION_EXTRAINI_PATH },
 	{ "Icons",               OPTION_ICONS_PATH },
