@@ -249,9 +249,6 @@ void running_machine::start()
 	// init the osd layer
 	m_manager.osd().init(*this);
 
-	// start the inifile manager
-	m_inifile = std::make_unique<inifile_manager>(*this);
-
 	// create the video manager
 	m_video = std::make_unique<video_manager>(*this);
 	m_ui = std::make_unique<ui_manager>(*this);
