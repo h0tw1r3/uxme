@@ -85,38 +85,15 @@ public:
 	virtual void handle() override;
 };
 
-//-------------------------------------------------
-//  class miscellaneous options menu
-//-------------------------------------------------
-class ui_menu_misc_options : public ui_menu
-{
-public:
-	ui_menu_misc_options(running_machine &machine, render_container *container);
-	virtual ~ui_menu_misc_options();
-	virtual void populate() override;
-	virtual void handle() override;
-	virtual void custom_render(void *selectedref, float top, float bottom, float x, float y, float x2, float y2) override;
-
-private:
-	struct misc_option
-	{
-		bool        status;
-		const char  *description;
-		const char  *option;
-	};
-
-	static misc_option m_options[];
-};
-
 class ui_menu_autofire : public ui_menu {
-public:
-	ui_menu_autofire(running_machine &machine, render_container *container);
-	virtual ~ui_menu_autofire();
-	virtual void populate() override;
-	virtual void handle() override;
+	public:
+		ui_menu_autofire(running_machine &machine, render_container *container);
+		virtual ~ui_menu_autofire();
+		virtual void populate() override;
+		virtual void handle() override;
 
-private:
-	float refresh;
+	private:
+		float refresh;
 };
 
 #endif  /* __UI_MISCMENU_H__ */

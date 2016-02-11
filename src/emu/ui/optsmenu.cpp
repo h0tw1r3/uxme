@@ -11,6 +11,7 @@
 #include "emu.h"
 #include "ui/ui.h"
 #include "ui/menu.h"
+#include "ui/submenu.h"
 #include "ui/datfile.h"
 #include "ui/inifile.h"
 #include "ui/selector.h"
@@ -23,6 +24,86 @@
 #include "ui/custmenu.h"
 #include "ui/inputmap.h"
 #include "rendfont.h"
+
+ui_submenu_option perf_submenu_options[] = {
+	{ "Performance Options",                     nullptr },
+	{ "Auto frame skip",                         OPTION_AUTOFRAMESKIP },
+	{ "Frame skip",                              OPTION_FRAMESKIP },
+	{ "Throttle",                                OPTION_THROTTLE },
+	{ "Sleep",                                   OPTION_SLEEP },
+	{ "Speed",                                   OPTION_SPEED },
+	{ "Refresh speed",                           OPTION_REFRESHSPEED },
+	{ "Fast start",                              OPTION_FASTSTART },
+	{ "Fast start skip",                         OPTION_FASTSTART_SKIP }
+};
+
+ui_submenu_option rotate_submenu_options[] = {
+	{ "Rotation Options",                        nullptr },
+	{ "Rotate",                                  OPTION_ROTATE },
+	{ "Rotate right",                            OPTION_ROR },
+	{ "Rotate left",                             OPTION_ROL },
+	{ "Auto rotate right",                       OPTION_AUTOROR },
+	{ "Auto rotate left",                        OPTION_AUTOROL },
+	{ "Flip X",                                  OPTION_FLIPX },
+	{ "Flip Y",                                  OPTION_FLIPY },
+};
+
+ui_submenu_option artwork_submenu_options[] = {
+	{ "Artwork Options",                         nullptr },
+	{ "Artwork Crop",                            OPTION_ARTWORK_CROP },
+	{ "Use Backdrops",                           OPTION_USE_BACKDROPS },
+	{ "Use Overlays",                            OPTION_USE_OVERLAYS },
+	{ "Use Bezels",                              OPTION_USE_BEZELS },
+	{ "Use Control Panels",                      OPTION_USE_CPANELS },
+	{ "Use Marquees",                            OPTION_USE_MARQUEES },
+};
+
+ui_submenu_option state_submenu_options[] = {
+	{ "State/Playback Options",                  nullptr },
+	{ "High score",                              OPTION_HISCORE },
+	{ "Automatic save/restore",                  OPTION_AUTOSAVE },
+	{ "Bilinear snapshot",                       OPTION_SNAPBILINEAR },
+	{ "Burn-in",                                 OPTION_BURNIN },
+};
+
+ui_submenu_option input_submenu_options[] = {
+	{ "Input Options",                           nullptr },
+	{ "Coin lockout",                            OPTION_COIN_LOCKOUT },
+	{ "Mouse",                                   OPTION_MOUSE },
+	{ "Joystick",                                OPTION_JOYSTICK },
+	{ "Lightgun",                                OPTION_LIGHTGUN },
+	{ "Multi-keyboard",                          OPTION_MULTIKEYBOARD },
+	{ "Multi-mouse",                             OPTION_MULTIMOUSE },
+	{ "Steadykey",                               OPTION_STEADYKEY },
+	{ "UI active",                               OPTION_UI_ACTIVE },
+	{ "Offscreen reload",                        OPTION_OFFSCREEN_RELOAD },
+	{ "Joystick deadzone",                       OPTION_JOYSTICK_DEADZONE },
+	{ "Joystick saturation",                     OPTION_JOYSTICK_SATURATION },
+	{ "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
+	{ "Simultaneous contradictory",              OPTION_JOYSTICK_CONTRADICTORY },
+	{ "Coin impulse",                            OPTION_COIN_IMPULSE },
+};
+
+ui_submenu_option misc_submenu_options[] = {
+	{ "Miscellaneous Options",                           nullptr },
+	{ "Re-select last machine played",                   OPTION_REMEMBER_LAST },
+	{ "Enlarge images in the right panel",               OPTION_ENLARGE_SNAPS },
+	{ "DATs info",                                       OPTION_DATS_ENABLED },
+	{ "Cheats",                                          OPTION_CHEAT },
+	{ "Show mouse pointer",                              OPTION_UI_MOUSE },
+	{ "Confirm quit from machines",                      OPTION_UI_CONFIRM_QUIT },
+	{ "Skip displaying information's screen at startup", OPTION_UI_SKIP_GAMEINFO },
+	{ "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
+	{ "Use image as background",                         OPTION_USE_BACKGROUND },
+	{ "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },
+	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU },
+	{ nullptr,                                           nullptr },
+	{ "Info auto audit",                                 OPTION_INFO_AUTO_AUDIT },
+	{ "Skip disclaimer screen",                          OPTION_SKIP_DISCLAIMER },
+	{ "Skip warnings",                                   OPTION_SKIP_WARNINGS },
+	{ "Skip loading messages",                           OPTION_SKIP_LOADING },
+	{ "Render border",                                   OPTION_RENDER_BORDER },
+};
 
 //-------------------------------------------------
 //  ctor
@@ -149,10 +230,6 @@ void ui_menu_game_options::handle()
 					ui_menu::stack_push(global_alloc_clear<ui_menu_selector>(machine(), container, c_year::ui, c_year::actual));
 
 				break;
-			case MISC_MENU:
-				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_menu_misc_options>(machine(), container));
-				break;
 			case SOUND_MENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(global_alloc_clear<ui_menu_sound_options>(machine(), container));
@@ -178,6 +255,31 @@ void ui_menu_game_options::handle()
 			case CUSTOM_FILTER:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					ui_menu::stack_push(global_alloc_clear<ui_menu_custom_filter>(machine(), container));
+				break;
+
+			case STATE_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, state_submenu_options, ARRAY_LENGTH(state_submenu_options)));
+				break;
+			case PERF_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, perf_submenu_options, ARRAY_LENGTH(perf_submenu_options)));
+				break;
+			case ROTATE_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, rotate_submenu_options, ARRAY_LENGTH(rotate_submenu_options)));
+				break;
+			case ARTWORK_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, artwork_submenu_options, ARRAY_LENGTH(artwork_submenu_options)));
+				break;
+			case INPUT_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, input_submenu_options, ARRAY_LENGTH(input_submenu_options)));
+				break;
+			case MISC_SUBMENU:
+				if (m_event->iptkey == IPT_UI_SELECT)
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, misc_submenu_options, ARRAY_LENGTH(misc_submenu_options)));
 				break;
 		}
 
@@ -247,7 +349,12 @@ void ui_menu_game_options::populate()
 	}
 	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
 	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
-	item_append("Miscellaneous Options", nullptr, 0, (void *)(FPTR)MISC_MENU);
+	item_append(misc_submenu_options[0].description,    nullptr, 0, (void *)(FPTR)MISC_SUBMENU);
+	item_append(rotate_submenu_options[0].description,  nullptr, 0, (void *)(FPTR)ROTATE_SUBMENU);
+	item_append(artwork_submenu_options[0].description, nullptr, 0, (void *)(FPTR)ARTWORK_SUBMENU);
+	item_append(input_submenu_options[0].description,   nullptr, 0, (void *)(FPTR)INPUT_SUBMENU);
+	item_append(perf_submenu_options[0].description,    nullptr, 0, (void *)(FPTR)PERF_SUBMENU);
+	item_append(state_submenu_options[0].description,   nullptr, 0, (void *)(FPTR)STATE_SUBMENU);
 	item_append("Device Mapping", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
 	item_append("General Inputs", nullptr, 0, (void *)(FPTR)CGI_MENU);
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);

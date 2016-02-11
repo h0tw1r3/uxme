@@ -204,6 +204,8 @@ files {
 	MAME_DIR .. "src/emu/ui/devctrl.h",
 	MAME_DIR .. "src/emu/ui/menu.cpp",
 	MAME_DIR .. "src/emu/ui/menu.h",
+	MAME_DIR .. "src/emu/ui/submenu.cpp",
+	MAME_DIR .. "src/emu/ui/submenu.h",
 	MAME_DIR .. "src/emu/ui/mainmenu.cpp",
 	MAME_DIR .. "src/emu/ui/mainmenu.h",
 	MAME_DIR .. "src/emu/ui/miscmenu.cpp",

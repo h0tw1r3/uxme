@@ -257,6 +257,8 @@ char* chartrimcarriage(char str[]);
 
 const char* strensure(const char* s);
 
+int getprecisionchr(const char* s);
+
 // jpeg loader
 template <typename _T>
 void render_load_jpeg(_T &bitmap, emu_file &file, const char *dirname, const char *filename)

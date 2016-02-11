@@ -130,7 +130,7 @@ public:
 
 	// getters
 	entry *first() const { return m_entrylist.first(); }
-	entry *find(const char *option) { return m_entrymap.find(option)->second; }
+	entry *find(const char *option) { return (m_entrymap.find(option) != m_entrymap.end()) ? m_entrymap.find(option)->second : nullptr; }
 	const char *command() const { return m_command.c_str(); }
 
 	// configuration
