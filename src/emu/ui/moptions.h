@@ -73,6 +73,10 @@
 #define OPTION_UI_CONFIRM_QUIT        "confirm_quit"
 #define OPTION_UI_MOUSE               "ui_mouse"
 #define OPTION_UI_SKIP_GAMEINFO       "skip_gameinfo"
+#define OPTION_UI_SKIP_DISCLAIMER     "skip_disclaimer"
+#define OPTION_UI_SKIP_WARNINGS       "skip_warnings"
+#define OPTION_UI_SKIP_LOADING        "skip_loading"
+#define OPTION_UI_RENDER_BORDER       "render_border"
 
 
 class ui_options : public core_options
@@ -136,6 +140,10 @@ public:
 	const char *ui_slider_color() const { return value(OPTION_UI_SLIDER_COLOR); }
 
 	bool skip_gameinfo() const { return bool_value(OPTION_UI_SKIP_GAMEINFO); }
+	bool skip_disclaimer() const { return bool_value(OPTION_UI_SKIP_DISCLAIMER); }
+	bool skip_warnings() const { return bool_value(OPTION_UI_SKIP_WARNINGS); }
+	bool skip_loading() const { return bool_value(OPTION_UI_SKIP_LOADING); }
+	bool render_border() const { return bool_value(OPTION_UI_RENDER_BORDER); }
 	const char *ui_font() const { return value(OPTION_UI_FONT); }
 	bool confirm_quit() const { return bool_value(OPTION_UI_CONFIRM_QUIT); }
 	bool ui_mouse() const { return bool_value(OPTION_UI_MOUSE); }

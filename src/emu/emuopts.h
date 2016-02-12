@@ -179,11 +179,6 @@ enum
 #define OPTION_DRC_LOG_NATIVE       "drc_log_native"
 #define OPTION_BIOS                 "bios"
 #define OPTION_CHEAT                "cheat"
-#define OPTION_SKIP_GAMEINFO        "skip_gameinfo"
-#define OPTION_SKIP_DISCLAIMER      "skip_disclaimer"
-#define OPTION_SKIP_WARNINGS        "skip_warnings"
-#define OPTION_SKIP_LOADING         "skip_loading"
-#define OPTION_RENDER_BORDER        "render_border"
 #define OPTION_UI 		            "ui"
 #define OPTION_RAMSIZE              "ramsize"
 
@@ -364,11 +359,6 @@ public:
 	bool drc_log_native() const { return bool_value(OPTION_DRC_LOG_NATIVE); }
 	const char *bios() const { return value(OPTION_BIOS); }
 	bool cheat() const { return bool_value(OPTION_CHEAT); }
-	bool skip_gameinfo() const { return bool_value(OPTION_SKIP_GAMEINFO); }
-	bool skip_disclaimer() const { return bool_value(OPTION_SKIP_DISCLAIMER); }
-	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS); }
-	bool skip_loading() const { return bool_value(OPTION_SKIP_LOADING); }
-	bool render_border() const { return bool_value(OPTION_RENDER_BORDER); }
 	const char *ui() const { return value(OPTION_UI); }
 	const char *ram_size() const { return value(OPTION_RAMSIZE); }
 

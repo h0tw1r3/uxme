@@ -99,10 +99,10 @@ ui_submenu_option misc_submenu_options[] = {
 	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU },
 	{ nullptr,                                           nullptr },
 	{ "Info auto audit",                                 OPTION_INFO_AUTO_AUDIT },
-	{ "Skip disclaimer screen",                          OPTION_SKIP_DISCLAIMER },
-	{ "Skip warnings",                                   OPTION_SKIP_WARNINGS },
-	{ "Skip loading messages",                           OPTION_SKIP_LOADING },
-	{ "Render border",                                   OPTION_RENDER_BORDER },
+	{ "Skip disclaimer screen",                          OPTION_UI_SKIP_DISCLAIMER },
+	{ "Skip warnings",                                   OPTION_UI_SKIP_WARNINGS },
+	{ "Skip loading messages",                           OPTION_UI_SKIP_LOADING },
+	{ "Render border",                                   OPTION_UI_RENDER_BORDER },
 };
 
 //-------------------------------------------------

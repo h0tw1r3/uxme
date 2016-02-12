@@ -369,7 +369,7 @@ void ui_manager::display_startup_screens(bool first_time, bool show_disclaimer)
 	bool show_warnings = true, show_mandatory_fileman = true;
 	int state;
 
-	if (machine().options().skip_disclaimer())
+	if (machine().ui().options().skip_disclaimer())
 		show_disclaimer = false;
 
 	// disable everything if we are using -str for 300 or fewer seconds, or if we're the empty driver,
@@ -404,7 +404,7 @@ void ui_manager::display_startup_screens(bool first_time, bool show_disclaimer)
 						messagebox_backcolor = UI_YELLOW_COLOR;
 					if (machine().system().flags & (MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION | MACHINE_MECHANICAL))
 						messagebox_backcolor = UI_RED_COLOR;
-					if (messagebox_backcolor == UI_RED_COLOR || !machine().options().skip_warnings())
+					if (messagebox_backcolor == UI_RED_COLOR || !machine().ui().options().skip_warnings())
 						set_handler(handler_messagebox_ok, 0);
 				}
 				break;

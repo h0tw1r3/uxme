@@ -951,9 +951,6 @@ render_target::render_target(render_manager &manager, const char *layoutfile, UI
 	m_orientation = m_base_orientation;
 	m_layerconfig = m_base_layerconfig;
 
-	// white box
-	m_draw_outer_box = manager.machine().options().render_border();
-
 	// load the layout files
 	load_layout_files(layoutfile, flags & RENDER_CREATE_SINGLE_FILE);
 
@@ -1482,6 +1479,9 @@ void render_target::resolve_tags()
 			view->resolve_tags();
 		}
 	}
+
+	// white box
+	m_draw_outer_box = m_manager.machine().ui().options().render_border();
 }
 
 
