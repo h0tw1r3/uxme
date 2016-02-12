@@ -32,11 +32,11 @@ ui_submenu::ui_submenu(running_machine &machine, render_container *container, ui
 		if (m_options[d].entry == nullptr)
 		{
 			m_options[d].entry = machine.ui().options().find(m_options[d].name);
-			m_options[d].options = dynamic_cast<core_options*>(&(machine.ui().options()));
+			m_options[d].options = dynamic_cast<core_options*>(&machine.ui().options());
 		}
 		else
 		{
-			m_options[d].options = dynamic_cast<core_options*>(&(machine.options()));
+			m_options[d].options = dynamic_cast<core_options*>(&machine.options());
 		}
 	}
 }
