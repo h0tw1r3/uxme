@@ -186,7 +186,7 @@ function toolchain(_buildDir, _subDir)
 				premake.gcc.cc   = "@gcc -V 4.2"
 				premake.gcc.cxx  = "@g++-4.2"
 			end
-			premake.gcc.ar  = "ar"
+			premake.gcc.ar  = "gcc-ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-linux")
 		end
 
@@ -198,7 +198,7 @@ function toolchain(_buildDir, _subDir)
 		if "linux-clang" == _OPTIONS["gcc"] then
 			premake.gcc.cc  = "clang"
 			premake.gcc.cxx = "clang++"
-			premake.gcc.ar  = "ar"
+			premake.gcc.ar  = "llvm-ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-linux-clang")
 		end
 
