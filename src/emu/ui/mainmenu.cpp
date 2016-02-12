@@ -219,7 +219,7 @@ void ui_menu_main::handle()
 			break;
 
 		case AUTOFIRE_MENU:
-			ui_menu::stack_push(auto_alloc_clear(machine(), <ui_menu_autofire>(machine(), container)));
+			ui_menu::stack_push(global_alloc_clear<ui_menu_autofire>(machine(), container));
 			break;
 
 		case SETTINGS_DIP_SWITCHES:
