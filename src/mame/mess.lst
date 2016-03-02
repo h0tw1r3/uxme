@@ -2168,6 +2168,9 @@ fexcel
 fexcelv
 
 feagv2
+feagv7
+feagv10
+feagv11
 
 // Hegener & Glaser Munich
 //mephisto  // Mephisto 1 - roms needed - not in driver
@@ -2229,6 +2232,7 @@ ngenb38     // 1991
 
 // hh_cop400
 ctstein     // Castle Toy
+h2hbaskb    // Coleco
 einvaderc   // Entex
 funjacks    // Mattel
 funrlgl     // Mattel
@@ -2283,9 +2287,12 @@ gnwmndon    // Nintendo
 // hh_tms1k
 mathmagi    // APF
 amaztron    // Coleco
+zodiac      // Coleco
+cqback      // Coleco
 h2hbaseb    // Coleco
 h2hfootb    // Coleco
 tc4         // Coleco
+cnfball2    // Conic
 ebball      // Entex
 ebball2     // Entex
 ebball3     // Entex
@@ -2311,6 +2318,7 @@ stopthiep   // Parker Bros (patent)
 bankshot    // Parker Bros
 splitsec    // Parker Bros
 mmerlin     // Parker Bros
+lostreas    // Parker Bros
 tandy12     // Tandy Radio Shack
 tbreakup    // Tomy
 phpball     // Tomy

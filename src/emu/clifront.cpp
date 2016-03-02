@@ -89,7 +89,6 @@ cli_frontend::~cli_frontend()
 	m_options.remove_device_options();
 }
 
-
 //-------------------------------------------------
 //  execute - execute a game via the standard
 //  command line interface
@@ -99,6 +98,8 @@ int cli_frontend::execute(int argc, char **argv)
 {
 	// wrap the core execution in a try/catch to field all fatal errors
 	m_result = MAMERR_NONE;
+	machine_manager *manager = machine_manager::instance(m_options, m_osd);
+
 	try
 	{
 		// first parse options to be able to get software from it
@@ -108,6 +109,11 @@ int cli_frontend::execute(int argc, char **argv)
 		change_working_directory();
 
 		m_options.parse_standard_inis(option_errors);
+
+		//load_translation();
+		load_translation(m_options);
+
+		manager->start_luaengine();
 
 		if (*(m_options.software_name()) != 0)
 		{
@@ -213,9 +219,7 @@ int cli_frontend::execute(int argc, char **argv)
 				throw emu_fatalerror(MAMERR_NO_SUCH_GAME, "Unknown system '%s'", m_options.system_name());
 
 			// otherwise just run the game
-			machine_manager *manager = machine_manager::instance(m_options, m_osd);
 			m_result = manager->execute();
-			global_free(manager);
 		}
 	}
 
@@ -238,7 +242,7 @@ int cli_frontend::execute(int argc, char **argv)
 
 			// print them out
 			osd_printf_error("\n\"%s\" approximately matches the following\n"
-					"supported %s (best match first):\n\n", m_options.system_name(),emulator_info::get_gamesnoun());
+					"supported machines (best match first):\n\n", m_options.system_name());
 			for (auto & matche : matches)
 				if (matche != -1)
 					osd_printf_error("%-18s%s\n", drivlist.driver(matche).name, drivlist.driver(matche).description);
@@ -266,6 +270,7 @@ int cli_frontend::execute(int argc, char **argv)
 	}
 
 	_7z_file_cache_clear();
+	global_free(manager);
 
 	return m_result;
 }
@@ -1590,7 +1595,7 @@ void cli_frontend::execute_commands(const char *exename)
 	// showusage?
 	if (strcmp(m_options.command(), CLICOMMAND_SHOWUSAGE) == 0)
 	{
-		emulator_info::printf_usage(exename, emulator_info::get_gamenoun());
+		osd_printf_info("Usage:  %s [machine] [media] [software] [options]",exename);
 		osd_printf_info("\n\nOptions:\n%s", m_options.output_help().c_str());
 		return;
 	}
@@ -1698,8 +1703,10 @@ void cli_frontend::execute_commands(const char *exename)
 void cli_frontend::display_help()
 {
 	osd_printf_info("%s v%s\n%s\n\n", emulator_info::get_appname(),build_version,emulator_info::get_copyright_info());
-	osd_printf_info("%s\n", emulator_info::get_disclaimer());
-	emulator_info::printf_usage(emulator_info::get_appname(),emulator_info::get_gamenoun());
+	osd_printf_info("This software reproduces, more or less faithfully, the behaviour of a wide range\n"
+					"of machines. But hardware is useless without software, so images of the ROMs and\n"
+					"other media which run on that hardware are also required.\n\n");
+	osd_printf_info("Usage:  %s [machine] [media] [software] [options]",emulator_info::get_appname());
 	osd_printf_info("\n\n"
 			"        %s -showusage    for a brief list of options\n"
 			"        %s -showconfig   for a list of configuration options\n"

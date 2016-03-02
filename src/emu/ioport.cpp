@@ -1906,7 +1906,7 @@ void ioport_field::frame_update(ioport_value &result, bool mouse_down)
 
 	// if the state changed, look for switch down/switch up
 	bool curstate = mouse_down || machine().input().seq_pressed(seq()) || m_digital_value;
-	if ((m_live->autofire & 1) && (machine().ioport().get_autofire_toggle() == 0))
+	if (m_live->autofire && !machine().ioport().get_autofire_toggle())
 	{
 		if (curstate)
 		{
@@ -1914,7 +1914,6 @@ void ioport_field::frame_update(ioport_value &result, bool mouse_down)
 				m_live->autopressed = 0;
 			else if (m_live->autopressed > machine().ioport().get_autofire_delay() / 2)
 				curstate = false;
-
 			m_live->autopressed++;
 		}
 		else
@@ -2173,7 +2172,7 @@ ioport_field_live::ioport_field_live(ioport_field &field, analog_field *analog)
 		last(0),
 		toggle(field.toggle()),
 		joydir(digital_joystick::JOYDIR_COUNT),
-		autofire(0),
+		autofire(false),
 		autopressed(0)
 {
 	// fill in the basic values
@@ -2478,12 +2477,11 @@ ioport_manager::ioport_manager(running_machine &machine)
 		m_has_configs(false),
 		m_has_analog(false),
 		m_has_dips(false),
-		m_has_bioses(false)
+		m_has_bioses(false),
+		m_autofire_toggle(false),
+		m_autofire_delay(3)                 // 1 seems too fast for a bunch of games
 {
 	memset(m_type_to_entry, 0, sizeof(m_type_to_entry));
-
-	m_autofire_toggle = 0;
-	m_autofire_delay = 3;
 }
 
 
@@ -3426,7 +3424,7 @@ time_t ioport_manager::playback_init()
 
 	// verify the header against the current game
 	if (memcmp(machine().system().name, header + 0x14, strlen(machine().system().name) + 1) != 0)
-		osd_printf_info("Input file is for %s '%s', not for current %s '%s'\n", emulator_info::get_gamenoun(), header + 0x14, emulator_info::get_gamenoun(), machine().system().name);
+		osd_printf_info("Input file is for machine '%s', not for current machine '%s'\n", header + 0x14, machine().system().name);
 
 	// enable compression
 	m_playback_file.compress(FCOMPRESS_MEDIUM);
@@ -3557,8 +3555,8 @@ void ioport_manager::timecode_write(_Type value)
 /*template<>
 void ioport_manager::timecode_write<bool>(bool value)
 {
-	UINT8 byte = UINT8(value);
-	timecode_write(byte);
+    UINT8 byte = UINT8(value);
+    timecode_write(byte);
 }*/
 template<>
 void ioport_manager::timecode_write<std::string>(std::string value) {

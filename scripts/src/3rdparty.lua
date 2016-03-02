@@ -403,6 +403,8 @@ end
 	configuration { }
 		defines {
 			"LUA_COMPAT_ALL",
+			"LUA_COMPAT_5_1",
+			"LUA_COMPAT_5_2",
 		}
 	if not (_OPTIONS["targetos"]=="windows") and not (_OPTIONS["targetos"]=="asmjs") then
 		defines {
@@ -463,20 +465,19 @@ links {
 end
 
 --------------------------------------------------
--- sqlite3 lua library objects
+-- small lua library objects
 --------------------------------------------------
 
-project "lsqlite3"
+project "lualibs"
 	uuid "1d84edab-94cf-48fb-83ee-b75bc697660e"
 	kind "StaticLib"
-
-	-- options {
-	--	"ForceCPP",
-	-- }
 
 	configuration { "vs*" }
 		buildoptions {
 			"/wd4244", -- warning C4244: 'argument' : conversion from 'xxx' to 'xxx', possible loss of data
+			"/wd4055", -- warning C4055: 'type cast': from data pointer 'void *' to function pointer 'xxx'
+			"/wd4152", -- warning C4152: nonstandard extension, function/data pointer conversion in expression
+			"/wd4130", -- warning C4130: '==': logical operation on address of string constant
 		}
 
 	configuration { }
@@ -492,9 +493,69 @@ project "lsqlite3"
 			MAME_DIR .. "3rdparty/lua/src",
 		}
 	end
+	if _OPTIONS["with-bundled-zlib"] then
+		includedirs {
+			MAME_DIR .. "3rdparty/zlib",
+		}
+	end	
 
 	files {
 		MAME_DIR .. "3rdparty/lsqlite3/lsqlite3.c",
+		MAME_DIR .. "3rdparty/lua-zlib/lua_zlib.c",
+		MAME_DIR .. "3rdparty/luafilesystem/src/lfs.c",
+	}
+
+--------------------------------------------------
+-- luv lua library objects
+--------------------------------------------------
+
+project "luv"
+	uuid "d98ec5ca-da2a-4a50-88a2-52061ca53871"
+	kind "StaticLib"
+
+	if _OPTIONS["targetos"]=="windows" then
+		defines {
+			"_WIN32_WINNT=0x0600",
+		}
+	end
+	configuration { "vs*" }
+		buildoptions {
+			"/wd4244", -- warning C4244: 'argument' : conversion from 'xxx' to 'xxx', possible loss of data
+		}
+
+	configuration { "gmake" }
+		buildoptions_c {
+			"-Wno-unused-function",
+			"-Wno-strict-prototypes",
+			"-Wno-unused-variable",
+			"-Wno-maybe-uninitialized",
+			"-Wno-undef",
+		}
+
+	configuration { "vs2015" }
+		buildoptions {
+			"/wd4701", -- warning C4701: potentially uninitialized local variable 'xxx' used
+			"/wd4703", -- warning C4703: potentially uninitialized local pointer variable 'xxx' used
+		}
+
+	configuration { }
+		defines {
+			"LUA_COMPAT_ALL",
+		}
+
+	includedirs {
+		MAME_DIR .. "3rdparty/lua/src",
+		MAME_DIR .. "3rdparty/libuv/include",
+	}
+	if _OPTIONS["with-bundled-lua"] then
+		includedirs {
+			MAME_DIR .. "3rdparty/luv/deps/lua/src",
+		}
+	end
+
+	files {
+		MAME_DIR .. "3rdparty/luv/src/luv.c",
+		MAME_DIR .. "3rdparty/luv/src/luv.h",
 	}
 
 --------------------------------------------------
@@ -644,7 +705,6 @@ end
 -- BGFX library objects
 --------------------------------------------------
 
-if (USE_BGFX == 1) then
 project "bgfx"
 	uuid "d3e7e119-35cf-4f4f-aba0-d3bdcd1b879a"
 	kind "StaticLib"
@@ -669,9 +729,13 @@ end
 		MAME_DIR .. "3rdparty/bgfx/include",
 		MAME_DIR .. "3rdparty/bgfx/3rdparty",
 		MAME_DIR .. "3rdparty/bx/include",
-		MAME_DIR .. "3rdparty/bgfx/3rdparty/khronos",
 		MAME_DIR .. "3rdparty/bgfx/3rdparty/dxsdk/include",
 	}
+
+	configuration { "not steamlink"}
+		includedirs {
+			MAME_DIR .. "3rdparty/bgfx/3rdparty/khronos",
+		}
 
 	configuration { "vs*" }
 		includedirs {
@@ -682,7 +746,7 @@ end
 			MAME_DIR .. "3rdparty/bx/include/compat/mingw",
 		}
 
-	configuration { "osx*" }
+	configuration { "osx* or xcode4" }
 		includedirs {
 			MAME_DIR .. "3rdparty/bx/include/compat/osx",
 		}
@@ -768,7 +832,6 @@ end
 			MAME_DIR .. "3rdparty/bgfx/src/renderer_mtl.mm",
 		}
 	end
-end
 
 --------------------------------------------------
 -- PortAudio library objects

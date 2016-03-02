@@ -16,6 +16,7 @@
 #include "options.h"
 
 // core directory options
+#define OPTION_HISTORY_PATH           "historypath"
 #define OPTION_EXTRAINI_PATH          "extrainipath"
 #define OPTION_CABINETS_PATH          "cabinets_directory"
 #define OPTION_CPANELS_PATH           "cpanels_directory"
@@ -69,9 +70,6 @@
 #define OPTION_UI_DIPSW_COLOR         "ui_dipsw_color"
 #define OPTION_UI_SLIDER_COLOR        "ui_slider_color"
 
-#define OPTION_UI_FONT                "uifont"
-#define OPTION_UI_CONFIRM_QUIT        "confirm_quit"
-#define OPTION_UI_MOUSE               "ui_mouse"
 #define OPTION_UI_SKIP_GAMEINFO       "skip_gameinfo"
 #define OPTION_UI_SKIP_DISCLAIMER     "skip_disclaimer"
 #define OPTION_UI_SKIP_WARNINGS       "skip_warnings"
@@ -86,6 +84,7 @@ public:
 	ui_options();
 
 	// Search path options
+	const char *history_path() const { return value(OPTION_HISTORY_PATH); }
 	const char *extraini_path() const { return value(OPTION_EXTRAINI_PATH); }
 	const char *cabinets_directory() const { return value(OPTION_CABINETS_PATH); }
 	const char *cpanels_directory() const { return value(OPTION_CPANELS_PATH); }
@@ -144,9 +143,6 @@ public:
 	bool skip_warnings() const { return bool_value(OPTION_UI_SKIP_WARNINGS); }
 	bool skip_loading() const { return bool_value(OPTION_UI_SKIP_LOADING); }
 	bool render_border() const { return bool_value(OPTION_UI_RENDER_BORDER); }
-	const char *ui_font() const { return value(OPTION_UI_FONT); }
-	bool confirm_quit() const { return bool_value(OPTION_UI_CONFIRM_QUIT); }
-	bool ui_mouse() const { return bool_value(OPTION_UI_MOUSE); }
 private:
 	static const options_entry s_option_entries[];
 };

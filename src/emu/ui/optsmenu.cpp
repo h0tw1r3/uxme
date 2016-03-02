@@ -133,8 +133,8 @@ void ui_menu_game_options::handle()
 	bool changed = false;
 
 	// process the menu
-//	ui_menu::menu_stack->parent->process(UI_MENU_PROCESS_NOINPUT);
-//	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | UI_MENU_PROCESS_NOIMAGE);
+//  ui_menu::menu_stack->parent->process(UI_MENU_PROCESS_NOINPUT);
+//  const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | UI_MENU_PROCESS_NOIMAGE);
 	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT);
 
 	if (m_event != nullptr && m_event->itemref != nullptr)
@@ -293,14 +293,14 @@ void ui_menu_game_options::handle()
 
 void ui_menu_game_options::populate()
 {
-	if (strcmp(machine().options().ui(),"simple")!=0) 
-	{	
+	if (strcmp(machine().options().ui(),"simple")!=0)
+	{
 		// set filter arrow
 		std::string fbuff;
 
 		// add filter item
 		UINT32 arrow_flags = get_arrow_flags((int)FILTER_FIRST, (int)FILTER_LAST, main_filters::actual);
-		item_append("Filter", main_filters::text[main_filters::actual], arrow_flags, (void *)(FPTR)FILTER_MENU);
+		item_append(_("Filter"), main_filters::text[main_filters::actual], arrow_flags, (void *)(FPTR)FILTER_MENU);
 
 		// add category subitem
 		if (main_filters::actual == FILTER_CATEGORY && !machine().inifile().ini_index.empty())
@@ -345,18 +345,18 @@ void ui_menu_game_options::populate()
 		item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 
 		// add options items
-		item_append("Customize UI", nullptr, 0, (void *)(FPTR)CUSTOM_MENU);
+		item_append(_("Customize UI"), nullptr, 0, (void *)(FPTR)CUSTOM_MENU);
 	}
-	item_append("Display Options", nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
-	item_append("Sound Options", nullptr, 0, (void *)(FPTR)SOUND_MENU);
+	item_append(_("Display Options"), nullptr, 0, (void *)(FPTR)DISPLAY_MENU);
+	item_append(_("Sound Options"), nullptr, 0, (void *)(FPTR)SOUND_MENU);
 	item_append(misc_submenu_options[0].description,    nullptr, 0, (void *)(FPTR)MISC_SUBMENU);
 	item_append(rotate_submenu_options[0].description,  nullptr, 0, (void *)(FPTR)ROTATE_SUBMENU);
 	item_append(artwork_submenu_options[0].description, nullptr, 0, (void *)(FPTR)ARTWORK_SUBMENU);
 	item_append(input_submenu_options[0].description,   nullptr, 0, (void *)(FPTR)INPUT_SUBMENU);
 	item_append(perf_submenu_options[0].description,    nullptr, 0, (void *)(FPTR)PERF_SUBMENU);
 	item_append(state_submenu_options[0].description,   nullptr, 0, (void *)(FPTR)STATE_SUBMENU);
-	item_append("Device Mapping", nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
-	item_append("General Inputs", nullptr, 0, (void *)(FPTR)CGI_MENU);
+	item_append(_("Device Mapping"), nullptr, 0, (void *)(FPTR)CONTROLLER_MENU);
+	item_append(_("General Inputs"), nullptr, 0, (void *)(FPTR)CGI_MENU);
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 
 	custombottom = 2.0f * machine().ui().get_line_height() + 3.0f * UI_BOX_TB_BORDER;
@@ -371,8 +371,8 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 {
 	float width;
 	ui_manager &mui = machine().ui();
-	mui.draw_text_full(container, "Settings", 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
-	                              DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
+	mui.draw_text_full(container, _("Settings"), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+									DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
 	width += 2 * UI_BOX_LR_BORDER;
 	float maxwidth = MAX(origx2 - origx1, width);
 
@@ -391,8 +391,8 @@ void ui_menu_game_options::custom_render(void *selectedref, float top, float bot
 	y1 += UI_BOX_TB_BORDER;
 
 	// draw the text within it
-	mui.draw_text_full(container, "Settings", x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
-	                              DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
+	mui.draw_text_full(container, _("Settings"), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+									DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 }
 
 //-------------------------------------------------
@@ -411,5 +411,5 @@ void save_ui_options(running_machine &machine)
 		file.close();
 	}
 	else
-		machine.popmessage("**Error to save ui.ini**", emulator_info::get_configname());
+		machine.popmessage(_("**Error to save ui.ini**"));
 }

@@ -4,17 +4,10 @@
 --
 
 local naclToolchain = ""
-local mingwToolchain = ""
-local osxToolchain = ""
+local toolchainPrefix = ""
 
-if _OPTIONS['CROSS_PREFIX'] then
-	mingwToolchain = _OPTIONS["CROSS_PREFIX"]
-else
-	mingwToolchain = "$(MINGW64)/bin/i686-w64-mingw32-"
-end
-
-if _OPTIONS['CROSS_PREFIX'] then
-	osxToolchain = _OPTIONS["CROSS_PREFIX"]
+if _OPTIONS['TOOLCHAIN'] then
+	toolchainPrefix = _OPTIONS["TOOLCHAIN"]
 end
 
 newoption {
@@ -186,7 +179,7 @@ function toolchain(_buildDir, _subDir)
 				premake.gcc.cc   = "@gcc -V 4.2"
 				premake.gcc.cxx  = "@g++-4.2"
 			end
-			premake.gcc.ar  = "gcc-ar"
+			premake.gcc.ar  = "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-linux")
 		end
 
@@ -198,7 +191,7 @@ function toolchain(_buildDir, _subDir)
 		if "linux-clang" == _OPTIONS["gcc"] then
 			premake.gcc.cc  = "clang"
 			premake.gcc.cxx = "clang++"
-			premake.gcc.ar  = "llvm-ar"
+			premake.gcc.ar  = "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-linux-clang")
 		end
 
@@ -215,16 +208,19 @@ function toolchain(_buildDir, _subDir)
 		if "mingw32-gcc" == _OPTIONS["gcc"] then
 			if not os.getenv("MINGW32") then
 				print("Set MINGW32 envrionment variable.")
-			end		
+			end
+			if not toolchainPrefix then
+				toolchainPrefix = "$(MINGW32)/bin/i686-w64-mingw32-"
+			end
+			premake.gcc.cc  = toolchainPrefix .. "gcc"
+			premake.gcc.cxx = toolchainPrefix .. "g++"
 -- work around GCC 4.9.2 not having proper linker for LTO=1 usage
 			local version_4_ar = str_to_version(_OPTIONS["gcc_version"])
-			premake.gcc.cc  = mingwToolchain .. "gcc"
-			premake.gcc.cxx = mingwToolchain .. "g++"
 			if (version_4_ar < 50000) then
-				premake.gcc.ar  = mingwToolchain .. "ar"
+				premake.gcc.ar  = toolchainPrefix .. "ar"
 			end
 			if (version_4_ar >= 50000) then
-				premake.gcc.ar  = mingwToolchain .. "gcc-ar"
+				premake.gcc.ar  = toolchainPrefix .. "gcc-ar"
 			end
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw32-gcc")
 		end
@@ -232,16 +228,19 @@ function toolchain(_buildDir, _subDir)
 		if "mingw64-gcc" == _OPTIONS["gcc"] then
 			if not os.getenv("MINGW64") then
 				print("Set MINGW64 envrionment variable.")
-			end				
+			end
+			if not toolchainPrefix then
+				toolchainPrefix = "$(MINGW64)/bin/x86_64-w64-mingw32-"
+			end
+			premake.gcc.cc  = toolchainPrefix .. "gcc"
+			premake.gcc.cxx = toolchainPrefix .. "g++"
 -- work around GCC 4.9.2 not having proper linker for LTO=1 usage
 			local version_4_ar = str_to_version(_OPTIONS["gcc_version"])
-			premake.gcc.cc  = mingwToolchain .. "gcc"
-			premake.gcc.cxx = mingwToolchain .. "g++"
 			if (version_4_ar < 50000) then
-				premake.gcc.ar  = mingwToolchain .. "ar"
+				premake.gcc.ar  = toolchainPrefix .. "ar"
 			end
 			if (version_4_ar >= 50000) then
-				premake.gcc.ar  = mingwToolchain .. "gcc-ar"
+				premake.gcc.ar  = toolchainPrefix .. "gcc-ar"
 			end
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-mingw64-gcc")
 		end
@@ -294,17 +293,17 @@ function toolchain(_buildDir, _subDir)
 
 		if "osx" == _OPTIONS["gcc"] then
 			if os.is("linux") then
-				premake.gcc.cc  = osxToolchain .. "clang"
-				premake.gcc.cxx = osxToolchain .. "clang++"
-				premake.gcc.ar  = osxToolchain .. "ar"
+				premake.gcc.cc  = toolchainPrefix .. "clang"
+				premake.gcc.cxx = toolchainPrefix .. "clang++"
+				premake.gcc.ar  = toolchainPrefix .. "ar"
 			end
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-osx")
 		end
 
 		if "osx-clang" == _OPTIONS["gcc"] then
-			premake.gcc.cc  = osxToolchain .. "clang"
-			premake.gcc.cxx = osxToolchain .. "clang++"
-			premake.gcc.ar  = osxToolchain .. "ar"
+			premake.gcc.cc  = toolchainPrefix .. "clang"
+			premake.gcc.cxx = toolchainPrefix .. "clang++"
+			premake.gcc.ar  = toolchainPrefix .. "ar"
 			location (_buildDir .. "projects/" .. _subDir .. "/".. _ACTION .. "-osx-clang")
 		end
 
@@ -506,7 +505,9 @@ function toolchain(_buildDir, _subDir)
 
 	configuration { "steamlink" }
 		objdir ( _buildDir .. "steamlink/obj")
-
+		defines {
+			"__STEAMLINK__=1", -- There is no special prefedined compiler symbol to detect SteamLink, faking it.
+		}
 		buildoptions {
 			"-marm",
 			"-mfloat-abi=hard",
@@ -919,11 +920,14 @@ function toolchain(_buildDir, _subDir)
 end
 
 function strip()
-	if (_OPTIONS["STRIP_SYMBOLS"]=="1") then
+	if _OPTIONS["STRIP_SYMBOLS"]~="1" then
+		return true
+	end
+
 	configuration { "osx-*", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and osxToolchain) .. "strip \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['TOOLCHAIN'] and toolchainPrefix) .. "strip \"$(TARGET)\"",
 		}
 
 	configuration { "android-arm", "Release" }
@@ -953,12 +957,12 @@ function strip()
 	configuration { "mingw*", "x64", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW64)/bin/") .. "strip -s \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['TOOLCHAIN'] and toolchainPrefix or "$(MINGW64)/bin/") .. "strip -s \"$(TARGET)\"",
 		}
 	configuration { "mingw*", "x32", "Release" }
 		postbuildcommands {
 			"$(SILENT) echo Stripping symbols.",
-			"$(SILENT) " .. (_OPTIONS['CROSS_PREFIX'] and mingwToolchain or "$(MINGW32)/bin/") .. "strip -s \"$(TARGET)\"",
+			"$(SILENT) " .. (_OPTIONS['TOOLCHAIN'] and toolchainPrefix or "$(MINGW32)/bin/") .. "strip -s \"$(TARGET)\"",
 		}
 
 	configuration { "pnacl" }
@@ -987,6 +991,5 @@ function strip()
 		}
 
 	configuration {} -- reset configuration
-	end
 end
 

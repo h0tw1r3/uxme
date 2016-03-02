@@ -57,6 +57,13 @@ files {
 	MAME_DIR .. "src/tools/romcmp.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- chdman
 --------------------------------------------------
@@ -118,6 +125,13 @@ files {
 	MAME_DIR .. "src/version.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- jedutil
 --------------------------------------------------
@@ -165,6 +179,13 @@ includedirs {
 files {
 	MAME_DIR .. "src/tools/jedutil.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- unidasm
@@ -229,6 +250,12 @@ files {
 	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- ldresample
@@ -290,6 +317,13 @@ files {
 	MAME_DIR .. "src/tools/ldresample.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- ldverify
 --------------------------------------------------
@@ -350,6 +384,13 @@ files {
 	MAME_DIR .. "src/tools/ldverify.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- regrep
 --------------------------------------------------
@@ -397,6 +438,13 @@ includedirs {
 files {
 	MAME_DIR .. "src/tools/regrep.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- srcclean
@@ -446,6 +494,13 @@ files {
 	MAME_DIR .. "src/tools/srcclean.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- src2html
 --------------------------------------------------
@@ -493,6 +548,13 @@ includedirs {
 files {
 	MAME_DIR .. "src/tools/src2html.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- split
@@ -553,6 +615,13 @@ files {
 	MAME_DIR .. "src/tools/split.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- pngcmp
 --------------------------------------------------
@@ -600,6 +669,13 @@ includedirs {
 files {
 	MAME_DIR .. "src/tools/pngcmp.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- nltool
@@ -662,6 +738,13 @@ files {
 	MAME_DIR .. "src/lib/netlist/prg/nltool.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- nlwav
 --------------------------------------------------
@@ -700,6 +783,13 @@ includedirs {
 files {
   MAME_DIR .. "src/lib/netlist/prg/nlwav.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- castool
@@ -762,6 +852,13 @@ files {
 	MAME_DIR .. "src/tools/castool.cpp",
 }
 
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
+
 --------------------------------------------------
 -- floptool
 --------------------------------------------------
@@ -823,6 +920,13 @@ includedirs {
 files {
 	MAME_DIR .. "src/tools/floptool.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()
 
 --------------------------------------------------
 -- imgtool
@@ -934,3 +1038,10 @@ files {
 	MAME_DIR .. "src/tools/imgtool/modules/bml3.cpp",
 	MAME_DIR .. "src/tools/imgtool/modules/hp48.cpp",
 }
+
+configuration { "mingw*" or "vs*" }
+	targetextension ".exe"
+
+configuration { }
+
+strip()

@@ -23,8 +23,6 @@
 # BENCHMARKS = 1
 # OSD = sdl
 
-# USE_BGFX = 1
-# NO_OPENGL = 1
 # USE_DISPATCH_GL = 0
 # MODERN_WIN_API = 0
 # USE_XAUDIO2 = 0
@@ -68,14 +66,13 @@
 # MESA_INSTALL_ROOT = /opt/mesa
 # SDL_INSTALL_ROOT = /opt/sdl2
 # SDL_FRAMEWORK_PATH = $(HOME)/Library/Frameworks
-# SDL_LIBVER = sdl
 # USE_LIBSDL = 1
 # CYGWIN_BUILD = 1
 
 # BUILDDIR = build
 # TARGETOS = windows
 # CROSS_BUILD = 1
-# CROSS_PREFIX = 
+# TOOLCHAIN =
 # OVERRIDE_CC = cc
 # OVERRIDE_CXX = c++
 # OVERRIDE_LD = ld
@@ -263,7 +260,6 @@ ARCHITECTURE := _x86
 endif
 endif
 
-ifndef CROSS_PREFIX
 ifeq ($(OS),windows)
 ifeq ($(ARCHITECTURE),_x64)
 WINDRES  := $(MINGW64)/bin/windres
@@ -272,16 +268,9 @@ WINDRES  := $(MINGW32)/bin/windres
 endif
 else
 ifeq ($(ARCHITECTURE),_x64)
-WINDRES  := x86_64-w64-mingw32-windres
+WINDRES  := $(word 1,$(TOOLCHAIN) x86_64-w64-mingw32-)windres
 else
-WINDRES  := i686-w64-mingw32-windres
-endif
-endif
-else
-ifeq ($(ARCHITECTURE),_x64)
-WINDRES  := $(MINGW64)/bin/$(CROSS_PREFIX)windres
-else
-WINDRES  := $(MINGW32)/bin/$(CROSS_PREFIX)windres
+WINDRES  := $(word 1,$(TOOLCHAIN) i686-w64-mingw32-)windres
 endif
 endif
 
@@ -320,6 +309,7 @@ PYTHON := $(PYTHON_EXECUTABLE)
 endif
 CC := $(SILENT)gcc
 LD := $(SILENT)g++
+CXX:= $(SILENT)g++
 
 #-------------------------------------------------
 # specify OSD layer: windows, sdl, etc.
@@ -415,8 +405,8 @@ endif
 
 PARAMS+= --distro=$(DISTRO)
 
-ifdef CROSS_PREFIX
-PARAMS += --CROSS_PREFIX='$(CROSS_PREFIX)'
+ifdef TOOLCHAIN
+PARAMS += --TOOLCHAIN='$(TOOLCHAIN)'
 endif
 ifdef OVERRIDE_CC
 PARAMS += --CC='$(OVERRIDE_CC)'
@@ -568,10 +558,6 @@ endif
 
 ifdef DONT_USE_NETWORK
 PARAMS += --DONT_USE_NETWORK='$(DONT_USE_NETWORK)'
-endif
-
-ifdef NO_OPENGL
-PARAMS += --NO_OPENGL='$(NO_OPENGL)'
 endif
 
 ifdef USE_DISPATCH_GL
@@ -788,12 +774,12 @@ endif
 
 ifeq ($(OS),windows)
 ifeq (posix,$(SHELLTYPE))
-GCC_VERSION      := $(shell $(subst @,,$(CC)) -dumpversion 2> /dev/null)
-CLANG_VERSION    := $(shell $(subst @,,$(CC)) --version 2> /dev/null| head -n 1 | grep clang | sed "s/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\).*$$/\1/" | head -n 1)
+GCC_VERSION      := $(shell $(TOOLCHAIN)$(subst @,,$(CC)) -dumpversion 2> /dev/null)
+CLANG_VERSION    := $(shell $(TOOLCHAIN)$(subst @,,$(CC)) --version 2> /dev/null| head -n 1 | grep clang | sed "s/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\).*$$/\1/" | head -n 1)
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > /dev/null 2>&1 && echo python)
 else
-GCC_VERSION      := $(shell $(subst @,,$(CC)) -dumpversion 2> NUL)
-CLANG_VERSION    := $(shell $(subst @,,$(CC)) --version 2> NUL| head -n 1 | grep clang | sed "s/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\).*$$/\1/" | head -n 1)
+GCC_VERSION      := $(shell $(TOOLCHAIN)$(subst @,,$(CC)) -dumpversion 2> NUL)
+CLANG_VERSION    := $(shell $(TOOLCHAIN)$(subst @,,$(CC)) --version 2> NUL| head -n 1 | grep clang | sed "s/^.*[^0-9]\([0-9]*\.[0-9]*\.[0-9]*\).*$$/\1/" | head -n 1)
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > NUL 2>&1 && echo python)
 endif
 ifdef MSBUILD
@@ -810,9 +796,9 @@ MSBUILD_PARAMS += /p:Platform=win32
 endif
 endif
 else
-GCC_VERSION      ?= $(shell $(subst @,,$(CROSS_PREFIX)$(CC)) -dumpversion 2> /dev/null)
+GCC_VERSION      := $(shell $(TOOLCHAIN)$(subst @,,$(CC)) -dumpversion 2> /dev/null)
 ifneq ($(OS),solaris)
-CLANG_VERSION    ?= $(shell $(subst @,,$(CC))  --version  2> /dev/null | head -n 1 | grep -e 'version [0-9]\.[0-9]\(\.[0-9]\)\?' -o | grep -e '[0-9]\.[0-9]\(\.[0-9]\)\?' -o | tail -n 1)
+CLANG_VERSION    := $(shell $(TOOLCHAIN)$(subst @,,$(CC))  --version  2> /dev/null | head -n 1 | grep -e 'version [0-9]\.[0-9]\(\.[0-9]\)\?' -o | grep -e '[0-9]\.[0-9]\(\.[0-9]\)\?' -o | tail -n 1)
 endif
 PYTHON_AVAILABLE := $(shell $(PYTHON) --version > /dev/null 2>&1 && echo python)
 endif
@@ -1207,7 +1193,7 @@ endif
 ifndef MARVELL_ROOTFS
 	$(error MARVELL_ROOTFS is not set)
 endif
-	$(SILENT) $(GENIE) $(PARAMS) --gcc=steamlink --gcc_version=$(GCC_VERSION) --USE_BGFX=0 --NO_OPENGL=1 --NO_USE_MIDI=1 --NO_X11=1 --NOASM=1 --SDL_INSTALL_ROOT=$(MARVELL_ROOTFS)/usr  gmake 
+	$(SILENT) $(GENIE) $(PARAMS) --gcc=steamlink --gcc_version=$(GCC_VERSION) --NO_OPENGL=1 --NO_USE_MIDI=1 --NO_X11=1 --NOASM=1 --SDL_INSTALL_ROOT=$(MARVELL_ROOTFS)/usr  gmake  
 
 .PHONY: steamlink
 ifndef MARVELL_SDK_PATH
@@ -1258,6 +1244,7 @@ clean: genieclean
 
 GEN_FOLDERS := $(GENDIR)/$(TARGET)/layout/ $(GENDIR)/$(TARGET)/$(SUBTARGET)/
 
+rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 LAYOUTS=$(wildcard $(SRC)/$(TARGET)/layout/*.lay)
 
 ifneq (,$(wildcard src/osd/$(OSD)/$(OSD).mak))
@@ -1276,6 +1263,7 @@ genie: $(GENIE)
 generate: \
 		genie \
 		$(GEN_FOLDERS) \
+		$(patsubst %.po,%.mo,$(call rwildcard, language/, *.po)) \
 		$(patsubst $(SRC)/%.lay,$(GENDIR)/%.lh,$(LAYOUTS)) \
 		$(SRC)/devices/cpu/m68000/m68kops.cpp
 
@@ -1289,6 +1277,10 @@ ifeq ($(TARGETOS),asmjs)
 else
 	$(SILENT) $(MAKE) -C $(SRC)/devices/cpu/m68000 CC="$(CC)" CXX="$(CXX)"
 endif
+
+%.mo: %.po
+	@echo Converting translation $<...
+	$(SILENT)$(PYTHON) scripts/build/msgfmt.py --output-file $@ $<
 
 #-------------------------------------------------
 # Regression tests
@@ -1388,3 +1380,11 @@ cppcheck:
 
 shaders:
 	$(SILENT) $(MAKE) -C $(SRC)/osd/modules/render/bgfx rebuild
+	
+.PHONY: translation
+
+translation:
+	$(SILENT) echo Generating mame.pot
+	$(SILENT) find src -iname "*.cpp" | xargs xgettext --from-code=UTF-8 -k_ -k__ -o mame.pot
+	$(SILENT) find language -iname "*.po" | xargs -n 1 -I %% msgmerge -U %% mame.pot 
+

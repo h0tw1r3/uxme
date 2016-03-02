@@ -14,11 +14,12 @@
 #include "luabridge/Source/LuaBridge/LuaBridge.h"
 #include <signal.h>
 #include "emu.h"
+#include "cheat.h"
 #include "drivenum.h"
 #include "ui/ui.h"
-#include "cheat.h"
 #include "luaengine.h"
 #include <mutex>
+#include "libuv/include/uv.h"
 
 //**************************************************************************
 //  LUA ENGINE
@@ -42,10 +43,15 @@ static lua_State *globalL = nullptr;
 #define luai_writestring(s,l)   fwrite((s), sizeof(char), (l), stdout)
 #define luai_writeline()    (luai_writestring("\n", 1), fflush(stdout))
 
+const char *const lua_engine::tname_ioport = "lua.ioport";
 lua_engine* lua_engine::luaThis = nullptr;
 
 extern "C" {
 	int luaopen_lsqlite3(lua_State *L);
+	int luaopen_zlib(lua_State *L);
+	int luaopen_luv(lua_State *L);
+	int luaopen_lfs(lua_State *L);
+	uv_loop_t* luv_loop(lua_State* L);
 }
 
 static void lstop(lua_State *L, lua_Debug *ar)
@@ -194,6 +200,14 @@ void lua_engine::resume(lua_State *L, int nparam, lua_State *root)
 void lua_engine::resume(void *_L, INT32 param)
 {
 	resume(static_cast<lua_State *>(_L));
+}
+
+int lua_engine::l_ioport_write(lua_State *L)
+{
+	ioport_field *field = static_cast<ioport_field *>(getparam(L, 1, tname_ioport));
+	luaL_argcheck(L, lua_isnumber(L, 2), 2, "value expected");
+	field->set_value(lua_tointeger(L, 2));
+	return 0;
 }
 
 //-------------------------------------------------
@@ -355,116 +369,41 @@ void lua_engine::emu_set_hook(lua_State *L)
 		}
 	} else if (strcmp(hookname, "frame") == 0) {
 		hook_frame_cb.set(L, 1);
-	} else if (strcmp(hookname, "start") == 0) {
-		hook_start_cb.set(L, 1);
-	} else if (strcmp(hookname, "exit") == 0) {
-		hook_exit_cb.set(L, 1);
-	} else if (strcmp(hookname, "pause") == 0) {
-		hook_pause_cb.set(L, 1);
-	} else if (strcmp(hookname, "resume") == 0) {
-		hook_resume_cb.set(L, 1);
 	} else {
 		lua_writestringerror("%s", "Unknown hook name, aborting.\n");
 	}
 }
 
 //-------------------------------------------------
-//  begin_recording - start saving avi
-//  -> manager:machine():video():begin_recording()
+//  options_entry - return table of option entries
+//  -> manager:options().entries
+//  -> manager:machine():options().entries
+//  -> manager:machine():ui():options().entries
 //-------------------------------------------------
-int lua_engine::lua_video::l_begin_recording(lua_State *L)
-{
-	const char *name = NULL;
-	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
-	if(!vm) {
-		return 0;
-	}
-	luaL_argcheck(L, lua_isstring(L, 2) || lua_isnone(L, 2), 2, "optional argument: filename, string expected");
-	if (!lua_isnone(L, 2)) {
-		name = lua_tostring(L, 2);
-	}
-	vm->begin_recording(name, video_manager::MF_AVI);
-	return 1;
-}
 
-//-------------------------------------------------
-//  end_recording - stop saving avi
-//  -> manager:machine():video():end_recording()
-//-------------------------------------------------
-int lua_engine::lua_video::l_end_recording(lua_State *L)
+template <typename T>
+luabridge::LuaRef lua_engine::l_options_get_entries(const T *o)
 {
-	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
-	if(!vm) {
-		return 0;
-	}
-	vm->end_recording(video_manager::MF_AVI);
-	return 1;
-}
-
-// machine_options - return table options
-// -> manager:machine().options[]
-luabridge::LuaRef lua_engine::l_machine_get_option(const running_machine *r)
-{
+	T *options = const_cast<T *>(o);
 	lua_State *L = luaThis->m_lua_state;
-	luabridge::LuaRef options_table = luabridge::LuaRef::newTable(L);
+	luabridge::LuaRef entries_table = luabridge::LuaRef::newTable(L);
 
 	int unadorned_index = 0;
-	for (emu_options::entry *curentry = r->options().first(); curentry != NULL; curentry = curentry->next())
+	for (typename T::entry *curentry = options->first(); curentry != nullptr; curentry = curentry->next())
 	{
 		const char *name = curentry->name();
 		bool is_unadorned = false;
-
 		// check if it's unadorned
-		if (name && strlen(name) && !strcmp(name, core_options::unadorned(unadorned_index)))
+		if (name && strlen(name) && !strcmp(name, options->unadorned(unadorned_index)))
 		{
 			unadorned_index++;
 			is_unadorned = true;
 		}
-
 		if (!curentry->is_header() && !curentry->is_command() && !curentry->is_internal() && !is_unadorned)
-		{
-			options_table[name] = curentry;
-		}
+			entries_table[name] = curentry;
 	}
 
-	return options_table;
-}
-
-//
-// machine_get_cheats - return table of cheats
-// -> manager:machine().cheats[0]
-//
-luabridge::LuaRef lua_engine::l_machine_get_cheats(const running_machine *r)
-{
-	lua_State *L = luaThis->m_lua_state;
-	luabridge::LuaRef cheats_table = luabridge::LuaRef::newTable(L);
-
-	int cheatnum = 0;
-	for (cheat_entry *curcheat = r->cheat().first(); curcheat != NULL; curcheat = curcheat->next())
-	{
-		cheats_table[cheatnum] = curcheat;
-		cheatnum++;
-	}
-
-	return cheats_table;
-}
-
-//
-// -> manager:machine().cheats[0].state
-//
-luabridge::LuaRef lua_engine::l_cheat_entry_get_state(const cheat_entry *c)
-{
-	lua_State *L = luaThis->m_lua_state;
-	cheat_entry *e = const_cast<cheat_entry *>(c);
-
-	std::string text;
-	std::string subtext;
-	UINT32 flags;
-	e->menu_text(text, subtext, flags);
-
-	luabridge::LuaRef t (L, subtext);
-
-	return t;
+	return entries_table;
 }
 
 //-------------------------------------------------
@@ -505,57 +444,97 @@ luabridge::LuaRef lua_engine::l_machine_get_devices(const running_machine *r)
 }
 
 //-------------------------------------------------
-//  machine_get_ioports - return table of ioport userdata
-//  -> manager:machine().ioports["JOY1"]
+//  machine_cheat_entries - return cheat entries
+//  -> manager:machine():cheat().entries[0]
 //-------------------------------------------------
 
-luabridge::LuaRef lua_engine::l_machine_get_ioports(const running_machine *r)
+luabridge::LuaRef lua_engine::l_cheat_get_entries(const cheat_manager *c)
 {
-	running_machine *m = const_cast<running_machine *>(r);
+	cheat_manager *cm = const_cast<cheat_manager *>(c);
 	lua_State *L = luaThis->m_lua_state;
-	luabridge::LuaRef io_table = luabridge::LuaRef::newTable(L);
-	ioport_port *port;
+	luabridge::LuaRef entry_table = luabridge::LuaRef::newTable(L);
 
-	for (port = m->ioport().first_port(); port != NULL; port = port->next()) {
-		io_table[port->tag()] = port;
+	int cheatnum = 0;
+	for (cheat_entry *entry = cm->first(); entry != nullptr; entry = entry->next()) {
+		entry_table[cheatnum++] = entry;
 	}
 
-	return io_table;
+	return entry_table;
 }
 
 //-------------------------------------------------
-//  ioport_get_fields - return table of ioport field userdata
-//  -> manager:machine().ioports[":P1"].fields[":"]
+//  cheat_entry_state - return cheat entry state
+//  -> manager:machine():cheat().entries[0]:state()
 //-------------------------------------------------
 
-luabridge::LuaRef lua_engine::l_ioport_get_fields(const ioport_port *i)
+int lua_engine::lua_cheat_entry::l_get_state(lua_State *L)
+{
+	cheat_entry *ce = luabridge::Stack<cheat_entry *>::get(L, 1);
+
+	switch (ce->state())
+	{
+		case SCRIPT_STATE_ON:     lua_pushliteral(L, "on"); break;
+		case SCRIPT_STATE_RUN:    lua_pushliteral(L, "run"); break;
+		case SCRIPT_STATE_CHANGE: lua_pushliteral(L, "change"); break;
+		case SCRIPT_STATE_COUNT:  lua_pushliteral(L, "count"); break;
+		default:                  lua_pushliteral(L, "off"); break;
+	}
+
+	return 1;
+}
+
+//-------------------------------------------------
+//  machine_ioports - return table of ioports
+//  -> manager:machine():ioport().ports[':P1']
+//-------------------------------------------------
+
+luabridge::LuaRef lua_engine::l_ioport_get_ports(const ioport_manager *m)
+{
+	ioport_manager *im = const_cast<ioport_manager *>(m);
+	lua_State *L = luaThis->m_lua_state;
+	luabridge::LuaRef port_table = luabridge::LuaRef::newTable(L);
+	ioport_port *port;
+
+	for (port = im->first_port(); port != nullptr; port = port->next()) {
+		port_table[port->tag()] = port;
+	}
+
+	return port_table;
+}
+
+//-------------------------------------------------
+//  ioport_fields - return table of ioport fields
+//  -> manager:machine().ioport().ports[':P1'].fields[':']
+//-------------------------------------------------
+
+luabridge::LuaRef lua_engine::l_ioports_port_get_fields(const ioport_port *i)
 {
 	ioport_port *p = const_cast<ioport_port *>(i);
 	lua_State *L = luaThis->m_lua_state;
 	luabridge::LuaRef f_table = luabridge::LuaRef::newTable(L);
 	ioport_field *field;
 
-	for (field = p->first_field(); field != NULL; field = field->next()) {
+	for (field = p->first_field(); field != nullptr; field = field->next()) {
 		f_table[field->name()] = field;
 	}
 
 	return f_table;
 }
 
-//
-// render_get_targets - return table of targets
-// -> manager:machine():render().targets[]
-//
+//-------------------------------------------------
+//  render_get_targets - return table of render targets
+//  -> manager:machine():render().targets[0]
+//-------------------------------------------------
+
 luabridge::LuaRef lua_engine::l_render_get_targets(const render_manager *r)
 {
 	lua_State *L = luaThis->m_lua_state;
 	luabridge::LuaRef target_table = luabridge::LuaRef::newTable(L);
 
-	int targetnum = 0;
-	for (render_target *curr_rt = r->first_target(); curr_rt != NULL; curr_rt = curr_rt->next())
+	int tc = 0;
+	for (render_target *curr_rt = r->first_target(); curr_rt != nullptr; curr_rt = curr_rt->next())
 	{
-		target_table[targetnum] = curr_rt;
-		targetnum++;
+		target_table[tc++] = curr_rt;
 	}
 
 	return target_table;
@@ -613,21 +592,6 @@ luabridge::LuaRef lua_engine::l_dev_get_states(const device_t *d)
 	}
 
 	return st_table;
-}
-
-std::string lua_engine::l_option_get_value(const emu_options::entry *e)
-{
-	return e->value();
-}
-
-void lua_engine::l_option_set_value(emu_options::entry *e, std::string val)
-{
-	std::string error;
-	const char *c = val.c_str();
-	luaThis->machine().options().set_value(e->name(), c, OPTION_PRIORITY_CMDLINE, error);
-	if (!error.empty()) {
-		lua_writestringerror("%s\n", error.c_str());
-	}
 }
 
 //-------------------------------------------------
@@ -757,6 +721,98 @@ int lua_engine::lua_addr_space::l_mem_write(lua_State *L)
 	return 0;
 }
 
+int lua_engine::lua_options_entry::l_entry_value(lua_State *L)
+{
+	core_options::entry *e = luabridge::Stack<core_options::entry *>::get(L, 1);
+	if(!e) {
+		return 0;
+	}
+
+	luaL_argcheck(L, !lua_isfunction(L, 2), 2, "optional argument: unsupported value");
+
+	if (!lua_isnone(L, 2))
+	{
+		std::string error;
+		// FIXME: not working with ui_options::entry
+		// TODO: optional arg for priority
+		luaThis->machine().options().set_value(e->name(),
+				lua_isboolean(L, 2) ? (lua_toboolean(L, 2) ? "1" : "0") : lua_tostring(L, 2),
+				OPTION_PRIORITY_CMDLINE, error);
+
+		if (!error.empty())
+		{
+			luaL_error(L, "%s", error.c_str());
+		}
+	}
+
+	switch (e->type())
+	{
+		case OPTION_BOOLEAN:
+			lua_pushboolean(L, (atoi(e->value()) != 0));
+			break;
+		case OPTION_INTEGER:
+			lua_pushnumber(L, atoi(e->value()));
+			break;
+		case OPTION_FLOAT:
+			lua_pushnumber(L, atof(e->value()));
+			break;
+		default:
+			lua_pushstring(L, e->value());
+			break;
+	}
+
+	return 1;
+}
+
+//-------------------------------------------------
+//  begin_recording - start avi
+//  -> manager:machine():video():begin_recording()
+//-------------------------------------------------
+
+int lua_engine::lua_video::l_begin_recording(lua_State *L)
+{
+	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
+	if (!vm) {
+		return 0;
+	}
+
+	luaL_argcheck(L, lua_isstring(L, 2) || lua_isnone(L, 2), 2, "optional argument: filename, string expected");
+
+	const char *filename = lua_tostring(L, 2);
+	if (!lua_isnone(L, 2)) {
+		std::string vidname(filename);
+		strreplace(vidname, "/", PATH_SEPARATOR);
+		strreplace(vidname, "%g", luaThis->machine().basename());
+		filename = vidname.c_str();
+	} else {
+		filename = nullptr;
+	}
+	vm->begin_recording(filename, video_manager::MF_AVI);
+
+	return 1;
+}
+
+//-------------------------------------------------
+//  end_recording - start saving avi
+//  -> manager:machine():video():end_recording()
+//-------------------------------------------------
+
+int lua_engine::lua_video::l_end_recording(lua_State *L)
+{
+	video_manager *vm = luabridge::Stack<video_manager *>::get(L, 1);
+	if (!vm) {
+		return 0;
+	}
+
+	if (!vm->is_recording()) {
+		lua_writestringerror("%s", "No active recording to stop");
+		return 0;
+	}
+
+	vm->end_recording(video_manager::MF_AVI);
+	return 1;
+}
+
 //-------------------------------------------------
 //  screen_height - return screen visible height
 //  -> manager:machine().screens[":screen"]:height()
@@ -809,29 +865,7 @@ int lua_engine::lua_screen::l_aspect(lua_State *L)
 }
 
 //-------------------------------------------------
-//  pixel_aspect - return pixel_aspect ratio
-//  -> manager:machine().screens[":screen"]:pixel_aspect()
-//-------------------------------------------------
-
-int lua_engine::lua_screen::l_pixel_aspect(lua_State *L)
-{
-	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
-	if(!sc) {
-		return 0;
-	}
-
-	render_container &rc = sc->container();
-	//float height = rc.manager().ui_target().pixel_aspect();
-	int width = rc.manager().ui_target().width();
-	//render_target &ui_target() const { assert(m_ui_target != NULL); return *m_ui_target; }
-	//float aspect = luaThis->machine().render().pixel_aspect(&rc);
-
-	lua_pushunsigned(L, width);
-	return 1;
-}
-
-//-------------------------------------------------
-//  screen_refresh - return screen refresh
+//  screen_refresh - return screen refresh rate
 //  -> manager:machine().screens[":screen"]:refresh()
 //-------------------------------------------------
 
@@ -848,47 +882,64 @@ int lua_engine::lua_screen::l_refresh(lua_State *L)
 
 //-------------------------------------------------
 //  screen_snapshot - save png bitmap of screen to snapshots folder
-//  -> manager:machine().screens[":screen"]:snapshot("name")
+//  -> manager:machine().screens[":screen"]:snapshot("filename.png")
 //-------------------------------------------------
+
 int lua_engine::lua_screen::l_snapshot(lua_State *L)
 {
-	screen_device *sd = luabridge::Stack<screen_device *>::get(L, 1);
-	const char *filename = lua_tostring(L, 2);
-	if(!sd)
+	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sc || !sc->machine().render().is_live(*sc))
+	{
 		return 0;
-	luaL_argcheck(L, lua_isstring(L, 2), 2, "filename (string) expected");
-	if (!sd->machine().render().is_live(*sd))
-		return 0;
-	std::string snapstr(filename);
-	emu_file file(sd->machine().options().snapshot_directory(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
-	strreplace(snapstr, "/", PATH_SEPARATOR);
-	strreplace(snapstr, "%g", sd->machine().basename());
-	file_error filerr = file.open(snapstr.c_str());
+	}
+
+	luaL_argcheck(L, lua_isstring(L, 2) || lua_isnone(L, 2), 2, "optional argument: filename, string expected");
+
+	emu_file file(sc->machine().options().snapshot_directory(), OPEN_FLAG_WRITE | OPEN_FLAG_CREATE | OPEN_FLAG_CREATE_PATHS);
+	file_error filerr;
+
+	if (!lua_isnone(L, 2)) {
+		const char *filename = lua_tostring(L, 2);
+		std::string snapstr(filename);
+		strreplace(snapstr, "/", PATH_SEPARATOR);
+		strreplace(snapstr, "%g", sc->machine().basename());
+		filerr = file.open(snapstr.c_str());
+	}
+	else
+	{
+		filerr = sc->machine().video().open_next(file, "png");
+	}
+
 	if (filerr != FILERR_NONE)
+	{
+		luaL_error(L, "file_error=%d", filerr);
 		return 0;
-	sd->machine().video().save_snapshot(sd, file);
+	}
+
+	sc->machine().video().save_snapshot(sc, file);
+	lua_writestringerror("saved %s", file.fullpath());
 	file.close();
 	return 1;
 }
 
 //-------------------------------------------------
-//  screen_type - return screen type
+//  screen_type - return human readable screen type
 //  -> manager:machine().screens[":screen"]:type()
 //-------------------------------------------------
 
 int lua_engine::lua_screen::l_type(lua_State *L)
 {
-	screen_device *sd = luabridge::Stack<screen_device *>::get(L, 1);
-	if(!sd) {
+	screen_device *sc = luabridge::Stack<screen_device *>::get(L, 1);
+	if(!sc) {
 		return 0;
 	}
 
-	switch (sd->screen_type())
+	switch (sc->screen_type())
 	{
-		case SCREEN_TYPE_RASTER:    lua_pushliteral(L, "raster"); break;
-		case SCREEN_TYPE_VECTOR:    lua_pushliteral(L, "vector"); break;
-		case SCREEN_TYPE_LCD:       lua_pushliteral(L, "lcd"); break;
-		default:                    lua_pushliteral(L, "unknown"); break;
+		case SCREEN_TYPE_RASTER:  lua_pushliteral(L, "raster"); break;
+		case SCREEN_TYPE_VECTOR:  lua_pushliteral(L, "vector"); break;
+		case SCREEN_TYPE_LCD:     lua_pushliteral(L, "lcd"); break;
+		default:                  lua_pushliteral(L, "unknown"); break;
 	}
 
 	return 1;
@@ -1066,6 +1117,24 @@ int lua_engine::l_emu_start(lua_State *L)
 	return 1;
 }
 
+int lua_engine::luaopen_ioport(lua_State *L)
+{
+	static const struct luaL_Reg ioport_funcs [] = {
+		{ "write",       l_ioport_write },
+		{ nullptr, nullptr }  /* sentinel */
+	};
+
+	luaL_newmetatable(L, tname_ioport);
+	lua_pushvalue(L, -1);
+	lua_pushstring(L, tname_ioport);
+	lua_rawset(L, LUA_REGISTRYINDEX);
+	lua_pushstring(L, "__index");
+	lua_pushvalue(L, -2);
+	lua_settable(L, -3);
+	luaL_setfuncs(L, ioport_funcs, 0);
+	return 1;
+}
+
 struct msg {
 	std::string text;
 	int ready;
@@ -1151,7 +1220,25 @@ lua_engine::lua_engine()
 	lua_gc(m_lua_state, LUA_GCSTOP, 0);  /* stop collector during initialization */
 	luaL_openlibs(m_lua_state);  /* open libraries */
 
-	luaopen_lsqlite3(m_lua_state);
+		// Get package.preload so we can store builtins in it.
+	lua_getglobal(m_lua_state, "package");
+	lua_getfield(m_lua_state, -1, "preload");
+	lua_remove(m_lua_state, -2); // Remove package
+
+	// Store uv module definition at preload.uv
+	lua_pushcfunction(m_lua_state, luaopen_luv);
+	lua_setfield(m_lua_state, -2, "luv");
+
+	lua_pushcfunction(m_lua_state, luaopen_zlib);
+	lua_setfield(m_lua_state, -2, "zlib");
+
+	lua_pushcfunction(m_lua_state, luaopen_lsqlite3);
+	lua_setfield(m_lua_state, -2, "lsqlite3");
+
+	lua_pushcfunction(m_lua_state, luaopen_lfs);
+	lua_setfield(m_lua_state, -2, "lfs");
+
+	luaopen_ioport(m_lua_state);
 
 	lua_gc(m_lua_state, LUA_GCRESTART, 0);
 	msg.ready = 0;
@@ -1168,10 +1255,126 @@ lua_engine::~lua_engine()
 	close();
 }
 
+void lua_engine::execute_function(const char *id)
+{
+	lua_settop(m_lua_state, 0);
+	lua_getfield(m_lua_state, LUA_REGISTRYINDEX, id);
+
+	if (lua_istable(m_lua_state, -1))
+	{
+		lua_pushnil(m_lua_state);
+		while (lua_next(m_lua_state, -2) != 0)
+		{
+			if (lua_isfunction(m_lua_state, -1))
+			{
+				lua_pcall(m_lua_state, 0, 0, 0);
+			}
+			else
+			{
+				lua_pop(m_lua_state, 1);
+			}
+		}
+	}
+}
+
+int lua_engine::register_function(lua_State *L, const char *id)
+{
+	if (!lua_isnil(L, 1))
+		luaL_checktype(L, 1, LUA_TFUNCTION);
+	lua_settop(L, 1);
+	lua_getfield(L, LUA_REGISTRYINDEX, id);
+	if (lua_isnil(L, -1))
+	{
+		lua_newtable(L);
+	}
+	luaL_checktype(L, -1, LUA_TTABLE);
+	int len = lua_rawlen(L, -1);
+	lua_pushnumber(L, len + 1);
+	lua_pushvalue(L, 1);
+	lua_rawset(L, -3);      /* Stores the pair in the table */
+
+	lua_pushvalue(L, -1);
+	lua_setfield(L, LUA_REGISTRYINDEX, id);
+	return 1;
+}
+
+int lua_engine::l_emu_register_start(lua_State *L)
+{
+	return register_function(L, "LUA_ON_START");
+}
+
+int lua_engine::l_emu_register_stop(lua_State *L)
+{
+	return register_function(L, "LUA_ON_STOP");
+}
+
+int lua_engine::l_emu_register_pause(lua_State *L)
+{
+	return register_function(L, "LUA_ON_PAUSE");
+}
+
+int lua_engine::l_emu_register_resume(lua_State *L)
+{
+	return register_function(L, "LUA_ON_RESUME");
+}
+
+int lua_engine::l_emu_register_frame(lua_State *L)
+{
+	return register_function(L, "LUA_ON_FRAME");
+}
+
+void lua_engine::on_machine_start()
+{
+	execute_function("LUA_ON_START");
+}
+
+void lua_engine::on_machine_stop()
+{
+	execute_function("LUA_ON_STOP");
+}
+
+void lua_engine::on_machine_pause()
+{
+	execute_function("LUA_ON_PAUSE");
+}
+
+void lua_engine::on_machine_resume()
+{
+	execute_function("LUA_ON_RESUME");
+}
+
+void lua_engine::on_machine_frame()
+{
+	execute_function("LUA_ON_FRAME");
+}
 
 void lua_engine::update_machine()
 {
+	lua_newtable(m_lua_state);
+	if (m_machine!=nullptr)
+	{
+		// Create the ioport array
+		ioport_port *port = machine().ioport().first_port();
+		while(port) {
+			ioport_field *field = port->first_field();
+			while(field) {
+				if(field->name()) {
+					push(m_lua_state, field, tname_ioport);
+					lua_setfield(m_lua_state, -2, field->name());
+				}
+				field = field->next();
+			}
+			port = port->next();
+		}
+		machine().add_notifier(MACHINE_NOTIFY_RESET, machine_notify_delegate(FUNC(lua_engine::on_machine_start), this));
+		machine().add_notifier(MACHINE_NOTIFY_EXIT, machine_notify_delegate(FUNC(lua_engine::on_machine_stop), this));
+		machine().add_notifier(MACHINE_NOTIFY_PAUSE, machine_notify_delegate(FUNC(lua_engine::on_machine_pause), this));
+		machine().add_notifier(MACHINE_NOTIFY_RESUME, machine_notify_delegate(FUNC(lua_engine::on_machine_resume), this));
+		machine().add_notifier(MACHINE_NOTIFY_FRAME, machine_notify_delegate(FUNC(lua_engine::on_machine_frame), this));
+	}
+	lua_setglobal(m_lua_state, "ioport");
 }
+
 
 //-------------------------------------------------
 //  initialize - initialize lua hookup to emu engine
@@ -1196,6 +1399,11 @@ void lua_engine::initialize()
 			.addCFunction ("pause",       l_emu_pause )
 			.addCFunction ("unpause",     l_emu_unpause )
 			.addCFunction ("sleep",       l_emu_sleep )
+			.addCFunction ("register_start", l_emu_register_start )
+			.addCFunction ("register_stop",  l_emu_register_stop )
+			.addCFunction ("register_pause", l_emu_register_pause )
+			.addCFunction ("register_resume",l_emu_register_resume )
+			.addCFunction ("register_frame", l_emu_register_frame )
 			.beginClass <machine_manager> ("manager")
 				.addFunction ("machine", &machine_manager::machine)
 				.addFunction ("options", &machine_manager::options)
@@ -1209,42 +1417,41 @@ void lua_engine::initialize()
 				.addFunction ("system", &running_machine::system)
 				.addFunction ("video", &running_machine::video)
 				.addFunction ("ui", &running_machine::ui)
-				.addFunction ("osd", &running_machine::osd)
 				.addFunction ("render", &running_machine::render)
+				.addFunction ("ioport", &running_machine::ioport)
+				.addFunction ("parameters", &running_machine::parameters)
+				.addFunction ("cheat", &running_machine::cheat)
+				.addFunction ("options", &running_machine::options)
 				.addProperty <luabridge::LuaRef, void> ("devices", &lua_engine::l_machine_get_devices)
 				.addProperty <luabridge::LuaRef, void> ("screens", &lua_engine::l_machine_get_screens)
-				.addProperty <luabridge::LuaRef, void> ("cheats", &lua_engine::l_machine_get_cheats)
-				.addProperty <luabridge::LuaRef, void> ("ioports", &lua_engine::l_machine_get_ioports)
-				.addProperty <luabridge::LuaRef, void> ("option", &lua_engine::l_machine_get_option)
 			.endClass ()
-			.beginClass <emu_options::entry> ("option_entry")
-				.addProperty ("description", &emu_options::entry::description)
-				.addProperty <std::string, std::string> ("value", &lua_engine::l_option_get_value, &lua_engine::l_option_set_value)
-				.addProperty ("default_value", &emu_options::entry::default_value)
-				.addProperty ("minimum", &emu_options::entry::minimum)
-				.addProperty ("maximum", &emu_options::entry::maximum)
-				.addProperty ("has_range", &emu_options::entry::has_range)
+			.beginClass <game_driver> ("game_driver")
+				.addData ("source_file", &game_driver::source_file)
+				.addData ("parent", &game_driver::parent)
+				.addData ("name", &game_driver::name)
+				.addData ("description", &game_driver::description)
+				.addData ("year", &game_driver::year)
+				.addData ("manufacturer", &game_driver::manufacturer)
+				.addData ("compatible_with", &game_driver::compatible_with)
+				.addData ("default_layout", &game_driver::default_layout)
 			.endClass ()
-			.beginClass <parameters_manager> ("parameters")
-				.addFunction ("add", &parameters_manager::add)
-				.addFunction ("lookup", &parameters_manager::lookup)
-			.endClass ()
-			.beginClass <lua_video> ("lua_video_manager")
-				.addCFunction ("begin_recording", &lua_video::l_begin_recording)
-				.addCFunction ("end_recording", &lua_video::l_end_recording)
-			.endClass ()
-			.deriveClass <video_manager, lua_video> ("video")
-				.addFunction ("snapshot", &video_manager::save_active_screen_snapshots)
-				.addFunction ("is_recording", &video_manager::is_recording)
-				.addProperty ("skip_this_frame", &video_manager::skip_this_frame)
-				.addProperty ("speed_factor", &video_manager::speed_factor)
-				.addProperty ("speed_percent", &video_manager::speed_percent)
-				.addProperty ("frameskip", &video_manager::frameskip, &video_manager::set_frameskip)
-				.addProperty ("throttled", &video_manager::throttled, &video_manager::set_throttled)
-				.addProperty ("throttle_rate", &video_manager::throttle_rate, &video_manager::set_throttle_rate)
-			.endClass ()
-			.beginClass <cheat_entry> ("cheat_entry")
-				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_cheat_entry_get_state)
+			.beginClass <device_t> ("device")
+				.addFunction ("name", &device_t::name)
+				.addFunction ("shortname", &device_t::shortname)
+				.addFunction ("tag", &device_t::tag)
+				.addProperty <luabridge::LuaRef, void> ("spaces", &lua_engine::l_dev_get_memspaces)
+				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_dev_get_states)
+			.endClass()
+			.beginClass <cheat_manager> ("cheat")
+				.addProperty <bool, bool> ("enabled", &cheat_manager::enabled, &cheat_manager::set_enable)
+				.addFunction ("reload", &cheat_manager::reload)
+				.addFunction ("save_all", &cheat_manager::save_all)
+				.addProperty <luabridge::LuaRef, void> ("entries", &lua_engine::l_cheat_get_entries)
+			.endClass()
+			.beginClass <lua_cheat_entry> ("lua_cheat_entry")
+				.addCFunction ("state", &lua_cheat_entry::l_get_state)
+			.endClass()
+			.deriveClass <cheat_entry, lua_cheat_entry> ("cheat_entry")
 				.addFunction ("description", &cheat_entry::description)
 				.addFunction ("comment", &cheat_entry::comment)
 				.addFunction ("has_run_script", &cheat_entry::has_run_script)
@@ -1265,40 +1472,82 @@ void lua_engine::initialize()
 				.addFunction ("select_default_state", &cheat_entry::select_default_state)
 				.addFunction ("select_previous_state", &cheat_entry::select_previous_state)
 				.addFunction ("select_next_state", &cheat_entry::select_next_state)
-			.endClass ()
-			.beginClass <game_driver> ("game_driver")
-				.addData ("source_file", &game_driver::source_file)
-				.addData ("parent", &game_driver::parent)
-				.addData ("name", &game_driver::name)
-				.addData ("description", &game_driver::description)
-				.addData ("year", &game_driver::year)
-				.addData ("manufacturer", &game_driver::manufacturer)
-				.addData ("compatible_with", &game_driver::compatible_with)
-				.addData ("default_layout", &game_driver::default_layout)
-			.endClass ()
-			.beginClass <device_t> ("device")
-				.addFunction ("name", &device_t::name)
-				.addFunction ("shortname", &device_t::shortname)
-				.addFunction ("tag", &device_t::tag)
-				.addProperty <luabridge::LuaRef, void> ("spaces", &lua_engine::l_dev_get_memspaces)
-				.addProperty <luabridge::LuaRef, void> ("state", &lua_engine::l_dev_get_states)
 			.endClass()
-			.beginClass <ioport_port> ("ioport")
-				.addProperty ("tag", &ioport_port::tag)
-				.addProperty ("active", &ioport_port::active)
+			.beginClass <ioport_manager> ("ioport")
+				.addFunction ("has_configs", &ioport_manager::has_configs)
+				.addFunction ("has_analog", &ioport_manager::has_analog)
+				.addFunction ("has_dips", &ioport_manager::has_dips)
+				.addFunction ("has_bioses", &ioport_manager::has_bioses)
+				.addFunction ("has_keyboard", &ioport_manager::has_keyboard)
+				.addFunction ("count_players", &ioport_manager::count_players)
+				.addProperty <luabridge::LuaRef, void> ("ports", &lua_engine::l_ioport_get_ports)
+			.endClass()
+			.beginClass <ioport_port> ("ioport_port")
+				.addFunction ("tag", &ioport_port::tag)
+				.addFunction ("active", &ioport_port::active)
 				.addFunction ("live", &ioport_port::live)
-				.addProperty <luabridge::LuaRef, void> ("fields", &lua_engine::l_ioport_get_fields)
+				.addProperty <luabridge::LuaRef, void> ("fields", &lua_engine::l_ioports_port_get_fields)
 			.endClass()
 			.beginClass <ioport_field> ("ioport_field")
+				.addFunction ("set_value", &ioport_field::set_value)
+				.addProperty ("device", &ioport_field::device)
 				.addProperty ("name", &ioport_field::name)
-				.addProperty ("player", &ioport_field::player)
+				.addProperty <UINT8, UINT8> ("player", &ioport_field::player, &ioport_field::set_player)
 				.addProperty ("mask", &ioport_field::mask)
 				.addProperty ("defvalue", &ioport_field::defvalue)
 				.addProperty ("sensitivity", &ioport_field::sensitivity)
 				.addProperty ("way", &ioport_field::way)
 				.addProperty ("is_analog", &ioport_field::is_analog)
-				.addProperty ("is_digital_joystick", &ioport_field::is_digital_joystick)
+				.addProperty ("is_digitial_joystick", &ioport_field::is_digital_joystick)
 				.addProperty ("enabled", &ioport_field::enabled)
+				.addProperty ("unused", &ioport_field::unused)
+				.addProperty ("cocktail", &ioport_field::cocktail)
+				.addProperty ("toggle", &ioport_field::toggle)
+				.addProperty ("rotated", &ioport_field::rotated)
+				.addProperty ("analog_reverse", &ioport_field::analog_reverse)
+				.addProperty ("analog_reset", &ioport_field::analog_reset)
+				.addProperty ("analog_wraps", &ioport_field::analog_wraps)
+				.addProperty ("analog_invert", &ioport_field::analog_invert)
+				.addProperty ("impulse", &ioport_field::impulse)
+				.addProperty <double, double> ("crosshair_scale", &ioport_field::crosshair_scale, &ioport_field::set_crosshair_scale)
+				.addProperty <double, double> ("crosshair_offset", &ioport_field::crosshair_offset, &ioport_field::set_crosshair_offset)
+			.endClass()
+			.beginClass <core_options> ("core_options")
+				.addFunction ("help", &core_options::output_help)
+				.addFunction ("command", &core_options::command)
+				.addProperty <luabridge::LuaRef, void> ("entries", &lua_engine::l_options_get_entries)
+			.endClass()
+			.beginClass <lua_options_entry> ("lua_options_entry")
+				.addCFunction ("value", &lua_options_entry::l_entry_value)
+			.endClass()
+			.deriveClass <core_options::entry, lua_options_entry> ("core_options_entry")
+				.addFunction ("description", &core_options::entry::description)
+				.addFunction ("default_value", &core_options::entry::default_value)
+				.addFunction ("minimum", &core_options::entry::minimum)
+				.addFunction ("maximum", &core_options::entry::maximum)
+				.addFunction ("has_range", &core_options::entry::has_range)
+			.endClass()
+			.deriveClass <emu_options, core_options> ("emu_options")
+			.endClass()
+			.deriveClass <ui_options, core_options> ("ui_options")
+			.endClass()
+			.beginClass <parameters_manager> ("parameters")
+				.addFunction ("add", &parameters_manager::add)
+				.addFunction ("lookup", &parameters_manager::lookup)
+			.endClass()
+			.beginClass <lua_video> ("lua_video_manager")
+				.addCFunction ("begin_recording", &lua_video::l_begin_recording)
+				.addCFunction ("end_recording", &lua_video::l_end_recording)
+			.endClass()
+			.deriveClass <video_manager, lua_video> ("video")
+				.addFunction ("snapshot", &video_manager::save_active_screen_snapshots)
+				.addFunction ("is_recording", &video_manager::is_recording)
+				.addFunction ("skip_this_frame", &video_manager::skip_this_frame)
+				.addFunction ("speed_factor", &video_manager::speed_factor)
+				.addFunction ("speed_percent", &video_manager::speed_percent)
+				.addProperty <int, int> ("frameskip", &video_manager::frameskip, &video_manager::set_frameskip)
+				.addProperty <bool, bool> ("throttled", &video_manager::throttled, &video_manager::set_throttled)
+				.addProperty <float, float> ("throttle_rate", &video_manager::throttle_rate, &video_manager::set_throttle_rate)
 			.endClass()
 			.beginClass <lua_addr_space> ("lua_addr_space")
 				.addCFunction ("read_i8", &lua_addr_space::l_mem_read<INT8>)
@@ -1322,23 +1571,29 @@ void lua_engine::initialize()
 				.addFunction("name", &address_space::name)
 			.endClass()
 			.beginClass <render_target> ("target")
-				.addProperty ("width", &render_target::width)
-				.addProperty ("height", &render_target::height)
-				.addProperty ("pixel_aspect", &render_target::pixel_aspect)
-				.addProperty ("max_update_rate", &render_target::max_update_rate)
-				.addProperty ("view", &render_target::view, &render_target::set_view)
-				.addProperty ("hidden", &render_target::hidden)
-				.addProperty ("is_ui_target", &render_target::is_ui_target)
-				.addProperty ("index", &render_target::index)
-				.addProperty ("orientation", &render_target::orientation, &render_target::set_orientation)
+				.addFunction ("width", &render_target::width)
+				.addFunction ("height", &render_target::height)
+				.addFunction ("pixel_aspect", &render_target::pixel_aspect)
+				.addFunction ("hidden", &render_target::hidden)
+				.addFunction ("is_ui_target", &render_target::is_ui_target)
+				.addFunction ("index", &render_target::index)
+				.addProperty <float, float> ("max_update_rate", &render_target::max_update_rate, &render_target::set_max_update_rate)
+				.addProperty <int, int> ("view", &render_target::view, &render_target::set_view)
+				.addProperty <int, int> ("orientation", &render_target::orientation, &render_target::set_orientation)
+				.addProperty <bool, bool> ("backdrops", &render_target::backdrops_enabled, &render_target::set_backdrops_enabled)
+				.addProperty <bool, bool> ("overlays", &render_target::overlays_enabled, &render_target::set_overlays_enabled)
+				.addProperty <bool, bool> ("bezels", &render_target::bezels_enabled, &render_target::set_bezels_enabled)
+				.addProperty <bool, bool> ("marquees", &render_target::marquees_enabled, &render_target::set_marquees_enabled)
+				.addProperty <bool, bool> ("screen_overlay", &render_target::screen_overlay_enabled, &render_target::set_screen_overlay_enabled)
+				.addProperty <bool, bool> ("zoom", &render_target::zoom_to_screen, &render_target::set_zoom_to_screen)
 			.endClass()
 			.beginClass <render_container> ("render_container")
-				.addProperty ("orientation", &render_container::orientation)
-				.addProperty ("xscale", &render_container::xscale)
-				.addProperty ("yscale", &render_container::yscale)
-				.addProperty ("xoffset", &render_container::xoffset)
-				.addProperty ("yoffset", &render_container::yoffset)
-				.addProperty ("is_empty", &render_container::is_empty)
+				.addFunction ("orientation", &render_container::orientation)
+				.addFunction ("xscale", &render_container::xscale)
+				.addFunction ("yscale", &render_container::yscale)
+				.addFunction ("xoffset", &render_container::xoffset)
+				.addFunction ("yoffset", &render_container::yoffset)
+				.addFunction ("is_empty", &render_container::is_empty)
 			.endClass()
 			.beginClass <render_manager> ("render")
 				.addFunction ("max_update_rate", &render_manager::max_update_rate)
@@ -1347,6 +1602,8 @@ void lua_engine::initialize()
 				.addProperty <luabridge::LuaRef, void> ("targets", &lua_engine::l_render_get_targets)
 			.endClass()
 			.beginClass <ui_manager> ("ui")
+				.addFunction ("is_menu_active", &ui_manager::is_menu_active)
+				.addFunction ("options", &ui_manager::options)
 				.addProperty <bool, bool> ("show_fps", &ui_manager::show_fps, &ui_manager::set_show_fps)
 				.addProperty <bool, bool> ("show_clock", &ui_manager::show_clock, &ui_manager::set_show_clock)
 				.addProperty <bool, bool> ("show_profiler", &ui_manager::show_profiler, &ui_manager::set_show_profiler)
@@ -1406,89 +1663,41 @@ bool lua_engine::frame_hook()
 	return is_cb_hooked;
 }
 
-bool lua_engine::start_hook()
-{
-	bool is_cb_hooked = false;
-	if (m_machine != NULL) {
-		is_cb_hooked = hook_start_cb.active();
-		if (is_cb_hooked) {
-			lua_State *L = hook_start_cb.precall();
-			hook_start_cb.call(this, L, 0);
-		}
-	}
-	return is_cb_hooked;
-}
-
-bool lua_engine::exit_hook()
-{
-	bool is_cb_hooked = false;
-	if (m_machine != NULL) {
-		is_cb_hooked = hook_exit_cb.active();
-		if (is_cb_hooked) {
-			lua_State *L = hook_exit_cb.precall();
-			hook_exit_cb.call(this, L, 0);
-		}
-	}
-	return is_cb_hooked;
-}
-
-bool lua_engine::pause_hook()
-{
-	bool is_cb_hooked = false;
-	if (m_machine != NULL) {
-		is_cb_hooked = hook_pause_cb.active();
-		if (is_cb_hooked) {
-			lua_State *L = hook_pause_cb.precall();
-			hook_pause_cb.call(this, L, 0);
-		}
-	}
-	return is_cb_hooked;
-}
-
-bool lua_engine::resume_hook()
-{
-	bool is_cb_hooked = false;
-	if (m_machine != NULL) {
-		is_cb_hooked = hook_resume_cb.active();
-		if (is_cb_hooked) {
-			lua_State *L = hook_resume_cb.precall();
-			hook_resume_cb.call(this, L, 0);
-		}
-	}
-	return is_cb_hooked;
-}
-
 void lua_engine::periodic_check()
 {
 	std::lock_guard<std::mutex> lock(g_mutex);
 	if (msg.ready == 1) {
-	lua_settop(m_lua_state, 0);
-	int status = luaL_loadbuffer(m_lua_state, msg.text.c_str(), msg.text.length(), "=stdin");
-	if (incomplete(status)==0)  /* cannot try to add lines? */
-	{
-		if (status == LUA_OK) status = docall(0, LUA_MULTRET);
-		report(status);
-		if (status == LUA_OK && lua_gettop(m_lua_state) > 0)   /* any result to print? */
+		lua_settop(m_lua_state, 0);
+		int status = luaL_loadbuffer(m_lua_state, msg.text.c_str(), msg.text.length(), "=stdin");
+		if (incomplete(status)==0)  /* cannot try to add lines? */
 		{
-			luaL_checkstack(m_lua_state, LUA_MINSTACK, "too many results to print");
-			lua_getglobal(m_lua_state, "print");
-			lua_insert(m_lua_state, 1);
-			if (lua_pcall(m_lua_state, lua_gettop(m_lua_state) - 1, 0, 0) != LUA_OK)
-				lua_writestringerror("%s\n", lua_pushfstring(m_lua_state,
-				"error calling " LUA_QL("print") " (%s)",
-				lua_tostring(m_lua_state, -1)));
+			if (status == LUA_OK) status = docall(0, LUA_MULTRET);
+			report(status);
+			if (status == LUA_OK && lua_gettop(m_lua_state) > 0)   /* any result to print? */
+			{
+				luaL_checkstack(m_lua_state, LUA_MINSTACK, "too many results to print");
+				lua_getglobal(m_lua_state, "print");
+				lua_insert(m_lua_state, 1);
+				if (lua_pcall(m_lua_state, lua_gettop(m_lua_state) - 1, 0, 0) != LUA_OK)
+					lua_writestringerror("%s\n", lua_pushfstring(m_lua_state,
+					"error calling " LUA_QL("print") " (%s)",
+					lua_tostring(m_lua_state, -1)));
+			}
 		}
+		else
+		{
+			status = -1;
+		}
+		msg.status = status;
+		msg.response = msg.text;
+		msg.text = "";
+		msg.ready = 0;
+		msg.done = 1;
 	}
-	else
-	{
-		status = -1;
-	}
-	msg.status = status;
-	msg.response = msg.text;
-	msg.text = "";
-	msg.ready = 0;
-	msg.done = 1;
-	}
+	auto loop = luv_loop(m_lua_state);
+	if (loop!=nullptr)
+		uv_run(loop, UV_RUN_NOWAIT);
+
 }
 
 //-------------------------------------------------
@@ -1532,7 +1741,6 @@ void lua_engine::load_string(const char *value)
 void lua_engine::start()
 {
 	resume(m_lua_state);
-	luaThis->start_hook();
 }
 
 

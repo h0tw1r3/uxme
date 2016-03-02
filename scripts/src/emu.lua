@@ -16,7 +16,9 @@ kind (LIBTYPE)
 
 addprojectflags()
 precompiledheaders()
-
+options {
+	"ArchiveSplit",
+}
 includedirs {
 	MAME_DIR .. "src/osd",
 	MAME_DIR .. "src/emu",
@@ -153,6 +155,8 @@ files {
 	MAME_DIR .. "src/emu/inpttype.h",
 	MAME_DIR .. "src/emu/luaengine.cpp",
 	MAME_DIR .. "src/emu/luaengine.h",
+	MAME_DIR .. "src/emu/language.cpp",
+	MAME_DIR .. "src/emu/language.h",
 	MAME_DIR .. "src/emu/mame.cpp",
 	MAME_DIR .. "src/emu/mame.h",
 	MAME_DIR .. "src/emu/machine.cpp",

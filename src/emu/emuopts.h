@@ -58,6 +58,8 @@ enum
 #define OPTION_CROSSHAIRPATH        "crosshairpath"
 #define OPTION_DATPATH              "datpath"
 #define OPTION_LUAPATH              "luapath"
+#define OPTION_PLUGINSPATH          "pluginspath"
+#define OPTION_LANGUAGEPATH         "languagepath"
 
 // core directory options
 #define OPTION_CFG_DIRECTORY        "cfg_directory"
@@ -75,7 +77,7 @@ enum
 #define OPTION_PLAYBACK             "playback"
 #define OPTION_RECORD               "record"
 #define OPTION_RECORD_TIMECODE      "record_timecode"
-#define OPTION_EXIT_AFTER_PLAYBACK	"exit_after_playback"
+#define OPTION_EXIT_AFTER_PLAYBACK  "exit_after_playback"
 #define OPTION_MNGWRITE             "mngwrite"
 #define OPTION_AVIWRITE             "aviwrite"
 #ifdef MAME_DEBUG
@@ -179,7 +181,9 @@ enum
 #define OPTION_DRC_LOG_NATIVE       "drc_log_native"
 #define OPTION_BIOS                 "bios"
 #define OPTION_CHEAT                "cheat"
-#define OPTION_UI 		            "ui"
+#define OPTION_SKIP_GAMEINFO        "skip_gameinfo"
+#define OPTION_UI_FONT              "uifont"
+#define OPTION_UI                   "ui"
 #define OPTION_RAMSIZE              "ramsize"
 
 // core comm options
@@ -188,6 +192,9 @@ enum
 #define OPTION_COMM_REMOTE_HOST     "comm_remotehost"
 #define OPTION_COMM_REMOTE_PORT     "comm_remoteport"
 
+#define OPTION_CONFIRM_QUIT         "confirm_quit"
+#define OPTION_UI_MOUSE             "ui_mouse"
+
 #define OPTION_AUTOBOOT_COMMAND     "autoboot_command"
 #define OPTION_AUTOBOOT_DELAY       "autoboot_delay"
 #define OPTION_AUTOBOOT_SCRIPT      "autoboot_script"
@@ -195,6 +202,7 @@ enum
 #define OPTION_CONSOLE              "console"
 
 #define OPTION_HISCORE              "hiscore"
+#define OPTION_LANGUAGE             "language"
 
 //**************************************************************************
 //  TYPE DEFINITIONS
@@ -240,6 +248,8 @@ public:
 	const char *crosshair_path() const { return value(OPTION_CROSSHAIRPATH); }
 	const char *dat_path() const { return value(OPTION_DATPATH); }
 	const char *lua_path() const { return value(OPTION_LUAPATH); }
+	const char *plugins_path() const { return value(OPTION_PLUGINSPATH); }
+	const char *language_path() const { return value(OPTION_LANGUAGEPATH); }
 
 	// core directory options
 	const char *cfg_directory() const { return value(OPTION_CFG_DIRECTORY); }
@@ -359,6 +369,8 @@ public:
 	bool drc_log_native() const { return bool_value(OPTION_DRC_LOG_NATIVE); }
 	const char *bios() const { return value(OPTION_BIOS); }
 	bool cheat() const { return bool_value(OPTION_CHEAT); }
+	bool skip_gameinfo() const { return bool_value(OPTION_SKIP_GAMEINFO); }
+	const char *ui_font() const { return value(OPTION_UI_FONT); }
 	const char *ui() const { return value(OPTION_UI); }
 	const char *ram_size() const { return value(OPTION_RAMSIZE); }
 
@@ -367,7 +379,11 @@ public:
 	const char *comm_localport() const { return value(OPTION_COMM_LOCAL_PORT); }
 	const char *comm_remotehost() const { return value(OPTION_COMM_REMOTE_HOST); }
 	const char *comm_remoteport() const { return value(OPTION_COMM_REMOTE_PORT); }
-	
+
+
+	bool confirm_quit() const { return bool_value(OPTION_CONFIRM_QUIT); }
+	bool ui_mouse() const { return bool_value(OPTION_UI_MOUSE); }
+
 	const char *autoboot_command() const { return value(OPTION_AUTOBOOT_COMMAND); }
 	int autoboot_delay() const { return int_value(OPTION_AUTOBOOT_DELAY); }
 	const char *autoboot_script() const { return value(OPTION_AUTOBOOT_SCRIPT); }
@@ -375,6 +391,7 @@ public:
 	bool console() const { return bool_value(OPTION_CONSOLE); }
 
 	bool hiscore() const { return bool_value(OPTION_HISCORE); }
+	const char *language() const { return value(OPTION_LANGUAGE); }
 
 	// FIXME: Couriersud: This should be in image_device_exit
 	void remove_device_options();

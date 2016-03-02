@@ -32,7 +32,7 @@ ui_menu_keyboard_mode::ui_menu_keyboard_mode(running_machine &machine, render_co
 void ui_menu_keyboard_mode::populate()
 {
 	bool natural = machine().ui().use_natural_keyboard();
-	item_append("Keyboard Mode:", natural ? "Natural" : "Emulated", natural ? MENU_FLAG_LEFT_ARROW : MENU_FLAG_RIGHT_ARROW, nullptr);
+	item_append(_("Keyboard Mode:"), natural ? _("Natural") : _("Emulated"), natural ? MENU_FLAG_LEFT_ARROW : MENU_FLAG_RIGHT_ARROW, nullptr);
 }
 
 ui_menu_keyboard_mode::~ui_menu_keyboard_mode()
@@ -86,7 +86,7 @@ void ui_menu_bios_selection::populate()
 	}
 
 	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
-	item_append("Reset",  nullptr, 0, (void *)1);
+	item_append(_("Reset"),  nullptr, 0, (void *)1);
 }
 
 ui_menu_bios_selection::~ui_menu_bios_selection()
@@ -260,7 +260,7 @@ void ui_menu_bookkeeping::populate()
 
 		/* display whether or not we are locked out */
 		if (machine().bookkeeping().coin_lockout_get_state(ctrnum))
-			tempstring.append(" (locked)");
+			tempstring.append(_(" (locked)"));
 		tempstring.append("\n");
 	}
 
@@ -520,7 +520,7 @@ void ui_menu_crosshair::populate()
 
 		/* add CROSSHAIR_ITEM_AUTO_TIME menu */
 		sprintf(temp_text, "%d", settings.auto_time);
-		item_append("Visible Delay", temp_text, flags, data);
+		item_append(_("Visible Delay"), temp_text, flags, data);
 	}
 //  else
 //      /* leave a blank filler line when not in auto time so size does not rescale */
@@ -529,129 +529,6 @@ void ui_menu_crosshair::populate()
 
 ui_menu_crosshair::~ui_menu_crosshair()
 {
-}
-
-/*-------------------------------------------------
-    menu_autofire - handle the autofire settings
-    menu
--------------------------------------------------*/
-
-ui_menu_autofire::ui_menu_autofire(running_machine &machine, render_container *container) : ui_menu(machine, container)
-{
-	screen_device_iterator iter(machine.root_device());
-	const screen_device *screen = iter.first();
-	if (screen == nullptr)
-		refresh = 60.0;
-	else
-		refresh = ATTOSECONDS_TO_HZ(screen->refresh_attoseconds());
-}
-
-ui_menu_autofire::~ui_menu_autofire()
-{
-}
-
-void ui_menu_autofire::handle()
-{
-	ioport_field *field;
-	bool changed = FALSE;
-
-	/* process the menu */
-	const ui_menu_event *menu_event = process(0);
-	
-	/* handle events */
-	if (menu_event != nullptr && menu_event->itemref != nullptr)
-	{
-		if (menu_event->iptkey == IPT_UI_LEFT || menu_event->iptkey == IPT_UI_RIGHT)
-		{
-			int selected_item = (int)(FPTR)menu_event->itemref - 1;
-
-			if (selected_item == 0)
-			{
-				int autofire_delay = machine().ioport().get_autofire_delay();
-
-				if (menu_event->iptkey == IPT_UI_LEFT)
-				{
-					autofire_delay--;
-					if (autofire_delay < 1)
-						autofire_delay = 1;
-				}
-				else
-				{
-					autofire_delay++;
-					if (autofire_delay > 30)
-						autofire_delay = 30;
-				}
-
-				machine().ioport().set_autofire_delay(autofire_delay);
-
-				changed = TRUE;
-			}
-			else
-			{
-				field = (ioport_field *)menu_event->itemref;
-				ioport_field::user_settings settings;
-				int selected_value;
-				field->get_user_settings(settings);
-				selected_value = settings.autofire;
-
-				if (menu_event->iptkey == IPT_UI_LEFT)
-				{
-					selected_value--;
-					if (selected_value < 0)
-						selected_value = 1;
-				}
-				else
-				{
-					selected_value++;
-					if (selected_value > 1)
-						selected_value = 0;
-				}
-
-				settings.autofire = selected_value;
-				field->set_user_settings(settings);
-
-				changed = TRUE;
-			}
-		}
-	}
-
-	/* if something changed, rebuild the menu */
-	if (changed)
-		reset(UI_MENU_RESET_REMEMBER_REF);
-}
-
-
-/*-------------------------------------------------
-    menu_autofire_populate - populate the autofire
-    menu
--------------------------------------------------*/
-
-void ui_menu_autofire::populate()
-{
-	ioport_field *field;
-	ioport_port *port;
-	char temp_text[32];
-
-	/* iterate over the input ports and add autofire toggle items */
-	for (port = machine().ioport().first_port(); port != nullptr; port = port->next())
-	{
-		for (field = port->first_field(); field != nullptr; field = field->next())
-		{
-			if ((field->name()) && ((field->type() >= IPT_BUTTON1 && field->type() < IPT_BUTTON1 + 15)))
-			{
-				ioport_field::user_settings settings;
-				field->get_user_settings(settings);
-
-				/* add an autofire item */
-				item_append(field->name(), (settings.autofire ? "On" : "Off"), MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW, (void *)field);
-			}
-		}
-	}
-
-	/* add autofire delay item */
-	int value = machine().ioport().get_autofire_delay();
-	sprintf(temp_text, "%d = %.2fHz", value, (float)refresh/value);
-	item_append("Autofire Delay", temp_text, MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW, (void *)1);
 }
 
 /*-------------------------------------------------
@@ -678,4 +555,121 @@ void ui_menu_quit_game::handle()
 
 	/* reset the menu stack */
 	ui_menu::stack_reset(machine());
+}
+
+ui_menu_misc_options::misc_option ui_menu_misc_options::m_options[] = {
+	{ 0, nullptr, nullptr },
+	{ 0, __("Re-select last machine played"),                   OPTION_REMEMBER_LAST },
+	{ 0, __("Enlarge images in the right panel"),               OPTION_ENLARGE_SNAPS },
+	{ 0, __("DATs info"),                                       OPTION_DATS_ENABLED },
+	{ 0, __("Cheats"),                                          OPTION_CHEAT },
+	{ 0, __("Show mouse pointer"),                              OPTION_UI_MOUSE },
+	{ 0, __("Confirm quit from machines"),                      OPTION_CONFIRM_QUIT },
+	{ 0, __("Skip displaying information's screen at startup"), OPTION_SKIP_GAMEINFO },
+	{ 0, __("Force 4:3 appearance for software snapshot"),      OPTION_FORCED4X3 },
+	{ 0, __("Use image as background"),                         OPTION_USE_BACKGROUND },
+	{ 0, __("Skip bios selection menu"),                        OPTION_SKIP_BIOS_MENU },
+	{ 0, __("Skip software parts selection menu"),              OPTION_SKIP_PARTS_MENU }
+};
+
+//-------------------------------------------------
+//  ctor / dtor
+//-------------------------------------------------
+
+ui_menu_misc_options::ui_menu_misc_options(running_machine &machine, render_container *container) : ui_menu(machine, container)
+{
+	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d)
+		m_options[d].status = machine.ui().options().bool_value(m_options[d].option);
+}
+
+ui_menu_misc_options::~ui_menu_misc_options()
+{
+	std::string error_string;
+	for (int d = 1; d < ARRAY_LENGTH(m_options); ++d) {
+		if (machine().ui().options().exists(m_options[d].option))
+		{
+			machine().ui().options().set_value(m_options[d].option, m_options[d].status, OPTION_PRIORITY_CMDLINE, error_string);
+		}
+		else {
+			if (machine().options().bool_value(m_options[d].option) != m_options[d].status)
+			{
+				machine().options().set_value(m_options[d].option, m_options[d].status, OPTION_PRIORITY_CMDLINE, error_string);
+				machine().options().mark_changed(m_options[d].option);
+			}
+		}
+	}
+	ui_globals::reset = true;
+}
+
+//-------------------------------------------------
+//  handlethe options menu
+//-------------------------------------------------
+
+void ui_menu_misc_options::handle()
+{
+	bool changed = false;
+
+	// process the menu
+	const ui_menu_event *m_event = process(0);
+	if (m_event != nullptr && m_event->itemref != nullptr)
+	{
+		if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT || m_event->iptkey == IPT_UI_SELECT)
+		{
+			changed = true;
+			int value = (FPTR)m_event->itemref;
+			if (!strcmp(m_options[value].option, OPTION_ENLARGE_SNAPS))
+				ui_globals::switch_image = true;
+			m_options[value].status = !m_options[value].status;
+		}
+	}
+
+	if (changed)
+		reset(UI_MENU_RESET_REMEMBER_REF);
+}
+
+//-------------------------------------------------
+//  populate
+//-------------------------------------------------
+
+void ui_menu_misc_options::populate()
+{
+	// add options items
+	for (int opt = 1; opt < ARRAY_LENGTH(m_options); ++opt)
+		item_append(_(m_options[opt].description), m_options[opt].status ? "On" : "Off", m_options[opt].status ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW, (void *)(FPTR)opt);
+
+	item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
+	customtop = machine().ui().get_line_height() + (3.0f * UI_BOX_TB_BORDER);
+}
+
+//-------------------------------------------------
+//  perform our special rendering
+//-------------------------------------------------
+
+void ui_menu_misc_options::custom_render(void *selectedref, float top, float bottom, float origx1, float origy1, float origx2, float origy2)
+{
+	float width;
+	ui_manager &mui = machine().ui();
+
+	mui.draw_text_full(container, _("Miscellaneous Options"), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
+									DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
+	width += 2 * UI_BOX_LR_BORDER;
+	float maxwidth = MAX(origx2 - origx1, width);
+
+	// compute our bounds
+	float x1 = 0.5f - 0.5f * maxwidth;
+	float x2 = x1 + maxwidth;
+	float y1 = origy1 - top;
+	float y2 = origy1 - UI_BOX_TB_BORDER;
+
+	// draw a box
+	mui.draw_outlined_box(container, x1, y1, x2, y2, UI_GREEN_COLOR);
+
+	// take off the borders
+	x1 += UI_BOX_LR_BORDER;
+	x2 -= UI_BOX_LR_BORDER;
+	y1 += UI_BOX_TB_BORDER;
+
+	// draw the text within it
+	mui.draw_text_full(container, _("Miscellaneous Options"), x1, y1, x2 - x1, JUSTIFY_CENTER, WRAP_TRUNCATE,
+									DRAW_NORMAL, UI_TEXT_COLOR, UI_TEXT_BG_COLOR, nullptr, nullptr);
 }

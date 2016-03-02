@@ -25,7 +25,7 @@ std::vector<std::string> c_mnfct::ui;
 
 // Main filters
 UINT16 main_filters::actual = 0;
-const char *main_filters::text[] = { "All", "Available", "Unavailable", "Working", "Not Working", "Mechanical", "Not Mechanical", 
+const char *main_filters::text[] = { "All", "Available", "Unavailable", "Working", "Not Working", "Mechanical", "Not Mechanical",
 	"Category", "Favorites", "BIOS", "Originals", "Clones", "Manufacturers", "Years", "Support Save",
 	"Not Support Save", "CHD", "No CHD", "Vertical", "Horizontal", "Custom" };
 size_t main_filters::length = ARRAY_LENGTH(main_filters::text);
@@ -48,6 +48,7 @@ bool ui_globals::redraw_icon = false;
 int ui_globals::visible_main_lines = 0;
 int ui_globals::visible_sw_lines = 0;
 UINT16 ui_globals::panels_status = 0;
+bool ui_globals::has_icons = false;
 
 // Custom filter
 UINT16 custfltr::main = 0;

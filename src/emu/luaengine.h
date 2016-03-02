@@ -24,8 +24,7 @@
 #undef None
 #endif
 
-// forward declarations
-class cheat_entry;
+class cheat_manager;
 
 struct lua_State;
 namespace luabridge
@@ -48,10 +47,7 @@ public:
 	void serve_lua();
 	void periodic_check();
 	bool frame_hook();
-	bool start_hook();
-	bool exit_hook();
-	bool pause_hook();
-	bool resume_hook();
+	void execute_function(const char *id);
 
 	void resume(lua_State *L, int nparam = 0, lua_State *root = nullptr);
 	void set_machine(running_machine *machine) { m_machine = machine; update_machine(); }
@@ -67,6 +63,8 @@ private:
 		bool active() const { return L != nullptr; }
 	};
 
+	static const char *const tname_ioport;
+
 	// internal state
 	lua_State          *m_lua_state;
 	running_machine *   m_machine;
@@ -75,10 +73,6 @@ private:
 	bool output_notifier_set;
 
 	hook hook_frame_cb;
-	hook hook_start_cb;
-	hook hook_exit_cb;
-	hook hook_pause_cb;
-	hook hook_resume_cb;
 
 	static lua_engine*  luaThis;
 
@@ -87,6 +81,13 @@ private:
 	running_machine &machine() const { return *m_machine; }
 
 	void update_machine();
+
+	void on_machine_start();
+	void on_machine_stop();
+	void on_machine_pause();
+	void on_machine_resume();
+	void on_machine_frame();
+
 	void output_notifier(const char *outname, INT32 value);
 	static void s_output_notifier(const char *outname, INT32 value, void *param);
 
@@ -96,6 +97,7 @@ private:
 	void emu_hook_output(lua_State *L);
 	void emu_set_hook(lua_State *L);
 
+	static int l_ioport_write(lua_State *L);
 	static int l_emu_after(lua_State *L);
 	static int l_emu_app_name(lua_State *L);
 	static int l_emu_app_version(lua_State *L);
@@ -111,19 +113,18 @@ private:
 	static int l_emu_unpause(lua_State *L);
 	static int l_emu_set_hook(lua_State *L);
 	static int l_emu_sleep(lua_State *L);
+	static int l_emu_register_start(lua_State *L);
+	static int l_emu_register_stop(lua_State *L);
+	static int l_emu_register_pause(lua_State *L);
+	static int l_emu_register_resume(lua_State *L);
+	static int l_emu_register_frame(lua_State *L);
+	static int register_function(lua_State *L, const char *id);
 
 	// "emu.machine" namespace
-	static luabridge::LuaRef l_machine_get_cheats(const running_machine *r);
-	static luabridge::LuaRef l_cheat_entry_get_state(const cheat_entry *c);
 	static luabridge::LuaRef l_machine_get_devices(const running_machine *r);
-	static luabridge::LuaRef l_machine_get_ioports(const running_machine *r);
-	static luabridge::LuaRef l_ioport_get_fields(const ioport_port *i);
-	static luabridge::LuaRef l_machine_get_option(const running_machine *r);
+	static luabridge::LuaRef l_ioport_get_ports(const ioport_manager *i);
 	static luabridge::LuaRef l_render_get_targets(const render_manager *r);
-
-	static std::string l_option_get_value(const emu_options::entry *e);
-	static void l_option_set_value(emu_options::entry *e, std::string v);
-
+	static luabridge::LuaRef l_ioports_port_get_fields(const ioport_port *i);
 	static luabridge::LuaRef devtree_dfs(device_t *root, luabridge::LuaRef dev_table);
 	static luabridge::LuaRef l_dev_get_states(const device_t *d);
 	static UINT64 l_state_get_value(const device_state_entry *d);
@@ -138,21 +139,32 @@ private:
 		int l_height(lua_State *L);
 		int l_width(lua_State *L);
 		int l_aspect(lua_State *L);
-		int l_pixel_aspect(lua_State *L);
 		int l_refresh(lua_State *L);
 		int l_type(lua_State *L);
+		int l_snapshot(lua_State *L);
 		int l_draw_box(lua_State *L);
 		int l_draw_line(lua_State *L);
 		int l_draw_text(lua_State *L);
-		int l_snapshot(lua_State *L);
 	};
+
 	struct lua_video {
 		int l_begin_recording(lua_State *L);
 		int l_end_recording(lua_State *L);
 	};
 
+	static luabridge::LuaRef l_cheat_get_entries(const cheat_manager *c);
+	struct lua_cheat_entry {
+		int l_get_state(lua_State *L);
+	};
+
+	template<typename T> static luabridge::LuaRef l_options_get_entries(const T *o);
+	struct lua_options_entry {
+		int l_entry_value(lua_State *L);
+	};
+
 	void resume(void *L, INT32 param);
 	void start();
+	static int luaopen_ioport(lua_State *L);
 	void close();
 
 	static void *checkparam(lua_State *L, int idx, const char *tname);

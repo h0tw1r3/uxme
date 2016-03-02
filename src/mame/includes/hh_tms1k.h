@@ -41,6 +41,7 @@ public:
 	bool m_power_led;
 
 	UINT8 read_inputs(int columns);
+	UINT8 read_rotated_inputs(int columns, UINT8 rowmask = 0xf);
 	virtual DECLARE_INPUT_CHANGED_MEMBER(power_button);
 	virtual DECLARE_WRITE_LINE_MEMBER(auto_power_off);
 
@@ -61,8 +62,7 @@ public:
 	void display_update();
 	void set_display_size(int maxx, int maxy);
 	void set_display_segmask(UINT32 digits, UINT32 mask);
-	void display_matrix(int maxx, int maxy, UINT32 setx, UINT32 sety);
-	void display_matrix_seg(int maxx, int maxy, UINT32 setx, UINT32 sety, UINT16 segmask);
+	void display_matrix(int maxx, int maxy, UINT32 setx, UINT32 sety, bool update = true);
 
 protected:
 	virtual void machine_start() override;
