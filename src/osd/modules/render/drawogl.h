@@ -141,11 +141,7 @@ public:
 #endif
 	virtual render_primitive_list *get_primitives() override
 	{
-#ifdef OSD_WINDOWS
 		osd_dim nd = window().get_size();
-#else
-		osd_dim nd = window().blit_surface_size();
-#endif
 		if (nd != m_blit_dim)
 		{
 			m_blit_dim = nd;
