@@ -74,7 +74,8 @@ const options_entry ui_options::s_option_entries[] =
 	{ OPTION_UI_TEXT_BG_COLOR,              "ef000000",     OPTION_STRING,      "UI text bg color (ARGB)" },
 	{ OPTION_UI_TEXT_COLOR,                 "ffffffff",     OPTION_STRING,      "UI text color (ARGB)" },
 	{ OPTION_UI_UNAVAILABLE_COLOR,          "ff404040",     OPTION_STRING,      "UI unavailable color (ARGB)" },
-	{ nullptr }
+	{ nullptr },
+
 };
 
 //-------------------------------------------------

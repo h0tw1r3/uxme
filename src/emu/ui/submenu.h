@@ -18,7 +18,7 @@ struct ui_submenu_option
 {
 	const char  *description;
 	const char  *name;
-	emu_options::entry *entry;
+	core_options::entry *entry;
 	core_options (*options);
 };
 

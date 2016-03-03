@@ -54,8 +54,6 @@ void ui_menu_main::populate()
 
 	item_append(_("Input (this Machine)"), nullptr, 0, (void *)INPUT_SPECIFIC);
 
-	item_append("Autofire Settings", nullptr, 0, (void *)AUTOFIRE_MENU);
-
 	/* add optional input-related menus */
 	if (machine().ioport().has_analog())
 		item_append(_("Analog Controls"), nullptr, 0, (void *)ANALOG);
@@ -173,10 +171,6 @@ void ui_menu_main::handle()
 
 		case INPUT_SPECIFIC:
 			ui_menu::stack_push(global_alloc_clear<ui_menu_input_specific>(machine(), container));
-			break;
-
-		case AUTOFIRE_MENU:
-			ui_menu::stack_push(global_alloc_clear<ui_menu_autofire>(machine(), container));
 			break;
 
 		case SETTINGS_DIP_SWITCHES:

@@ -305,7 +305,7 @@ void running_machine::start()
 	// call the game driver's init function
 	// this is where decryption is done and memory maps are altered
 	// so this location in the init order is important
-	if (!ui().options().skip_loading())
+	if (!options().skip_loading())
 		ui().set_startup_text("Initializing...", true);
 
 	// register callbacks for the devices, then start them
@@ -468,8 +468,6 @@ int running_machine::run(bool firstrun)
 	// make sure our phase is set properly before cleaning up,
 	// in case we got here via exception
 	m_current_phase = MACHINE_PHASE_EXIT;
-
-	manager().lua()->exit_hook();
 
 	// call all exit callbacks registered
 	call_notifiers(MACHINE_NOTIFY_EXIT);
@@ -734,7 +732,6 @@ void running_machine::pause()
 	m_paused = true;
 
 	// call the callbacks
-	manager().lua()->pause_hook();
 	call_notifiers(MACHINE_NOTIFY_PAUSE);
 }
 
@@ -751,7 +748,6 @@ void running_machine::resume()
 	m_paused = false;
 
 	// call the callbacks
-	manager().lua()->resume_hook();
 	call_notifiers(MACHINE_NOTIFY_RESUME);
 }
 
