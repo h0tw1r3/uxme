@@ -58,7 +58,40 @@ inline _Tp* global_alloc_array_clear(size_t __num)
 	return new(ptr) _Tp[__num]();
 }
 
+#if defined(__APPLE__) || defined(NOTCPP14)
+namespace std
+{
+	template<class T>
+	using remove_extent_t = typename remove_extent<T>::type;
 
+	template <bool B, class T = void>
+	using enable_if_t = typename enable_if<B, T>::type;
+
+	template<class T>
+	using make_signed_t = typename make_signed<T>::type;
+
+	template<class T>
+	using make_unsigned_t = typename make_unsigned<T>::type;
+
+	template<class T>
+	using remove_const_t = typename remove_const<T>::type;
+
+	template<class T>
+	using remove_volatile_t = typename remove_volatile<T>::type;
+
+	template<class T>
+	using remove_pointer_t = typename remove_pointer<T>::type;
+
+	template<class T>
+	using remove_cv_t = typename remove_cv<T>::type;
+
+	template<class T>
+	using remove_reference_t = typename remove_reference<T>::type;
+
+	template<class T>
+	using add_const_t = typename add_const<T>::type;
+}
+#endif
 
 template<typename _Tp>
 struct _MakeUniqClear
