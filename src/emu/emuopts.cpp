@@ -43,7 +43,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_FONTPATH,                                   ".",         OPTION_STRING,     "path to font files" },
 	{ OPTION_CHEATPATH,                                  "cheat",     OPTION_STRING,     "path to cheat files" },
 	{ OPTION_CROSSHAIRPATH,                              "crosshair", OPTION_STRING,     "path to crosshair files" },
-	{ OPTION_DATPATH,                                    ".;dat",     OPTION_STRING,     "path to database files" },
+	{ OPTION_DATPATH,                                    ".;dat;history",     OPTION_STRING,     "path to database files" },
 	{ OPTION_LUAPATH,                                    ".;lua",     OPTION_STRING,     "path to lua script files" },
 	{ OPTION_PLUGINSPATH,                                "plugins",   OPTION_STRING,     "path to plugin files" },
 	{ OPTION_LANGUAGEPATH,                               "language",  OPTION_STRING,     "path to language files" },
