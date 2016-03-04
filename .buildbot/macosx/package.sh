@@ -73,7 +73,7 @@ cp -r ../docs "${SCRATCH}"/disk/Docs
 
 # defaults
 decho "Defaults..."
-cp -r ../{hash,hlsl,nl_examples,samples,artwork} "${APPCONTENT}"/Resources/defaults
+cp -r ../{hash,hlsl,nl_examples,samples,artwork,bgfx,shaders,plugins,language} "${APPCONTENT}"/Resources/defaults
 cp -r resources/dirs/* "${APPCONTENT}"/Resources/defaults/
 cp -r resources/fonts "${APPCONTENT}"/Resources/Fonts
 if [ ! -d "${APPCONTENT}"/Resources/defaults/dat ]; then

@@ -54,11 +54,7 @@ cp "$BIN/castool${EXE}"    "$PKG"/tools/
 cp "$BIN/floptool${EXE}"   "$PKG"/tools/
 cp "$BIN/imgtool${EXE}"    "$PKG"/tools/
 
-cp -r ../docs "$PKG"/
-cp -r ../hash "$PKG"/
-cp -r ../hlsl "$PKG"/
-cp -r ../samples "$PKG"/
-cp -r ../artwork "$PKG"/
+cp -r ../{docs,hash,hlsl,samples,artwork,bgfx,shaders,plugins,language} "${PKG}"/
 cp -r resources/dirs/* "$PKG"/
 ./changelog.sh > "$PKG"/CHANGELOG.md
 
