@@ -148,7 +148,7 @@ void ui_submenu::populate()
 				}
 				else
 				{
-					i_min = 0;
+					i_min = std::numeric_limits<int>::min();
 					i_max = std::numeric_limits<int>::max();
 				}
 				arrow_flags = get_arrow_flags(i_min, i_max, i_cur);
