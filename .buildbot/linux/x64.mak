@@ -4,13 +4,14 @@
 
 # TARGET = mame
 # SUBTARGET = arcade
-# TOOLS = 1
+TOOLS = 1
 # TESTS = 1
+# BENCHMARKS = 1
 # OSD = sdl
 
-# USE_BGFX = 1
-# NO_OPENGL = 1
-# USE_DISPATCH_GL = 1
+# USE_DISPATCH_GL = 0
+# MODERN_WIN_API = 0
+# USE_XAUDIO2 = 0
 # DIRECTINPUT = 7
 # USE_SDL = 1
 # SDL_INI_PATH = .;$HOME/.mame/;ini;
@@ -31,8 +32,8 @@ PTR64 = 1
 # NOASM = 1
 
 OPTIMIZE = 3
-# SYMBOLS = 1
-# SYMLEVEL = 1
+SYMBOLS = 1
+SYMLEVEL = 1
 # MAP = 1
 # PROFILE = 1
 # ARCHOPTS =
@@ -51,13 +52,13 @@ OPTIMIZE = 3
 # MESA_INSTALL_ROOT = /opt/mesa
 # SDL_INSTALL_ROOT = /opt/sdl2
 # SDL_FRAMEWORK_PATH = $(HOME)/Library/Frameworks
-# SDL_LIBVER = sdl2
 # USE_LIBSDL = 1
 # CYGWIN_BUILD = 1
 
+# BUILDDIR = build
 # TARGETOS = windows
 # CROSS_BUILD = 1
-# CROSS_PREFIX = x86_64-w64-mingw32.static-
+# TOOLCHAIN = 
 # OVERRIDE_CC = cc
 # OVERRIDE_CXX = c++
 # OVERRIDE_LD = ld
@@ -66,13 +67,15 @@ OPTIMIZE = 3
 LTO = 1
 # SSE2 = 1
 # OPENMP = 1
-# CPP11 = 1
 # FASTDEBUG = 1
 
-FILTER_DEPS = 1
 # SEPARATE_BIN = 1
 # PYTHON_EXECUTABLE = python3
 # SHADOW_CHECK = 1
 STRIP_SYMBOLS = 1
 
 # QT_HOME = /usr/lib64/qt48/
+
+# FORCE_VERSION_COMPILE = 1
+
+# MS_BUILD = 1
