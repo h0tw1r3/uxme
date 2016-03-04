@@ -99,7 +99,7 @@ void ui_submenu::handle()
 						f_cur -= f_step;
 					else
 						f_cur += f_step;
-					strprintf(tmptxt, "%g", f_cur);
+					tmptxt = string_format("%g", f_cur);
 					m_options[d].options->set_value(m_options[d].name, tmptxt.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
 					break;
 			}
@@ -170,7 +170,7 @@ void ui_submenu::populate()
 					f_max = std::numeric_limits<float>::max();
 				}
 				arrow_flags = get_arrow_flags(f_min, f_max, f_cur);
-				strprintf(tmptxt, "%g", f_cur);
+				tmptxt = string_format("%g", f_cur);
 				item_append(m_options[d].description,
 						tmptxt.c_str(),
 						arrow_flags,
