@@ -55,6 +55,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/romcmp.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -122,6 +123,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/chdman.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 	MAME_DIR .. "src/version.cpp",
 }
 
@@ -178,6 +180,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/jedutil.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -315,6 +318,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/ldresample.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -382,6 +386,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/ldverify.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -437,6 +442,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/regrep.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -492,6 +498,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/srcclean.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -547,6 +554,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/src2html.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -613,6 +621,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/split.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -668,6 +677,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/pngcmp.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -736,6 +746,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/lib/netlist/prg/nltool.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -781,7 +792,8 @@ includedirs {
 }
 
 files {
-  MAME_DIR .. "src/lib/netlist/prg/nlwav.cpp",
+    MAME_DIR .. "src/lib/netlist/prg/nlwav.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -850,6 +862,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/castool.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
@@ -919,6 +932,7 @@ includedirs {
 
 files {
 	MAME_DIR .. "src/tools/floptool.cpp",
+	MAME_DIR .. "src/emu/emucore.cpp",
 }
 
 configuration { "mingw*" or "vs*" }
