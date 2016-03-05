@@ -2995,9 +2995,6 @@ files {
 	MAME_DIR .. "src/mame/includes/mc1502.h",
 	MAME_DIR .. "src/mame/drivers/poisk1.cpp",
 	MAME_DIR .. "src/mame/machine/kb_poisk1.h",
-	MAME_DIR .. "src/mame/includes/poisk1.h",
-	MAME_DIR .. "src/mame/video/poisk1.cpp",
-	MAME_DIR .. "src/mame/video/poisk1.h",
 }
 
 createMESSProjects(_target, _subtarget, "yamaha")
