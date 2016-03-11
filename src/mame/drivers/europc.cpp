@@ -2,7 +2,7 @@
 // copyright-holders:Wilbert Pol
 #include "emu.h"
 #include "coreutil.h"
-#include "includes/genpc.h"
+#include "machine/genpc.h"
 #include "machine/nvram.h"
 #include "machine/pckeybrd.h"
 
@@ -381,7 +381,7 @@ READ8_MEMBER( europc_pc_state::europc_pio_r )
 		data = m_port61;
 		break;
 	case 2:
-		if (m_mb->m_pit_out2)
+		if (m_mb->pit_out2())
 			data |= 0x20;
 		break;
 	}

@@ -28065,6 +28065,7 @@ lastsold                        // 0196 Censored Korean release of lastblad
 lbowling                        // 0019 (c) 1990 SNK
 legendos                        // 0029 (c) 1991 SNK
 lresort                         // 0024 (c) 1992 SNK
+lresortp						// prototype
 magdrop2                        // 0221 (c) 1996 Data East Corporation
 magdrop3                        // 0233 (c) 1997 Data East Corporation
 maglord                         // 0005 (c) 1990 Alpha Denshi Co.
@@ -28447,6 +28448,9 @@ pkunwar                         // UPL-????? (c) 1985 (Arcade Game TV List - P.9
 pkunwarj                        // UPL-????? (c) 1985 (Arcade Game TV List - P.98, Left, 22 from top)
 raiders5                        // UPL-85004 (c) 1985
 raiders5t                       // UPL-85004 (c) 1985 Taito license
+
+@source:novag6502.cpp
+supercon                        // 
 
 @source:nsm.cpp
 firebird                        // 
@@ -33113,9 +33117,16 @@ splash10                        // (c) 1992 - Ref 922804
 spss4240                        // 
 
 @source:spoker.cpp
-3super8                         // unknown
-spk115it                        // (c) 199? IGS
+spk306us                        // (c) 1996 IGS
+spk205us                        // (c) 1996 IGS
+spk203us                        // (c) 1996 IGS
+spk200ua                        // (c) 1996 IGS
 spk116it                        // (c) 199? IGS
+spk116itmx                      // (c) 199? IGS
+spk115it                        // (c) 199? IGS
+spk114it                        // (c) 199? IGS
+spk102ua                        // (c) 1996 IGS
+3super8                         // unknown
 
 @source:spool99.cpp
 spool99                         // (c) 1998 Electronic Projects
@@ -33601,9 +33612,6 @@ superchsj                       // D46 (c) 1992 Taito Corporation (Japan)
 superchsp                       // prototype
 superchsu                       // D46 (c) 1992 Taito America Corporation (US)
 
-@source:supercon.cpp
-supercon                        // 
-
 @source:supercrd.cpp
 fruitstr                        // (c) 1992 Fun World
 supercrd                        // (c) 1992 Fun World
@@ -33691,8 +33699,6 @@ suratkj                         // GX911 (c) 1990 (Japan)
 sv8000                          // Super Vision 8000
 
 @source:svi318.cpp
-sv328n80                        // SVI-328 (NTSC) + SVI-806 80 column card
-sv328p80                        // SVI-328 (PAL) + SVI-806 80 column card
 svi318                          // SVI-318 (PAL)
 svi318n                         // SVI-318 (NTSC)
 svi328                          // SVI-328 (PAL)

@@ -31,7 +31,7 @@ More information can be found at http://www.seasip.info/AmstradXT/1640tech/index
 #include "cpu/i86/i86.h"
 
 #include "machine/mc146818.h"
-#include "includes/genpc.h"
+#include "machine/genpc.h"
 #include "bus/isa/isa.h"
 #include "bus/isa/isa_cards.h"
 
@@ -281,7 +281,7 @@ READ8_MEMBER( amstrad_pc_state::pc1640_port60_r )
 
 	case 2:
 		data = m_port62;
-		if (m_mb->m_pit_out2)
+		if (m_mb->pit_out2())
 			data |= 0x20;
 		break;
 	}

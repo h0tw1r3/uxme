@@ -32,7 +32,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_READCONFIG ";rc",                           "1",         OPTION_BOOLEAN,    "enable loading of configuration files" },
 	{ OPTION_WRITECONFIG ";wc",                          "0",         OPTION_BOOLEAN,    "writes configuration to (driver).ini on exit" },
 
-	// seach path options
+	// search path options
 	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE SEARCH PATH OPTIONS" },
 	{ OPTION_MEDIAPATH ";rp;biospath;bp",                "roms",      OPTION_STRING,     "path to ROMsets and hard disk images" },
 	{ OPTION_HASHPATH ";hash_directory;hash",            "hash",      OPTION_STRING,     "path to hash files" },
@@ -280,7 +280,11 @@ bool emu_options::add_slot_options(const software_part *swpart)
 			std::string featurename = std::string(name).append("_default");
 			const char *value = swpart->feature(featurename.c_str());
 			if (value != nullptr && (*value == '\0' || slot->option(value) != nullptr))
-				set_default_value(name, value);
+			{
+				// set priority above INIs but below actual command line
+				std::string error;
+				set_value(name, value, OPTION_PRIORITY_SUBCMD, error);
+			}
 		}
 	}
 	return (options_count() != starting_count);
@@ -401,7 +405,7 @@ bool emu_options::parse_slot_devices(int argc, char *argv[], std::string &error_
 	m_device_options = 0;
 	add_device_options();
 	if (name != nullptr && exists(name))
-		set_value(name, value, OPTION_PRIORITY_CMDLINE, error_string);
+		set_value(name, value, OPTION_PRIORITY_SUBCMD, error_string);
 	core_options::parse_command_line(argc, argv, OPTION_PRIORITY_CMDLINE, error_string);
 
 	int num;
@@ -581,7 +585,7 @@ bool emu_options::parse_one_ini(const char *basename, int priority, std::string 
 	// parse the file
 	osd_printf_verbose("Parsing %s.ini\n", basename);
 	std::string error;
-	bool result = parse_ini_file((core_file&)file, priority, OPTION_PRIORITY_DRIVER_INI, error);
+	bool result = parse_ini_file((util::core_file&)file, priority, OPTION_PRIORITY_DRIVER_INI, error);
 
 	// append errors if requested
 	if (!error.empty() && error_string)
