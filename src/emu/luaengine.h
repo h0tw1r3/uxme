@@ -140,6 +140,7 @@ private:
 		int l_height(lua_State *L);
 		int l_width(lua_State *L);
 		int l_aspect(lua_State *L);
+		int l_orientation(lua_State *L);
 		int l_refresh(lua_State *L);
 		int l_type(lua_State *L);
 		int l_snapshot(lua_State *L);

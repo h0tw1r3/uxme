@@ -8890,6 +8890,7 @@ ccbootmr                        // Model Racing bootleg
 cclimber                        // (c) 1980 Nichibutsu
 cclimberj                       // (c) 1980 Nichibutsu
 cclimbroper                     // Operamatic bootleg
+cclimbrrod						// Rodmar bootleg
 ckong                           // (c) 1981 (Kyoei)
 ckongalc                        // bootleg (Alca)
 ckongdks                        // Spanish Crazy Kong bootleg
@@ -13687,6 +13688,7 @@ amaztron                        // Coleco
 astro                           // Kosmos
 bankshot                        // Parker Bros
 bigtrak                         // Milton Bradley
+cnfball                         // Conic
 cnfball2                        // Conic
 cnsector                        // Parker Bros
 comp4                           // Milton Bradley
@@ -13698,6 +13700,7 @@ ebball3                         // Entex
 efootb4                         // Entex
 einvader                        // Entex
 elecdet                         // Ideal
+fxmcr165                        // Gakken
 gjackpot                        // Gakken
 gpoker                          // Gakken
 h2hbaseb                        // Coleco
@@ -13778,6 +13781,7 @@ sgnascar                        // 2000.09 Nascar Arcade
 
 @source:himesiki.cpp
 himesiki                        // (c) 1989 Hi-Soft
+androidp                        // (c) 198? Nasco
 
 @source:hitme.cpp
 barricad                        // (c) 1976 Ramtek
@@ -16667,6 +16671,7 @@ trojana                         // 4/1986 (c) 1986 (US)
 trojanb                         // bootleg
 trojanj                         // 4/1986 (c) 1986 (Japan)
 trojanr                         // 4/1986 (c) 1986 + Romstar
+fball                        // 
 
 @source:lynx.cpp
 lynx                            // Atari Lynx Handheld
@@ -19276,6 +19281,7 @@ mephistp1                       //
 @source:merit.cpp
 bigappg                         // (c) 1986 Merit / Big Apple Games
 casino5                         // (c) 1984 Merit
+chkndraw                        // (c) 1984 Merit
 couple                          // (c) 1988 Merit
 couplei                         // (c) 1988 Merit
 couplep                         // (c) 1988 Merit
@@ -28437,7 +28443,7 @@ ssjkrpkr                        // (c) 1982 Southern Systems & Assembly, Ltd.
 tpoker2                         // (c) 1993 Micro Manufacturing, Inc.
 
 @source:notetaker.cpp
-notetakr                        // 
+notetakr                        //
 
 @source:nova2001.cpp
 ninjakun                        // UPL-84003 (c) 1984 Taito Corporation
@@ -33729,6 +33735,9 @@ swyft                           //
 @source:sym1.cpp
 sym1                            // Synertek SYM-1
 
+@source:symbolics.cpp
+s3600                           // 
+
 @source:sys2900.cpp
 sys2900                         // 
 
@@ -35642,6 +35651,7 @@ videopkr                        // (c) 1984 InterFlip
 @source:vigilant.cpp
 buccanrs                        // (c) 1989 Duintronic
 buccanrsa                       // (c) 1989 Duintronic
+buccanrsb						// (c) 1989 Duintronic
 kikcubic                        // (c) 1988 (Japan)
 kikcubicb                       // bootleg
 vigilant                        // (c) 1988 (World Rev E)

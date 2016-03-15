@@ -163,6 +163,11 @@ newoption {
 }
 
 newoption {
+    trigger = 'with-bundled-libuv',
+    description = 'Build bundled libuv library',
+}
+
+newoption {
 	trigger = "distro",
 	description = "Choose distribution",
 	allowed = {
@@ -799,8 +804,9 @@ configuration { "mingw-clang" }
 	buildoptions {
 		"-O1", -- without this executable crash often
 	}
+configuration {  }
 
-	-- add the error warning flag
+-- add the error warning flag
 if _OPTIONS["NOWERROR"]==nil then
 	buildoptions {
 		"-Werror",
