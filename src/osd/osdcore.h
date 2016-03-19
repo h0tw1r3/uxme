@@ -881,7 +881,7 @@ const char *osd_get_volume_name(int idx);
 void osd_subst_env(std::string &dst,std::string const &src);
 
 /* change working directory */
-int osd_chdir(const char *path);
+int osd_chdir(std::string const &path);
 
 /* ----- output management ----- */
 

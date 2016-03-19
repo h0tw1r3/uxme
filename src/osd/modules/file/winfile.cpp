@@ -471,6 +471,17 @@ const char *osd_get_volume_name(int idx)
 }
 
 
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(std::string const &path)
+{
+	std::string path_expanded;
+	osd_subst_env(path_expanded, path);
+	int retval = _chdir(path_expanded);
+	return retval;
+}
+
 
 //============================================================
 //  win_error_to_file_error

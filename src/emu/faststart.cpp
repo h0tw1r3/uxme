@@ -33,13 +33,11 @@ static int matching_game_name (const char *pBuf, const char *name)
 
 void faststart_load (running_machine &machine)
 {
-	file_error filerr;
 	const char *name = machine.system().name;
 
 	emu_file f(machine.options().dat_path(), OPEN_FLAG_READ);
-	filerr = f.open("faststart", ".dat");
 
-	if(filerr == FILERR_NONE)
+	if(f.open("faststart", ".dat") == osd_file::error::NONE)
 	{
 		char buffer[MAX_CONFIG_LINE_SIZE];
 		enum { FIND_NAME, FIND_DATA, FIND_NEXT_DATA } mode;

@@ -15,7 +15,6 @@
 #include "emu.h"
 
 // MAMEOS headers
-#include "strconv.h"
 #include "winutil.h"
 #include "strconv.h"
 
@@ -111,18 +110,6 @@ HMODULE WINAPI GetModuleHandleUni()
 	MEMORY_BASIC_INFORMATION mbi;
 	VirtualQuery((LPCVOID)GetModuleHandleUni, &mbi, sizeof(mbi));
 	return (HMODULE)mbi.AllocationBase;
-}
-
-//============================================================
-//  osd_chdir
-//============================================================
-int osd_chdir(const char *path)
-{
-	char *path_expanded = nullptr;
-	osd_subst_env(&path_expanded, path);
-	int retval = _chdir(path_expanded);
-	osd_free(path_expanded);
-	return retval;
 }
 
 //-----------------------------------------------------------

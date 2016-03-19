@@ -199,10 +199,8 @@ const char *running_machine::describe_context()
 
 TIMER_CALLBACK_MEMBER(running_machine::autoboot_callback)
 {
-	file_error filerr;
 	emu_file f(options().lua_path(), OPEN_FLAG_READ);
-	filerr = f.open(system().name, ".lua");
-	if(filerr == FILERR_NONE)
+	if(f.open(system().name, ".lua") == osd_file::error::NONE)
 	{
 		manager().lua()->load_script(f.fullpath());
 		f.close();
