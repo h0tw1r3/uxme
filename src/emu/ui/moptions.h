@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:Dankan1890
+// copyright-holders:Maurizio Petrarota
 /***************************************************************************
 
     ui/moptions.h
@@ -33,6 +33,7 @@
 #define OPTION_HOWTO_PATH             "howto_directory"
 #define OPTION_SELECT_PATH            "select_directory"
 #define OPTION_ICONS_PATH             "icons_directory"
+#define OPTION_COVER_PATH             "covers_directory"
 #define OPTION_UI_PATH                "ui_path"
 
 // core misc options
@@ -93,6 +94,7 @@ public:
 	const char *howto_directory() const { return value(OPTION_HOWTO_PATH); }
 	const char *select_directory() const { return value(OPTION_SELECT_PATH); }
 	const char *icons_directory() const { return value(OPTION_ICONS_PATH); }
+	const char *covers_directory() const { return value(OPTION_COVER_PATH); }
 	const char *ui_path() const { return value(OPTION_UI_PATH); }
 
 	// Misc options
