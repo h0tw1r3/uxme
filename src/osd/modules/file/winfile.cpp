@@ -28,7 +28,7 @@
 #include <shlwapi.h>
 #include <stdlib.h>
 #include <ctype.h>
-
+#include <direct.h>
 
 namespace {
 //============================================================
@@ -468,7 +468,7 @@ int osd_chdir(std::string const &path)
 {
 	std::string path_expanded;
 	osd_subst_env(path_expanded, path);
-	int retval = _chdir(path_expanded);
+	int retval = _chdir(path_expanded.c_str());
 	return retval;
 }
 
