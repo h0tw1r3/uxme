@@ -1647,43 +1647,24 @@ void ui_menu::get_title_search(std::string &snaptext, std::string &searchstr)
 	snaptext.assign(_(arts_info[ui_globals::curimage_view].title));
 
 	// get search path
+	std::string addpath;
 	if (ui_globals::curimage_view == SNAPSHOT_VIEW)
+	{
+		emu_options moptions;
 		searchstr = machine().options().value(arts_info[ui_globals::curimage_view].path);
+		addpath = moptions.value(arts_info[ui_globals::curimage_view].path);
+	}
 	else
+	{
+		ui_options moptions;
 		searchstr = machine().ui().options().value(arts_info[ui_globals::curimage_view].path);
+		addpath = moptions.value(arts_info[ui_globals::curimage_view].path);
+	}
 
 	std::string tmp(searchstr);
 	path_iterator path(tmp.c_str());
-	std::string curpath, addpath;
-
-	if (ui_globals::curimage_view != SNAPSHOT_VIEW)
-	{
-		ui_options moptions;
-		for (ui_options::entry *f_entry = moptions.first(); f_entry != nullptr; f_entry = f_entry->next())
-		{
-			const char *name = f_entry->name();
-			if (name && strlen(name) && !strcmp(arts_info[ui_globals::curimage_view].path, f_entry->name()))
-			{
-				addpath = f_entry->default_value();
-				break;
-			}
-		}
-	}
-	else
-	{
-		emu_options moptions;
-		for (emu_options::entry *f_entry = moptions.first(); f_entry != nullptr; f_entry = f_entry->next())
-		{
-			const char *name = f_entry->name();
-			if (name && strlen(name) && !strcmp(arts_info[ui_globals::curimage_view].path, f_entry->name()))
-			{
-				addpath = f_entry->default_value();
-				break;
-			}
-		}
-	}
 	path_iterator path_iter(addpath.c_str());
-	std::string c_path;
+	std::string c_path, curpath;
 
 	// iterate over path and add path for zipped formats
 	while (path.next(curpath))
@@ -2306,6 +2287,11 @@ void ui_menu::arts_render_images(bitmap_argb32 *tmp_bitmap, float origx1, float 
 		float panel_height = origy2 - origy1 - 0.02f - (2.0f * UI_BOX_TB_BORDER) - (2.0f * line_height);
 		int screen_width = machine().render().ui_target().width();
 		int screen_height = machine().render().ui_target().height();
+
+		int rot = machine().render().ui_target().orientation();
+		if (rot == ROT90 || rot == ROT270)
+			std::swap(screen_height, screen_width);
+
 		int panel_width_pixel = panel_width * screen_width;
 		int panel_height_pixel = panel_height * screen_height;
 		float ratio = 0.0f;
@@ -2468,6 +2454,11 @@ void ui_menu::draw_icon(int linenum, void *selectedref, float x0, float y0)
 			float panel_height = y1 - y0;
 			int screen_width = machine().render().ui_target().width();
 			int screen_height = machine().render().ui_target().height();
+
+			int rot = machine().render().ui_target().orientation();
+			if (rot == ROT90 || rot == ROT270)
+				std::swap(screen_height, screen_width);
+
 			int panel_width_pixel = panel_width * screen_width;
 			int panel_height_pixel = panel_height * screen_height;
 

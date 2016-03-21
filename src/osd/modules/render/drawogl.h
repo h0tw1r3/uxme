@@ -147,7 +147,7 @@ public:
 			m_blit_dim = nd;
 			notify_changed();
 		}
-		window().target()->set_bounds(m_blit_dim.width(), m_blit_dim.height(), window().aspect());
+		window().target()->set_bounds(m_blit_dim.width(), m_blit_dim.height(), window().pixel_aspect());
 		return &window().target()->get_primitives();
 	}
 

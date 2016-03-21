@@ -103,6 +103,13 @@ enum
 #define OPTION_FASTSTART            "faststart"
 #define OPTION_FASTSTART_SKIP       "faststart_skip"
 
+// core render options
+#define OPTION_KEEPASPECT           "keepaspect"
+#define OPTION_UNEVENSTRETCH        "unevenstretch"
+#define OPTION_UNEVENSTRETCHX       "unevenstretchx"
+#define OPTION_INTSCALEX            "intscalex"
+#define OPTION_INTSCALEY            "intscaley"
+
 // core rotation options
 #define OPTION_ROTATE               "rotate"
 #define OPTION_ROR                  "ror"
@@ -296,6 +303,13 @@ public:
 	bool refresh_speed() const { return m_refresh_speed; }
 	int fast_start() const { return int_value(OPTION_FASTSTART); }
 	bool fast_start_skip() const { return bool_value(OPTION_FASTSTART_SKIP); }
+
+	// core render options
+	bool keep_aspect() const { return bool_value(OPTION_KEEPASPECT); }
+	bool uneven_stretch() const { return bool_value(OPTION_UNEVENSTRETCH); }
+	bool uneven_stretch_x() const { return bool_value(OPTION_UNEVENSTRETCHX); }
+	int int_scale_x() const { return int_value(OPTION_INTSCALEX); }
+	int int_scale_y() const { return int_value(OPTION_INTSCALEY); }
 
 	// core rotation options
 	bool rotate() const { return bool_value(OPTION_ROTATE); }

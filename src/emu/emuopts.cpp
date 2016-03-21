@@ -94,6 +94,14 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_FASTSTART ";fs(0-2)",                       "1",         OPTION_INTEGER,    "fast forward machine startup. 0=Off 1=On 2=Extended." },
 	{ OPTION_FASTSTART_SKIP ";fss",                      "1",         OPTION_BOOLEAN,    "do not render frames during fast start." },
 
+	// render options
+	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE RENDER OPTIONS" },
+	{ OPTION_KEEPASPECT ";ka",                           "1",         OPTION_BOOLEAN,    "constrain to the proper aspect ratio" },
+	{ OPTION_UNEVENSTRETCH ";ues",                       "1",         OPTION_BOOLEAN,    "allow non-integer stretch factors" },
+	{ OPTION_UNEVENSTRETCHX ";uesx",                     "0",         OPTION_BOOLEAN,    "allow non-integer stretch factors only on horizontal axis"},
+	{ OPTION_INTSCALEX ";sx",                            "0",         OPTION_INTEGER,    "set horizontal integer scale factor."},
+	{ OPTION_INTSCALEY ";sy",                            "0",         OPTION_INTEGER,    "set vertical integer scale."},
+
 	// rotation options
 	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE ROTATION OPTIONS" },
 	{ OPTION_ROTATE,                                     "1",         OPTION_BOOLEAN,    "rotate the game screen according to the game's orientation needs it" },
