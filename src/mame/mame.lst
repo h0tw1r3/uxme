@@ -9238,6 +9238,8 @@ coco3p                          // Color Computer 3 (PAL)
 
 @source:cocoloco.cpp
 cocoloco                        // 198?, Petaco S.A.
+cocolocoa                       // 198?, Recel S.A.
+cocolocob                       // 198?, Petaco S.A.
 
 @source:codata.cpp
 codata                          // 
@@ -12299,6 +12301,7 @@ mooncrsb                        // bootleg
 mooncrsl                        // bootleg (Laguna S.A.)
 mooncrst                        // (c) 1980 Nichibutsu
 mooncrstg                       // (c) 1980 Gremlin
+mooncrstso						// (c) 1980 SegaSA / Sonic
 mooncrsto                       // (c) 1980 Nichibutsu
 mooncrstu                       // (c) 1980 Nichibutsu USA
 mooncrstuk                      // (c) 1980 Nichibutsu UK
@@ -16847,6 +16850,7 @@ kaiteids                        // (c) 1993 Irem (Japan)
 leaguemn                        // (c) 1993 Irem (Japan)
 lethalth                        // (c) 1991 Irem (World)
 majtitl2                        // (c) 1992 Irem (World)
+majtitl2a						//
 majtitl2j                       // (c) 1992 Irem (Japan)
 mysticri                        // (c) 1992 Irem (World)
 mysticrib                       // bootleg?
@@ -28693,6 +28697,7 @@ mspacmanbcc                     // bootleg
 mspacmanbg                      // bootleg
 mspacmanbgd                     // bootleg
 mspacmanblt                     // bootleg
+mspacmanbhe						// bootleg
 mspacmancr                      // bootleg on Crush Roller board
 mspacmat                        // hack
 mspacmbe                        // bootleg
@@ -28728,6 +28733,8 @@ puckmanb                        // bootleg
 puckmanf                        // hack
 puckmanh                        // hack
 puckmod                         // (c) 1981 Namco
+pacmanso						//
+pacmanpe						//
 rocktrv2                        // (c) 1986 Triumph Software Inc
 shootbul                        // (c) 1985 Bally Midway
 sprglbpg                        // German bootleg
