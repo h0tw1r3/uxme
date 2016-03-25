@@ -61,7 +61,6 @@ ui_submenu_option artwork_submenu_options[] = {
 
 ui_submenu_option state_submenu_options[] = {
 	{ "State/Playback Options",                  nullptr },
-	{ "High score",                              OPTION_HISCORE },
 	{ "Automatic save/restore",                  OPTION_AUTOSAVE },
 	{ "Bilinear snapshot",                       OPTION_SNAPBILINEAR },
 	{ "Burn-in",                                 OPTION_BURNIN },

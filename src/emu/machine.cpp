@@ -85,7 +85,6 @@
 #include "luaengine.h"
 #include "network.h"
 #include "faststart.h"
-#include "hiscore.h"
 #include <time.h>
 
 #if defined(EMSCRIPTEN)
@@ -153,11 +152,6 @@ running_machine::running_machine(const machine_config &_config, machine_manager 
 	screen_device_iterator screeniter(root_device());
 	primary_screen = screeniter.first();
 
-	// initialize the cpu for hiscore
-	cpu[0] = firstcpu;
-	for (int cpunum = 1; cpunum < ARRAY_LENGTH(cpu) && cpu[cpunum - 1] != nullptr; cpunum++)
-		cpu[cpunum] = cpu[cpunum - 1]->next();
-
 	// fetch core options
 	if (options().debug())
 		debug_flags = (DEBUG_FLAG_ENABLED | DEBUG_FLAG_CALL_HOOK) | (DEBUG_FLAG_OSD_ENABLED);
@@ -199,13 +193,7 @@ const char *running_machine::describe_context()
 
 TIMER_CALLBACK_MEMBER(running_machine::autoboot_callback)
 {
-	emu_file f(options().lua_path(), OPEN_FLAG_READ);
-	if(f.open(system().name, ".lua") == osd_file::error::NONE)
-	{
-		manager().lua()->load_script(f.fullpath());
-		f.close();
-	}
-	else if (strlen(options().autoboot_script())!=0) {
+	if (strlen(options().autoboot_script())!=0) {
 		manager().lua()->load_script(options().autoboot_script());
 	}
 	else if (strlen(options().autoboot_command())!=0) {
@@ -315,10 +303,6 @@ void running_machine::start()
 
 	// set up the cheat engine
 	m_cheat = std::make_unique<cheat_manager>(*this);
-
-	// initialize the hiscore system
-	if (options().hiscore())
-		hiscore_init(*this);
 
 	// allocate autoboot timer
 	m_autoboot_timer = scheduler().timer_alloc(timer_expired_delegate(FUNC(running_machine::autoboot_callback), this));

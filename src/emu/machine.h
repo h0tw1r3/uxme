@@ -248,7 +248,6 @@ public:
 
 	// CPU information
 	cpu_device *            firstcpu;           // first CPU
-	device_t *              cpu[8];             // hiscore support
 
 private:
 	// video-related information

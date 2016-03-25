@@ -16,6 +16,7 @@
 #include "options.h"
 
 // core directory options
+#define OPTION_HISTORY_PATH           "historypath"
 #define OPTION_EXTRAINI_PATH          "extrainipath"
 #define OPTION_CABINETS_PATH          "cabinets_directory"
 #define OPTION_CPANELS_PATH           "cpanels_directory"
@@ -77,6 +78,7 @@ public:
 	ui_options();
 
 	// Search path options
+	const char *history_path() const { return value(OPTION_HISTORY_PATH); }
 	const char *extraini_path() const { return value(OPTION_EXTRAINI_PATH); }
 	const char *cabinets_directory() const { return value(OPTION_CABINETS_PATH); }
 	const char *cpanels_directory() const { return value(OPTION_CPANELS_PATH); }

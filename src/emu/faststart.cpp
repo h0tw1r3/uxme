@@ -35,7 +35,7 @@ void faststart_load (running_machine &machine)
 {
 	const char *name = machine.system().name;
 
-	emu_file f(machine.options().dat_path(), OPEN_FLAG_READ);
+	emu_file f(machine.ui().options().history_path(), OPEN_FLAG_READ);
 
 	if(f.open("faststart", ".dat") == osd_file::error::NONE)
 	{

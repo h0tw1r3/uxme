@@ -43,8 +43,6 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_FONTPATH,                                   ".",         OPTION_STRING,     "path to font files" },
 	{ OPTION_CHEATPATH,                                  "cheat",     OPTION_STRING,     "path to cheat files" },
 	{ OPTION_CROSSHAIRPATH,                              "crosshair", OPTION_STRING,     "path to crosshair files" },
-	{ OPTION_DATPATH,                                    ".;dat;history",     OPTION_STRING,     "path to database files" },
-	{ OPTION_LUAPATH,                                    ".;lua",     OPTION_STRING,     "path to lua script files" },
 	{ OPTION_PLUGINSPATH,                                "plugins",   OPTION_STRING,     "path to plugin files" },
 	{ OPTION_LANGUAGEPATH,                               "language",  OPTION_STRING,     "path to language files" },
 
@@ -57,12 +55,10 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SNAPSHOT_DIRECTORY,                         "snap",      OPTION_STRING,     "directory to save/load screenshots" },
 	{ OPTION_DIFF_DIRECTORY,                             "diff",      OPTION_STRING,     "directory to save hard drive image difference files" },
 	{ OPTION_COMMENT_DIRECTORY,                          "comments",  OPTION_STRING,     "directory to save debugger comments" },
-	{ OPTION_HISCORE_DIRECTORY,                          "hi",        OPTION_STRING,     "directory to save high score files" },
 
 	// state/playback options
 	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE STATE/PLAYBACK OPTIONS" },
 	{ OPTION_STATE,                                      nullptr,        OPTION_STRING,     "saved state to load" },
-	{ OPTION_HISCORE,                                    "1",         OPTION_BOOLEAN,    "enable high score support" },
 	{ OPTION_AUTOSAVE,                                   "0",         OPTION_BOOLEAN,    "enable automatic restore at startup, and automatic save at exit time" },
 	{ OPTION_PLAYBACK ";pb",                             nullptr,        OPTION_STRING,     "playback an input file" },
 	{ OPTION_RECORD ";rec",                              nullptr,        OPTION_STRING,     "record an input file" },

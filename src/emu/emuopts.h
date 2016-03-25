@@ -57,8 +57,6 @@ enum
 #define OPTION_FONTPATH             "fontpath"
 #define OPTION_CHEATPATH            "cheatpath"
 #define OPTION_CROSSHAIRPATH        "crosshairpath"
-#define OPTION_DATPATH              "datpath"
-#define OPTION_LUAPATH              "luapath"
 #define OPTION_PLUGINSPATH          "pluginspath"
 #define OPTION_LANGUAGEPATH         "languagepath"
 
@@ -70,7 +68,6 @@ enum
 #define OPTION_SNAPSHOT_DIRECTORY   "snapshot_directory"
 #define OPTION_DIFF_DIRECTORY       "diff_directory"
 #define OPTION_COMMENT_DIRECTORY    "comment_directory"
-#define OPTION_HISCORE_DIRECTORY    "hiscore_directory"
 
 // core state/playback options
 #define OPTION_STATE                "state"
@@ -213,7 +210,6 @@ enum
 
 #define OPTION_CONSOLE              "console"
 
-#define OPTION_HISCORE              "hiscore"
 #define OPTION_LANGUAGE             "language"
 
 //**************************************************************************
@@ -258,8 +254,6 @@ public:
 	const char *font_path() const { return value(OPTION_FONTPATH); }
 	const char *cheat_path() const { return value(OPTION_CHEATPATH); }
 	const char *crosshair_path() const { return value(OPTION_CROSSHAIRPATH); }
-	const char *dat_path() const { return value(OPTION_DATPATH); }
-	const char *lua_path() const { return value(OPTION_LUAPATH); }
 	const char *plugins_path() const { return value(OPTION_PLUGINSPATH); }
 	const char *language_path() const { return value(OPTION_LANGUAGEPATH); }
 
@@ -271,7 +265,6 @@ public:
 	const char *snapshot_directory() const { return value(OPTION_SNAPSHOT_DIRECTORY); }
 	const char *diff_directory() const { return value(OPTION_DIFF_DIRECTORY); }
 	const char *comment_directory() const { return value(OPTION_COMMENT_DIRECTORY); }
-	const char *hiscore_directory() const { return value(OPTION_HISCORE_DIRECTORY); }
 
 	// core state/playback options
 	const char *state() const { return value(OPTION_STATE); }
@@ -413,7 +406,6 @@ public:
 
 	bool console() const { return bool_value(OPTION_CONSOLE); }
 
-	bool hiscore() const { return bool_value(OPTION_HISCORE); }
 	const char *language() const { return value(OPTION_LANGUAGE); }
 
 	// FIXME: Couriersud: This should be in image_device_exit
