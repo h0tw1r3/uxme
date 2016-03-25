@@ -150,7 +150,6 @@ private:
 
 	// internal helpers
 	osd_file::error attempt_zipped();
-	osd_file::error attempt__7zped();
 	osd_file::error load_zipped_file();
 
 	// internal state
