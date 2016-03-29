@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <string>
 
+#include "coretmpl.h"
 
 //============================================================
 //  PROTOTYPES

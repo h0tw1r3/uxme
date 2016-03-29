@@ -14,6 +14,7 @@
 #define __CORESTR_H__
 
 #include "osdcore.h"
+#include "coretmpl.h"
 #include "strformat.h"
 
 #include <string>

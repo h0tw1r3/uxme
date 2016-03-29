@@ -679,16 +679,6 @@ if string.find(_OPTIONS["gcc"], "clang") and ((version < 30500) or (_OPTIONS["ta
 		"-x objective-c++",
 		"-std=c++1y",
 	}
-else
-	buildoptions_cpp {
-		"-x c++",
-		"-std=c++14",
-	}
-
-	buildoptions_objc {
-		"-x objective-c++",
-		"-std=c++14",
-	}
 end
 -- this speeds it up a bit by piping between the preprocessor/compiler/assembler
 	if not ("pnacl" == _OPTIONS["gcc"]) then
@@ -961,8 +951,24 @@ end
 			end
 		else
 			if (version < 40900) then
-				print("GCC version 4.9 or later needed")
-				os.exit(-1)
+				print("GCC version 4.9 or later needed, but trying anyway.")
+				buildoptions_cpp {
+					"-x c++",
+					"-std=c++1y",
+				}
+				defines
+				{
+					"NOTCPP14",
+				}
+			else
+				buildoptions_cpp {
+					"-x c++",
+					"-std=c++14",
+				}
+				buildoptions_objc {
+					"-x objective-c++",
+					"-std=c++14",
+				}
 			end
 				buildoptions {
 					"-Wno-unused-result", -- needed for fgets,fread on linux

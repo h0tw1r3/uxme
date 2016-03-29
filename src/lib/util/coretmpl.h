@@ -17,6 +17,10 @@
 #include "corealloc.h"
 
 #include <vector>
+#if defined(__APPLE__) || defined(NOTCPP14)
+#include <memory>
+#include <type_traits>
+#endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
 #include <yvals.h>
@@ -29,9 +33,40 @@
 #define assert(x) do { if (!(x)) { fprintf(stderr, "Assert: %s\n", #x); osd_break_into_debugger("Assertion failed"); } } while (0)
 #endif
 
-
 typedef std::vector<UINT8> dynamic_buffer;
 
+#if defined(__APPLE__) || defined(NOTCPP14)
+namespace std
+{
+	typedef std::atomic<bool> atomic_bool;
+
+	template <typename T, typename ... Args>
+	auto make_unique(Args&&... args)
+	-> typename std::enable_if<!std::is_array<T>::value, std::unique_ptr<T>>::type
+	{
+		return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+	}
+
+	template<class T>
+	auto make_unique(std::size_t size)
+	-> typename std::enable_if<std::is_array<T>::value, std::unique_ptr<T>>::type
+	{
+		return std::unique_ptr<T>(new typename std::remove_extent<T>::type[size]());
+	}
+
+	template<class C>
+	auto cbegin(const C& c)->decltype(std::begin(c))
+	{
+		return std::begin(c);
+	}
+
+	template<class C>
+	auto cend(const C& c)->decltype(std::end(c))
+	{
+		return std::end(c);
+	}
+}
+#endif
 
 // ======================> simple_list
 
