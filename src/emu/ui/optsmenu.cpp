@@ -26,83 +26,75 @@
 #include "ui/dirmenu.h"
 #include "rendfont.h"
 
-ui_submenu_option perf_submenu_options[] = {
-	{ "Performance Options",                     nullptr },
-	{ "Auto frame skip",                         OPTION_AUTOFRAMESKIP },
-	{ "Frame skip",                              OPTION_FRAMESKIP },
-	{ "Throttle",                                OPTION_THROTTLE },
-	{ "Sleep",                                   OPTION_SLEEP },
-	{ "Speed",                                   OPTION_SPEED },
-	{ "Refresh speed",                           OPTION_REFRESHSPEED },
-	{ "Fast start",                              OPTION_FASTSTART },
-	{ "Fast start skip",                         OPTION_FASTSTART_SKIP }
+static ui_submenu_option perf_submenu_options[] = {
+	{ _("Performance Options"),                     nullptr },
+	{ _("Auto frame skip"),                         OPTION_AUTOFRAMESKIP },
+	{ _("Frame skip"),                              OPTION_FRAMESKIP },
+	{ _("Throttle"),                                OPTION_THROTTLE },
+	{ _("Sleep"),                                   OPTION_SLEEP },
+	{ _("Speed"),                                   OPTION_SPEED },
+	{ _("Refresh speed"),                           OPTION_REFRESHSPEED },
 };
 
-ui_submenu_option rotate_submenu_options[] = {
-	{ "Rotation Options",                        nullptr },
-	{ "Rotate",                                  OPTION_ROTATE },
-	{ "Rotate right",                            OPTION_ROR },
-	{ "Rotate left",                             OPTION_ROL },
-	{ "Auto rotate right",                       OPTION_AUTOROR },
-	{ "Auto rotate left",                        OPTION_AUTOROL },
-	{ "Flip X",                                  OPTION_FLIPX },
-	{ "Flip Y",                                  OPTION_FLIPY },
+static ui_submenu_option rotate_submenu_options[] = {
+	{ _("Rotation Options"),                        nullptr },
+	{ _("Rotate"),                                  OPTION_ROTATE },
+	{ _("Rotate right"),                            OPTION_ROR },
+	{ _("Rotate left"),                             OPTION_ROL },
+	{ _("Auto rotate right"),                       OPTION_AUTOROR },
+	{ _("Auto rotate left"),                        OPTION_AUTOROL },
+	{ _("Flip X"),                                  OPTION_FLIPX },
+	{ _("Flip Y"),                                  OPTION_FLIPY },
 };
 
-ui_submenu_option artwork_submenu_options[] = {
-	{ "Artwork Options",                         nullptr },
-	{ "Artwork Crop",                            OPTION_ARTWORK_CROP },
-	{ "Use Backdrops",                           OPTION_USE_BACKDROPS },
-	{ "Use Overlays",                            OPTION_USE_OVERLAYS },
-	{ "Use Bezels",                              OPTION_USE_BEZELS },
-	{ "Use Control Panels",                      OPTION_USE_CPANELS },
-	{ "Use Marquees",                            OPTION_USE_MARQUEES },
+static ui_submenu_option artwork_submenu_options[] = {
+	{ _("Artwork Options"),                         nullptr },
+	{ _("Artwork Crop"),                            OPTION_ARTWORK_CROP },
+	{ _("Use Backdrops"),                           OPTION_USE_BACKDROPS },
+	{ _("Use Overlays"),                            OPTION_USE_OVERLAYS },
+	{ _("Use Bezels"),                              OPTION_USE_BEZELS },
+	{ _("Use Control Panels"),                      OPTION_USE_CPANELS },
+	{ _("Use Marquees"),                            OPTION_USE_MARQUEES },
 };
 
-ui_submenu_option state_submenu_options[] = {
-	{ "State/Playback Options",                  nullptr },
-	{ "Automatic save/restore",                  OPTION_AUTOSAVE },
-	{ "Bilinear snapshot",                       OPTION_SNAPBILINEAR },
-	{ "Burn-in",                                 OPTION_BURNIN },
+static ui_submenu_option state_submenu_options[] = {
+	{ _("State/Playback Options"),                  nullptr },
+	{ _("Automatic save/restore"),                  OPTION_AUTOSAVE },
+	{ _("Bilinear snapshot"),                       OPTION_SNAPBILINEAR },
+	{ _("Burn-in"),                                 OPTION_BURNIN },
 };
 
-ui_submenu_option input_submenu_options[] = {
-	{ "Input Options",                           nullptr },
-	{ "Coin lockout",                            OPTION_COIN_LOCKOUT },
-	{ "Mouse",                                   OPTION_MOUSE },
-	{ "Joystick",                                OPTION_JOYSTICK },
-	{ "Lightgun",                                OPTION_LIGHTGUN },
-	{ "Multi-keyboard",                          OPTION_MULTIKEYBOARD },
-	{ "Multi-mouse",                             OPTION_MULTIMOUSE },
-	{ "Steadykey",                               OPTION_STEADYKEY },
-	{ "UI active",                               OPTION_UI_ACTIVE },
-	{ "Offscreen reload",                        OPTION_OFFSCREEN_RELOAD },
-	{ "Joystick deadzone",                       OPTION_JOYSTICK_DEADZONE },
-	{ "Joystick saturation",                     OPTION_JOYSTICK_SATURATION },
-	{ "Natural keyboard",                        OPTION_NATURAL_KEYBOARD },
-	{ "Simultaneous contradictory",              OPTION_JOYSTICK_CONTRADICTORY },
-	{ "Coin impulse",                            OPTION_COIN_IMPULSE },
+static ui_submenu_option input_submenu_options[] = {
+	{ _("Input Options"),                           nullptr },
+	{ _("Coin lockout"),                            OPTION_COIN_LOCKOUT },
+	{ _("Mouse"),                                   OPTION_MOUSE },
+	{ _("Joystick"),                                OPTION_JOYSTICK },
+	{ _("Lightgun"),                                OPTION_LIGHTGUN },
+	{ _("Multi-keyboard"),                          OPTION_MULTIKEYBOARD },
+	{ _("Multi-mouse"),                             OPTION_MULTIMOUSE },
+	{ _("Steadykey"),                               OPTION_STEADYKEY },
+	{ _("UI active"),                               OPTION_UI_ACTIVE },
+	{ _("Offscreen reload"),                        OPTION_OFFSCREEN_RELOAD },
+	{ _("Joystick deadzone"),                       OPTION_JOYSTICK_DEADZONE },
+	{ _("Joystick saturation"),                     OPTION_JOYSTICK_SATURATION },
+	{ _("Natural keyboard"),                        OPTION_NATURAL_KEYBOARD },
+	{ _("Simultaneous contradictory"),              OPTION_JOYSTICK_CONTRADICTORY },
+	{ _("Coin impulse"),                            OPTION_COIN_IMPULSE },
 };
 
-ui_submenu_option misc_submenu_options[] = {
-	{ "Miscellaneous Options",                           nullptr },
-	{ "Re-select last machine played",                   OPTION_REMEMBER_LAST },
-	{ "Enlarge images in the right panel",               OPTION_ENLARGE_SNAPS },
-	{ "DATs info",                                       OPTION_DATS_ENABLED },
-	{ "Cheats",                                          OPTION_CHEAT },
-	{ "Show mouse pointer",                              OPTION_UI_MOUSE },
-	{ "Confirm quit from machines",                      OPTION_CONFIRM_QUIT },
-	{ "Skip displaying information's screen at startup", OPTION_SKIP_GAMEINFO },
-	{ "Force 4:3 appearance for software snapshot",      OPTION_FORCED4X3 },
-	{ "Use image as background",                         OPTION_USE_BACKGROUND },
-	{ "Skip bios selection menu",                        OPTION_SKIP_BIOS_MENU },
-	{ "Skip software parts selection menu",              OPTION_SKIP_PARTS_MENU },
-	{ nullptr,                                           nullptr },
-	{ "Info auto audit",                                 OPTION_INFO_AUTO_AUDIT },
-	{ "Skip disclaimer screen",                          OPTION_SKIP_DISCLAIMER },
-	{ "Skip warnings",                                   OPTION_SKIP_WARNINGS },
-	{ "Skip loading messages",                           OPTION_SKIP_LOADING },
-	{ "Render border",                                   OPTION_RENDER_BORDER },
+static ui_submenu_option misc_submenu_options[] = {
+	{ _("Miscellaneous Options"),                           nullptr },
+	{ _("Re-select last machine played"),                   OPTION_REMEMBER_LAST },
+	{ _("Enlarge images in the right panel"),               OPTION_ENLARGE_SNAPS },
+	{ _("DATs info"),                                       OPTION_DATS_ENABLED },
+	{ _("Cheats"),                                          OPTION_CHEAT },
+	{ _("Show mouse pointer"),                              OPTION_UI_MOUSE },
+	{ _("Confirm quit from machines"),                      OPTION_CONFIRM_QUIT },
+	{ _("Skip displaying information's screen at startup"), OPTION_SKIP_GAMEINFO },
+	{ _("Force 4:3 appearance for software snapshot"),      OPTION_FORCED4X3 },
+	{ _("Use image as background"),                         OPTION_USE_BACKGROUND },
+	{ _("Skip bios selection menu"),                        OPTION_SKIP_BIOS_MENU },
+	{ _("Skip software parts selection menu"),              OPTION_SKIP_PARTS_MENU },
 };
 
 //-------------------------------------------------
