@@ -38,9 +38,6 @@
         ...
         t ["k"] = Nil(); // assign nil
 */
-struct Nil
-{
-};
 
 //------------------------------------------------------------------------------
 /**
@@ -237,6 +234,7 @@ private:
     }
 
     inline bool isNil () const { return type () == LUA_TNIL; }
+    inline bool isBool () const { return type () == LUA_TBOOLEAN; }
     inline bool isNumber () const { return type () == LUA_TNUMBER; }
     inline bool isString () const { return type () == LUA_TSTRING; }
     inline bool isTable () const { return type () == LUA_TTABLE; }
@@ -244,6 +242,14 @@ private:
     inline bool isUserdata () const { return type () == LUA_TUSERDATA; }
     inline bool isThread () const { return type () == LUA_TTHREAD; }
     inline bool isLightUserdata () const { return type () == LUA_TLIGHTUSERDATA; }
+
+    template <class T>
+    inline bool is () const
+    {
+      StackPop p (m_L, 1);
+      push (m_L);
+      return Stack <T>::is_a (m_L, lua_gettop (m_L));
+    }
 
     //--------------------------------------------------------------------------
     /**
@@ -542,9 +548,9 @@ private:
       @note The object is popped.
   */
   LuaRef (lua_State* L, FromStack)
-    : m_L (L)
+    : m_L (get_main_thread(L))
   {
-    m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
+    m_ref = luaL_ref (L, LUA_REGISTRYINDEX);
   }
 
   //----------------------------------------------------------------------------
@@ -557,10 +563,10 @@ private:
       @note The object is not popped.
   */
   LuaRef (lua_State* L, int index, FromStack)
-    : m_L (L)
+    : m_L (get_main_thread(L))
   {
-    lua_pushvalue (m_L, index);
-    m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
+    lua_pushvalue (L, index);
+    m_ref = luaL_ref (L, LUA_REGISTRYINDEX);
   }
 
   //----------------------------------------------------------------------------
@@ -599,7 +605,7 @@ public:
       The LuaRef may be assigned later.
   */
   LuaRef (lua_State* L)
-    : m_L (L)
+    : m_L (get_main_thread(L))
     , m_ref (LUA_REFNIL)
   {
   }
@@ -610,7 +616,7 @@ public:
   */
   template <class T>
   LuaRef (lua_State* L, T v)
-    : m_L (L)
+    : m_L (get_main_thread(L))
   {
     Stack <T>::push (m_L, v);
     m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
@@ -726,9 +732,12 @@ public:
     lua_getglobal (m_L, "tostring");
     push (m_L);
     lua_call (m_L, 1, 1);
-    const char* str = lua_tostring(m_L, 1);
+    const char* str = lua_tostring(m_L, -1);
     lua_pop(m_L, 1);
-    return std::string(str);
+    if (str != 0)
+        return std::string(str);
+    else
+        return std::string(str);
   }
 
   //----------------------------------------------------------------------------
@@ -851,6 +860,15 @@ public:
   inline bool isUserdata () const { return type () == LUA_TUSERDATA; }
   inline bool isThread () const { return type () == LUA_TTHREAD; }
   inline bool isLightUserdata () const { return type () == LUA_TLIGHTUSERDATA; }
+
+  template <class T>
+  inline bool is () const
+  {
+    StackPop p (m_L, 1);
+    push (m_L);
+    return Stack <T>::is_a (m_L, lua_gettop (m_L));
+  }
+
   /** @} */
 
   //----------------------------------------------------------------------------
@@ -1124,10 +1142,10 @@ private:
     Stack specialization for Nil
 */
 template <>
-struct Stack <Nil>
+struct Stack <std::nullptr_t>
 {
 public:
-  static inline void push (lua_State* L, Nil)
+  static inline void push (lua_State* L, std::nullptr_t)
   {
     lua_pushnil (L);
   }

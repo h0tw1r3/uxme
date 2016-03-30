@@ -790,10 +790,39 @@ private:
     /**
         Add or replace a member function.
     */
-    template <class MemFn>
-    Class <T>& addFunction (char const* name, MemFn mf)
+    template <class R, class MemFn>
+    Class <T>& addFunction (char const* name, R MemFn::*mf)
     {
-      CFunc::CallMemberFunctionHelper <MemFn, FuncTraits <MemFn>::isConstMemberFunction>::add (L, name, mf);
+      CFunc::CallMemberFunctionHelper <R MemFn::*, FuncTraits <R MemFn::*>::isConstMemberFunction>::add (L, name, mf);
+      return *this;
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+        Add or replace a member function.
+    */
+    template <class FP>
+    Class <T>& addFunction (char const* name, FP fp)
+    {
+      assert(lua_istable (L, -1));
+
+      new (lua_newuserdata (L, sizeof (fp))) FP (fp);
+      lua_pushclosure (L, &CFunc::Call <FP>::f, 1);
+      rawsetfield (L, -3, name); //class table
+      if (TypeTraits::isConst<typename FuncTraits<FP>::Params::Head>::value)
+        rawsetfield (L, -5, name); // const table
+
+      return *this;
+    }
+
+    //--------------------------------------------------------------------------
+    /**
+        Add or replace a proxy member function.
+    */
+    template <class MemFn>
+    Class <T>& addProxyFunction (char const* name, MemFn mf)
+    {
+      CFunc::CallMemberProxyFunctionHelper <MemFn, T>::add (L, name, mf);
       return *this;
     }
 

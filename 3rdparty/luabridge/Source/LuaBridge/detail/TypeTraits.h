@@ -59,6 +59,16 @@ struct ContainerTraits
   typedef bool isNotContainer;
 };
 
+template <class C>
+struct ContainerConstructionTraits
+{
+  typedef typename ContainerTraits<C>::Type T;
+  static C constructContainer(T *t)
+  {
+    return C(t);
+  }
+};
+
 //------------------------------------------------------------------------------
 /**
     Type traits.
