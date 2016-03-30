@@ -187,7 +187,6 @@ enum
 #define OPTION_BIOS                 "bios"
 #define OPTION_CHEAT                "cheat"
 #define OPTION_SKIP_GAMEINFO        "skip_gameinfo"
-#define OPTION_SKIP_DISCLAIMER      "skip_disclaimer"
 #define OPTION_SKIP_WARNINGS        "skip_warnings"
 #define OPTION_SKIP_LOADING         "skip_loading"
 #define OPTION_RENDER_BORDER        "render_border"
@@ -209,6 +208,9 @@ enum
 #define OPTION_AUTOBOOT_SCRIPT      "autoboot_script"
 
 #define OPTION_CONSOLE              "console"
+#define OPTION_PLUGINS              "plugins"
+#define OPTION_PLUGIN               "plugin"
+#define OPTION_NO_PLUGIN            "noplugin"
 
 #define OPTION_LANGUAGE             "language"
 
@@ -382,7 +384,6 @@ public:
 	const char *bios() const { return value(OPTION_BIOS); }
 	bool cheat() const { return bool_value(OPTION_CHEAT); }
 	bool skip_gameinfo() const { return bool_value(OPTION_SKIP_GAMEINFO); }
-	bool skip_disclaimer() const { return bool_value(OPTION_SKIP_DISCLAIMER); }
 	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS); }
 	bool skip_loading() const { return bool_value(OPTION_SKIP_LOADING); }
 	bool render_border() const { return bool_value(OPTION_RENDER_BORDER); }
@@ -405,6 +406,11 @@ public:
 	const char *autoboot_script() const { return value(OPTION_AUTOBOOT_SCRIPT); }
 
 	bool console() const { return bool_value(OPTION_CONSOLE); }
+
+	bool plugins() const { return bool_value(OPTION_PLUGINS); }
+
+	const char *plugin() const { return value(OPTION_PLUGIN); }
+	const char *no_plugin() const { return value(OPTION_NO_PLUGIN); }
 
 	const char *language() const { return value(OPTION_LANGUAGE); }
 

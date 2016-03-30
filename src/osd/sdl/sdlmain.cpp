@@ -10,7 +10,7 @@
 
 
 #ifdef SDLMAME_UNIX
-#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_EMSCRIPTEN))
+#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_EMSCRIPTEN)) && (!defined(SDLMAME_ANDROID))
 #ifndef SDLMAME_HAIKU
 #include <fontconfig/fontconfig.h>
 #endif
@@ -61,7 +61,7 @@
 
 #ifndef INI_PATH
 #if defined(SDLMAME_WIN32)
-	#define INI_PATH ".;ini;%PROGRAMDATA%\\APP_NAME"
+	#define INI_PATH ".;ini;ini/presets;%PROGRAMDATA%/APP_NAME"
 #elif defined(SDLMAME_MACOSX)
 	#define INI_PATH "$HOME/Library/Application Support/APP_NAME;$HOME/.APP_NAME;.;ini"
 #else
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 
 #ifdef SDLMAME_UNIX
 	sdl_entered_debugger = 0;
-#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_HAIKU)) && (!defined(SDLMAME_EMSCRIPTEN))
+#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_HAIKU)) && (!defined(SDLMAME_EMSCRIPTEN)) && (!defined(SDLMAME_ANDROID))
 	FcInit();
 #endif
 #endif
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef SDLMAME_UNIX
-#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_HAIKU)) && (!defined(SDLMAME_EMSCRIPTEN))
+#if (!defined(SDLMAME_MACOSX)) && (!defined(SDLMAME_HAIKU)) && (!defined(SDLMAME_EMSCRIPTEN)) && (!defined(SDLMAME_ANDROID))
 	if (!sdl_entered_debugger)
 	{
 		FcFini();
@@ -521,4 +521,3 @@ void sdl_osd_interface::init(running_machine &machine)
 	SDL_EventState(SDL_TEXTINPUT, SDL_TRUE);
 #endif
 }
-

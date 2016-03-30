@@ -253,7 +253,7 @@ void ui_menu::reset(ui_menu_reset_options options)
 		item_append(_("Return to Machine"), nullptr, 0, nullptr);
 	else if (parent->is_special_main_menu())
 	{
-		if (strcmp(machine().options().ui(), "simple") == 0) 
+		if (strcmp(machine().options().ui(), "simple") == 0)
 			item_append(_("Exit"), nullptr, 0, nullptr);
 		else
 			item_append(_("Exit"), nullptr, MENU_FLAG_UI | MENU_FLAG_LEFT_ARROW | MENU_FLAG_RIGHT_ARROW, nullptr);
@@ -2501,7 +2501,7 @@ void ui_menu::draw_icon(int linenum, void *selectedref, float x0, float y0)
 	}
 
 	if (icons_bitmap[linenum] != nullptr && icons_bitmap[linenum]->valid())
-		container->add_quad(x0, y0, x1, y1, ARGB_WHITE, icons_texture[linenum], PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA) | PRIMFLAG_PACKABLE);
+		container->add_quad(x0, y0, x1, y1, ARGB_WHITE, icons_texture[linenum], PRIMFLAG_BLENDMODE(BLENDMODE_ALPHA));
 }
 
 //-------------------------------------------------

@@ -632,8 +632,8 @@ BUSES["RS232"] = true
 BUSES["SCSI"] = true
 --BUSES["SCV"] = true
 --BUSES["SEGA8"] = true
---BUSES["SMS_CTRL"] = true
---BUSES["SMS_EXP"] = true
+BUSES["SMS_CTRL"] = true
+BUSES["SMS_EXP"] = true
 --BUSES["SNES"] = true
 --BUSES["SPC1000"] = true
 --BUSES["TI99PEB"] = true
@@ -785,6 +785,10 @@ function createMAMEProjects(_target, _subtarget, _name)
 		MAME_DIR .. "3rdparty",
 		GEN_DIR  .. "mame/layout",
 	}
+	includedirs {
+		ext_includedir("flac"),
+	}
+
 end
 
 function createProjects_mame_arcade(_target, _subtarget)
@@ -1864,6 +1868,7 @@ files {
 	MAME_DIR .. "src/mame/drivers/m62.cpp",
 	MAME_DIR .. "src/mame/includes/m62.h",
 	MAME_DIR .. "src/mame/video/m62.cpp",
+	MAME_DIR .. "src/mame/drivers/spartanxtec.cpp",
 	MAME_DIR .. "src/mame/drivers/m63.cpp",
 	MAME_DIR .. "src/mame/drivers/m72.cpp",
 	MAME_DIR .. "src/mame/includes/m72.h",
@@ -2444,6 +2449,7 @@ files {
 	MAME_DIR .. "src/mame/drivers/mcr3.cpp",
 	MAME_DIR .. "src/mame/includes/mcr3.h",
 	MAME_DIR .. "src/mame/video/mcr3.cpp",
+	MAME_DIR .. "src/mame/drivers/spyhuntertec.cpp",
 	MAME_DIR .. "src/mame/drivers/mcr68.cpp",
 	MAME_DIR .. "src/mame/includes/mcr68.h",
 	MAME_DIR .. "src/mame/machine/mcr68.cpp",
@@ -3058,6 +3064,10 @@ files {
 	MAME_DIR .. "src/mame/drivers/puckpkmn.cpp",
 	MAME_DIR .. "src/mame/drivers/segac2.cpp",
 	MAME_DIR .. "src/mame/drivers/segae.cpp",
+	MAME_DIR .. "src/mame/drivers/sms.cpp",
+	MAME_DIR .. "src/mame/includes/sms.h",
+	MAME_DIR .. "src/mame/machine/sms.cpp",
+	MAME_DIR .. "src/mame/drivers/sms_bootleg.cpp",
 	MAME_DIR .. "src/mame/drivers/shtzone.cpp",
 	MAME_DIR .. "src/mame/drivers/segacoin.cpp",
 	MAME_DIR .. "src/mame/drivers/segag80r.cpp",
@@ -3238,7 +3248,7 @@ files {
 	MAME_DIR .. "src/mame/machine/n64.cpp",
 	MAME_DIR .. "src/mame/video/n64.cpp",
 	MAME_DIR .. "src/mame/video/n64types.h",
-	MAME_DIR .. "src/mame/video/rdpfiltr.inc",		
+	MAME_DIR .. "src/mame/video/rdpfiltr.inc",
 	MAME_DIR .. "src/mame/video/n64.h",
 	MAME_DIR .. "src/mame/video/rdpblend.cpp",
 	MAME_DIR .. "src/mame/video/rdpblend.h",

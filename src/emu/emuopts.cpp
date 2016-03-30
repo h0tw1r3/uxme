@@ -39,7 +39,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SAMPLEPATH ";sp",                           "samples",   OPTION_STRING,     "path to samplesets" },
 	{ OPTION_ARTPATH,                                    "artwork",   OPTION_STRING,     "path to artwork files" },
 	{ OPTION_CTRLRPATH,                                  "ctrlr",     OPTION_STRING,     "path to controller definitions" },
-	{ OPTION_INIPATH,                                    ".;ini",     OPTION_STRING,     "path to ini files" },
+	{ OPTION_INIPATH,                                    ".;ini;ini/presets",     OPTION_STRING,     "path to ini files" },
 	{ OPTION_FONTPATH,                                   ".",         OPTION_STRING,     "path to font files" },
 	{ OPTION_CHEATPATH,                                  "cheat",     OPTION_STRING,     "path to cheat files" },
 	{ OPTION_CROSSHAIRPATH,                              "crosshair", OPTION_STRING,     "path to crosshair files" },
@@ -207,6 +207,9 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_AUTOBOOT_DELAY,                             "0",         OPTION_INTEGER,    "timer delay in sec to trigger command execution on autoboot" },
 	{ OPTION_AUTOBOOT_SCRIPT ";script",                  nullptr,        OPTION_STRING,     "lua script to execute after machine boot" },
 	{ OPTION_CONSOLE,                                    "0",         OPTION_BOOLEAN,    "enable emulator LUA console" },
+	{ OPTION_PLUGINS,                                    "1",         OPTION_BOOLEAN,    "enable LUA plugin support" },
+	{ OPTION_PLUGIN,                                    nullptr,     OPTION_STRING,     "list of plugins to enable" },
+	{ OPTION_NO_PLUGIN,                                  nullptr,     OPTION_STRING,     "list of plugins to disable" },
 	{ OPTION_LANGUAGE ";lang",                           "English",   OPTION_STRING,    "display language" },
 	{ nullptr }
 };
@@ -382,6 +385,9 @@ void emu_options::remove_device_options()
 			remove_entry(*curentry);
 	}
 
+	// take also care of ramsize options
+	set_default_value(OPTION_RAMSIZE, "");
+
 	// reset counters
 	m_slot_options = 0;
 	m_device_options = 0;
@@ -547,20 +553,66 @@ void emu_options::set_system_name(const char *name)
 {
 	// remember the original system name
 	std::string old_system_name(system_name());
+	bool new_system = old_system_name.compare(name)!=0;
 
 	// if the system name changed, fix up the device options
-	if (old_system_name.compare(name)!=0)
+	if (new_system)
 	{
 		// first set the new name
 		std::string error;
 		set_value(OPTION_SYSTEMNAME, name, OPTION_PRIORITY_CMDLINE, error);
 		assert(error.empty());
 
-		// remove any existing device options and then add them afresh
+		// remove any existing device options
 		remove_device_options();
-		while (add_slot_options()) { }
+	}
+
+	// get the new system
+	const game_driver *cursystem = system();
+	if (cursystem == nullptr)
+		return;
+
+	if (*software_name() != 0)
+	{
+		std::string sw_load(software_name());
+		std::string sw_list, sw_name, sw_part, sw_instance, option_errors, error_string;
+		int left = sw_load.find_first_of(':');
+		int middle = sw_load.find_first_of(':', left + 1);
+		int right = sw_load.find_last_of(':');
+
+		sw_list = sw_load.substr(0, left - 1);
+		sw_name = sw_load.substr(left + 1, middle - left - 1);
+		sw_part = sw_load.substr(middle + 1, right - middle - 1);
+		sw_instance = sw_load.substr(right + 1);
+		sw_load.assign(sw_load.substr(0, right));
+
+		// look up the software part
+		machine_config config(*cursystem, *this);
+		software_list_device *swlist = software_list_device::find_by_name(config, sw_list.c_str());
+		software_info *swinfo = swlist != nullptr ? swlist->find(sw_name.c_str()) : nullptr;
+		software_part *swpart = swinfo != nullptr ? swinfo->find_part(sw_part.c_str()) : nullptr;
 
 		// then add the options
+		if (new_system)
+		{
+			while (add_slot_options(swpart)) { }
+			add_device_options();
+		}
+
+		set_value(OPTION_SOFTWARENAME, sw_name.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
+		if (exists(sw_instance.c_str()))
+			set_value(sw_instance.c_str(), sw_load.c_str(), OPTION_PRIORITY_SUBCMD, error_string);
+
+		int num;
+		do {
+			num = options_count();
+			update_slot_options(swpart);
+		} while(num != options_count());
+	}
+	else if (new_system)
+	{
+		// add the options afresh
+		while (add_slot_options()) { }
 		add_device_options();
 		int num;
 		do {
