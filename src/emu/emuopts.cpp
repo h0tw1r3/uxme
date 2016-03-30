@@ -194,7 +194,6 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_BIOS,                                       nullptr,        OPTION_STRING,     "select the system BIOS to use" },
 	{ OPTION_CHEAT ";c",                                 "0",         OPTION_BOOLEAN,    "enable cheat subsystem" },
 	{ OPTION_SKIP_GAMEINFO,                              "0",         OPTION_BOOLEAN,    "skip displaying the information screen at startup" },
-	{ OPTION_SKIP_DISCLAIMER,                            "0",         OPTION_BOOLEAN,    "skip disclaimer screen" },
 	{ OPTION_SKIP_WARNINGS,                              "0",         OPTION_BOOLEAN,    "skip warning screen" },
 	{ OPTION_SKIP_LOADING,                               "0",         OPTION_BOOLEAN,    "skip loading screen" },
 	{ OPTION_RENDER_BORDER,                              "0",         OPTION_BOOLEAN,    "render white border around UI screens" },
