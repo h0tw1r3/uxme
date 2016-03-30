@@ -26,77 +26,6 @@
 #include "ui/dirmenu.h"
 #include "rendfont.h"
 
-static ui_submenu_option perf_submenu_options[] = {
-	{ _("Performance Options"),                     nullptr },
-	{ _("Auto frame skip"),                         OPTION_AUTOFRAMESKIP },
-	{ _("Frame skip"),                              OPTION_FRAMESKIP },
-	{ _("Throttle"),                                OPTION_THROTTLE },
-	{ _("Sleep"),                                   OPTION_SLEEP },
-	{ _("Speed"),                                   OPTION_SPEED },
-	{ _("Refresh speed"),                           OPTION_REFRESHSPEED },
-};
-
-static ui_submenu_option rotate_submenu_options[] = {
-	{ _("Rotation Options"),                        nullptr },
-	{ _("Rotate"),                                  OPTION_ROTATE },
-	{ _("Rotate right"),                            OPTION_ROR },
-	{ _("Rotate left"),                             OPTION_ROL },
-	{ _("Auto rotate right"),                       OPTION_AUTOROR },
-	{ _("Auto rotate left"),                        OPTION_AUTOROL },
-	{ _("Flip X"),                                  OPTION_FLIPX },
-	{ _("Flip Y"),                                  OPTION_FLIPY },
-};
-
-static ui_submenu_option artwork_submenu_options[] = {
-	{ _("Artwork Options"),                         nullptr },
-	{ _("Artwork Crop"),                            OPTION_ARTWORK_CROP },
-	{ _("Use Backdrops"),                           OPTION_USE_BACKDROPS },
-	{ _("Use Overlays"),                            OPTION_USE_OVERLAYS },
-	{ _("Use Bezels"),                              OPTION_USE_BEZELS },
-	{ _("Use Control Panels"),                      OPTION_USE_CPANELS },
-	{ _("Use Marquees"),                            OPTION_USE_MARQUEES },
-};
-
-static ui_submenu_option state_submenu_options[] = {
-	{ _("State/Playback Options"),                  nullptr },
-	{ _("Automatic save/restore"),                  OPTION_AUTOSAVE },
-	{ _("Bilinear snapshot"),                       OPTION_SNAPBILINEAR },
-	{ _("Burn-in"),                                 OPTION_BURNIN },
-};
-
-static ui_submenu_option input_submenu_options[] = {
-	{ _("Input Options"),                           nullptr },
-	{ _("Coin lockout"),                            OPTION_COIN_LOCKOUT },
-	{ _("Mouse"),                                   OPTION_MOUSE },
-	{ _("Joystick"),                                OPTION_JOYSTICK },
-	{ _("Lightgun"),                                OPTION_LIGHTGUN },
-	{ _("Multi-keyboard"),                          OPTION_MULTIKEYBOARD },
-	{ _("Multi-mouse"),                             OPTION_MULTIMOUSE },
-	{ _("Steadykey"),                               OPTION_STEADYKEY },
-	{ _("UI active"),                               OPTION_UI_ACTIVE },
-	{ _("Offscreen reload"),                        OPTION_OFFSCREEN_RELOAD },
-	{ _("Joystick deadzone"),                       OPTION_JOYSTICK_DEADZONE },
-	{ _("Joystick saturation"),                     OPTION_JOYSTICK_SATURATION },
-	{ _("Natural keyboard"),                        OPTION_NATURAL_KEYBOARD },
-	{ _("Simultaneous contradictory"),              OPTION_JOYSTICK_CONTRADICTORY },
-	{ _("Coin impulse"),                            OPTION_COIN_IMPULSE },
-};
-
-static ui_submenu_option misc_submenu_options[] = {
-	{ _("Miscellaneous Options"),                           nullptr },
-	{ _("Re-select last machine played"),                   OPTION_REMEMBER_LAST },
-	{ _("Enlarge images in the right panel"),               OPTION_ENLARGE_SNAPS },
-	{ _("DATs info"),                                       OPTION_DATS_ENABLED },
-	{ _("Cheats"),                                          OPTION_CHEAT },
-	{ _("Show mouse pointer"),                              OPTION_UI_MOUSE },
-	{ _("Confirm quit from machines"),                      OPTION_CONFIRM_QUIT },
-	{ _("Skip displaying information's screen at startup"), OPTION_SKIP_GAMEINFO },
-	{ _("Force 4:3 appearance for software snapshot"),      OPTION_FORCED4X3 },
-	{ _("Use image as background"),                         OPTION_USE_BACKGROUND },
-	{ _("Skip bios selection menu"),                        OPTION_SKIP_BIOS_MENU },
-	{ _("Skip software parts selection menu"),              OPTION_SKIP_PARTS_MENU },
-};
-
 //-------------------------------------------------
 //  ctor
 //-------------------------------------------------
@@ -258,27 +187,31 @@ void ui_menu_game_options::handle()
 				break;
 			case STATE_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, state_submenu_options, ARRAY_LENGTH(state_submenu_options)));
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, state_submenu_options));
 				break;
 			case PERF_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, perf_submenu_options, ARRAY_LENGTH(perf_submenu_options)));
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, perf_submenu_options));
 				break;
 			case ROTATE_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, rotate_submenu_options, ARRAY_LENGTH(rotate_submenu_options)));
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, rotate_submenu_options));
 				break;
 			case ARTWORK_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, artwork_submenu_options, ARRAY_LENGTH(artwork_submenu_options)));
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, artwork_submenu_options));
 				break;
 			case INPUT_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, input_submenu_options, ARRAY_LENGTH(input_submenu_options)));
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, input_submenu_options));
 				break;
 			case MISC_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, misc_submenu_options, ARRAY_LENGTH(misc_submenu_options)));
+				{
+					osd_printf_error("**%s**", misc_submenu_options[0].description);
+
+					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, misc_submenu_options));
+				}
 			case SAVE_CONFIG:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					save_main_option(machine());

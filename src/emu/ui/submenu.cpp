@@ -18,25 +18,24 @@
 //  ctor / dtor
 //-------------------------------------------------
 
-ui_submenu::ui_submenu(running_machine &machine, render_container *container, ui_submenu_option *options, int count ) : ui_menu(machine, container)
+ui_submenu::ui_submenu(running_machine &machine, render_container *container, std::vector<ui_submenu_option> &suboptions)
+	: ui_menu(machine, container),
+	m_options(suboptions)
 {
-	m_options = options;
-	m_count = count;
-
-	for (int d = 1; d < m_count; ++d)
+	for (auto & item : m_options)
 	{
-		if (m_options[d].description == nullptr)
+		if (item.name == nullptr)
 			continue;
 
-		m_options[d].entry = machine.options().find(m_options[d].name);
-		if (m_options[d].entry == nullptr)
+		item.entry = machine.options().find(item.name);
+		if (item.entry == nullptr)
 		{
-			m_options[d].entry = machine.ui().options().find(m_options[d].name);
-			m_options[d].options = dynamic_cast<core_options*>(&machine.ui().options());
+			item.entry = machine.ui().options().find(item.name);
+			item.options = dynamic_cast<core_options*>(&machine.ui().options());
 		}
 		else
 		{
-			m_options[d].options = dynamic_cast<core_options*>(&machine.options());
+			item.options = dynamic_cast<core_options*>(&machine.options());
 		}
 	}
 }
@@ -122,29 +121,33 @@ void ui_submenu::populate()
 	int i_min, i_max, i_cur;
 
 	// add options
-	for (int d = 1; d < m_count; ++d)
+	int d = 0;
+	for (auto item = m_options.begin(); item < m_options.end(); item++, d++)
 	{
-		if (m_options[d].name == nullptr && m_options[d].description == nullptr)
+		// skip option group title
+		if (d == 0) continue;
+
+		if (item->name == nullptr && item->description == nullptr)
 		{
 			item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 			continue;
 		}
 
-		switch (m_options[d].entry->type())
+		switch (item->entry->type())
 		{
 			case OPTION_BOOLEAN:
-				arrow_flags = m_options[d].options->bool_value(m_options[d].name) ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW;
-				item_append(m_options[d].description,
+				arrow_flags = item->options->bool_value(item->name) ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW;
+				item_append(item->description,
 						(arrow_flags == MENU_FLAG_RIGHT_ARROW) ? "On" : "Off",
 						arrow_flags,
 						(void *)(FPTR)d);
 				break;
 			case OPTION_INTEGER:
-				i_cur = atof(m_options[d].entry->value());
-				if (m_options[d].entry->has_range())
+				i_cur = atof(item->entry->value());
+				if (item->entry->has_range())
 				{
-					i_min = atof(m_options[d].entry->minimum());
-					i_max = atof(m_options[d].entry->maximum());
+					i_min = atof(item->entry->minimum());
+					i_max = atof(item->entry->maximum());
 				}
 				else
 				{
@@ -152,17 +155,17 @@ void ui_submenu::populate()
 					i_max = std::numeric_limits<int>::max();
 				}
 				arrow_flags = get_arrow_flags(i_min, i_max, i_cur);
-				item_append(m_options[d].description,
-						m_options[d].entry->value(),
+				item_append(item->description,
+						item->entry->value(),
 						arrow_flags,
 						(void *)(FPTR)d);
 				break;
 			case OPTION_FLOAT:
-				f_cur = atof(m_options[d].entry->value());
-				if (m_options[d].entry->has_range())
+				f_cur = atof(item->entry->value());
+				if (item->entry->has_range())
 				{
-					f_min = atof(m_options[d].entry->minimum());
-					f_max = atof(m_options[d].entry->maximum());
+					f_min = atof(item->entry->minimum());
+					f_max = atof(item->entry->maximum());
 				}
 				else
 				{
@@ -171,15 +174,15 @@ void ui_submenu::populate()
 				}
 				arrow_flags = get_arrow_flags(f_min, f_max, f_cur);
 				tmptxt = string_format("%g", f_cur);
-				item_append(m_options[d].description,
+				item_append(item->description,
 						tmptxt.c_str(),
 						arrow_flags,
 						(void *)(FPTR)d);
 				break;
 			default:
 				arrow_flags = MENU_FLAG_RIGHT_ARROW;
-				item_append(m_options[d].description,
-					m_options[d].options->value(m_options[d].name),
+				item_append(item->description,
+					item->options->value(item->name),
 					arrow_flags, (void *)(FPTR)d);
 				break;
 		}
