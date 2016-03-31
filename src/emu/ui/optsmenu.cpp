@@ -207,11 +207,8 @@ void ui_menu_game_options::handle()
 				break;
 			case MISC_SUBMENU:
 				if (m_event->iptkey == IPT_UI_SELECT)
-				{
-					osd_printf_error("**%s**", misc_submenu_options[0].description);
-
 					ui_menu::stack_push(global_alloc_clear<ui_submenu>(machine(), container, misc_submenu_options));
-				}
+				break;
 			case SAVE_CONFIG:
 				if (m_event->iptkey == IPT_UI_SELECT)
 					save_main_option(machine());

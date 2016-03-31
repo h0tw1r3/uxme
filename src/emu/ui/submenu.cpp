@@ -1,5 +1,5 @@
 // license:BSD-3-Clause
-// copyright-holders:h0tw1r3
+// copyright-holders:Maurizio Petrarota,Jeffrey Clark
 /***************************************************************************
 
     ui/submenu.cpp
@@ -18,15 +18,16 @@
 //  ctor / dtor
 //-------------------------------------------------
 
-ui_submenu::ui_submenu(running_machine &machine, render_container *container, std::vector<ui_submenu_option> &suboptions)
+ui_submenu::ui_submenu(running_machine &machine, render_container *container, std::vector<ui_submenu::option> &suboptions)
 	: ui_menu(machine, container),
 	m_options(suboptions)
 {
 	for (auto & item : m_options)
 	{
-		if (item.name == nullptr)
+		if (item.type < ui_submenu::EMU)
 			continue;
 
+		// fixme use switch
 		item.entry = machine.options().find(item.name);
 		if (item.entry == nullptr)
 		{
@@ -56,52 +57,67 @@ void ui_submenu::handle()
 	float f_cur, f_step;
 
 	// process the menu
-	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT | 0);
-	if (m_event != nullptr && m_event->itemref != nullptr)
-	{
-		if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
-		{
-			FPTR d = (FPTR)m_event->itemref;
+	const ui_menu_event *m_event = process(UI_MENU_PROCESS_LR_REPEAT);
 
-			switch (m_options[d].entry->type())
-			{
-				case OPTION_BOOLEAN:
-					changed = true;
-					m_options[d].options->set_value(m_options[d].name, !strcmp(m_options[d].entry->value(),"1") ? "0" : "1", OPTION_PRIORITY_CMDLINE, error_string);
-					break;
-				case OPTION_INTEGER:
-					changed = true;
-					i_cur = atof(m_options[d].entry->value());
-					(m_event->iptkey == IPT_UI_LEFT) ? i_cur-- : i_cur++;
-					m_options[d].options->set_value(m_options[d].name, i_cur, OPTION_PRIORITY_CMDLINE, error_string);
-					break;
-				case OPTION_FLOAT:
-					changed = true;
-					f_cur = atof(m_options[d].entry->value());
-					if (m_options[d].entry->has_range())
-					{
-						f_step = atof(m_options[d].entry->minimum());
-						if (f_step <= 0.0f) {
-							int pmin = getprecisionchr(m_options[d].entry->minimum());
-							int pmax = getprecisionchr(m_options[d].entry->maximum());
-							tmptxt = '1' + std::string((pmin > pmax) ? pmin : pmax, '0');
-							f_step = 1 / atof(tmptxt.c_str());
+	if (m_event != nullptr && m_event->itemref != nullptr &&
+			(m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT || m_event->iptkey == IPT_UI_SELECT))
+	{
+		FPTR d = (FPTR)m_event->itemref;
+
+		switch (m_options[d].type)
+		{
+			case ui_submenu::EMU:
+			case ui_submenu::UI:
+			case ui_submenu::OSD:
+				switch (m_options[d].entry->type())
+				{
+					case OPTION_BOOLEAN:
+						changed = true;
+						m_options[d].options->set_value(m_options[d].name, !strcmp(m_options[d].entry->value(),"1") ? "0" : "1", OPTION_PRIORITY_CMDLINE, error_string);
+						break;
+					case OPTION_INTEGER:
+						if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
+						{
+							changed = true;
+							i_cur = atof(m_options[d].entry->value());
+							(m_event->iptkey == IPT_UI_LEFT) ? i_cur-- : i_cur++;
+							m_options[d].options->set_value(m_options[d].name, i_cur, OPTION_PRIORITY_CMDLINE, error_string);
 						}
-					}
-					else
-					{
-						int precision = getprecisionchr(m_options[d].entry->default_value());
-						tmptxt = '1' + std::string(precision, '0');
-						f_step = 1 / atof(tmptxt.c_str());
-					}
-					if (m_event->iptkey == IPT_UI_LEFT)
-						f_cur -= f_step;
-					else
-						f_cur += f_step;
-					tmptxt = string_format("%g", f_cur);
-					m_options[d].options->set_value(m_options[d].name, tmptxt.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
-					break;
-			}
+						break;
+					case OPTION_FLOAT:
+						if (m_event->iptkey == IPT_UI_LEFT || m_event->iptkey == IPT_UI_RIGHT)
+						{
+							changed = true;
+							f_cur = atof(m_options[d].entry->value());
+							if (m_options[d].entry->has_range())
+							{
+								f_step = atof(m_options[d].entry->minimum());
+								if (f_step <= 0.0f) {
+									int pmin = getprecisionchr(m_options[d].entry->minimum());
+									int pmax = getprecisionchr(m_options[d].entry->maximum());
+									tmptxt = '1' + std::string((pmin > pmax) ? pmin : pmax, '0');
+									f_step = 1 / atof(tmptxt.c_str());
+								}
+							}
+							else
+							{
+								int precision = getprecisionchr(m_options[d].entry->default_value());
+								tmptxt = '1' + std::string(precision, '0');
+								f_step = 1 / atof(tmptxt.c_str());
+							}
+							if (m_event->iptkey == IPT_UI_LEFT)
+								f_cur -= f_step;
+							else
+								f_cur += f_step;
+							tmptxt = string_format("%g", f_cur);
+							m_options[d].options->set_value(m_options[d].name, tmptxt.c_str(), OPTION_PRIORITY_CMDLINE, error_string);
+						}
+						break;
+				}
+				break;
+			default:
+				osd_printf_error("Unhandled option: %d %s", (int)d, m_options[d].description);
+				break;
 		}
 	}
 
@@ -124,66 +140,75 @@ void ui_submenu::populate()
 	int d = 0;
 	for (auto item = m_options.begin(); item < m_options.end(); item++, d++)
 	{
-		// skip option group title
-		if (d == 0) continue;
-
-		if (item->name == nullptr && item->description == nullptr)
+		switch (item->type)
 		{
-			item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
-			continue;
-		}
-
-		switch (item->entry->type())
-		{
-			case OPTION_BOOLEAN:
-				arrow_flags = item->options->bool_value(item->name) ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW;
-				item_append(item->description,
-						(arrow_flags == MENU_FLAG_RIGHT_ARROW) ? "On" : "Off",
-						arrow_flags,
-						(void *)(FPTR)d);
+			case ui_submenu::HEADER:
 				break;
-			case OPTION_INTEGER:
-				i_cur = atof(item->entry->value());
-				if (item->entry->has_range())
-				{
-					i_min = atof(item->entry->minimum());
-					i_max = atof(item->entry->maximum());
-				}
-				else
-				{
-					i_min = std::numeric_limits<int>::min();
-					i_max = std::numeric_limits<int>::max();
-				}
-				arrow_flags = get_arrow_flags(i_min, i_max, i_cur);
-				item_append(item->description,
-						item->entry->value(),
-						arrow_flags,
-						(void *)(FPTR)d);
+			case ui_submenu::SEPARATOR:
+				item_append(MENU_SEPARATOR_ITEM, nullptr, 0, nullptr);
 				break;
-			case OPTION_FLOAT:
-				f_cur = atof(item->entry->value());
-				if (item->entry->has_range())
+			case ui_submenu::COMMAND:
+				item_append(item->description, nullptr, 0, (void *)(FPTR)d);
+				break;
+			case ui_submenu::EMU:
+			case ui_submenu::UI:
+			case ui_submenu::OSD:
+				switch (item->entry->type())
 				{
-					f_min = atof(item->entry->minimum());
-					f_max = atof(item->entry->maximum());
+					case OPTION_BOOLEAN:
+						arrow_flags = item->options->bool_value(item->name) ? MENU_FLAG_RIGHT_ARROW : MENU_FLAG_LEFT_ARROW;
+						item_append(item->description,
+								(arrow_flags == MENU_FLAG_RIGHT_ARROW) ? "On" : "Off",
+								arrow_flags,
+								(void *)(FPTR)d);
+						break;
+					case OPTION_INTEGER:
+						i_cur = atof(item->entry->value());
+						if (item->entry->has_range())
+						{
+							i_min = atof(item->entry->minimum());
+							i_max = atof(item->entry->maximum());
+						}
+						else
+						{
+							i_min = std::numeric_limits<int>::min();
+							i_max = std::numeric_limits<int>::max();
+						}
+						arrow_flags = get_arrow_flags(i_min, i_max, i_cur);
+						item_append(item->description,
+								item->entry->value(),
+								arrow_flags,
+								(void *)(FPTR)d);
+						break;
+					case OPTION_FLOAT:
+						f_cur = atof(item->entry->value());
+						if (item->entry->has_range())
+						{
+							f_min = atof(item->entry->minimum());
+							f_max = atof(item->entry->maximum());
+						}
+						else
+						{
+							f_min = 0.0f;
+							f_max = std::numeric_limits<float>::max();
+						}
+						arrow_flags = get_arrow_flags(f_min, f_max, f_cur);
+						tmptxt = string_format("%g", f_cur);
+						item_append(item->description,
+								tmptxt.c_str(),
+								arrow_flags,
+								(void *)(FPTR)d);
+						break;
+					default:
+						arrow_flags = MENU_FLAG_RIGHT_ARROW;
+						item_append(item->description,
+								item->options->value(item->name),
+								arrow_flags, (void *)(FPTR)d);
+						break;
 				}
-				else
-				{
-					f_min = 0.0f;
-					f_max = std::numeric_limits<float>::max();
-				}
-				arrow_flags = get_arrow_flags(f_min, f_max, f_cur);
-				tmptxt = string_format("%g", f_cur);
-				item_append(item->description,
-						tmptxt.c_str(),
-						arrow_flags,
-						(void *)(FPTR)d);
 				break;
 			default:
-				arrow_flags = MENU_FLAG_RIGHT_ARROW;
-				item_append(item->description,
-					item->options->value(item->name),
-					arrow_flags, (void *)(FPTR)d);
+				osd_printf_error("Unknown option type: %d %s", (int)d, m_options[d].description);
 				break;
 		}
 	}
@@ -230,13 +255,13 @@ void ui_submenu::custom_render(void *selectedref, float top, float bottom, float
 	if (selectedref != nullptr)
 	{
 		if (lastref == (FPTR)selectedref) {
-			if (interval <= 15) interval++;
+			if (interval <= 30) interval++;
 		} else {
 			lastref = (FPTR)selectedref;
 			interval = 0;
 		}
 
-		if (interval > 15)
+		if (interval > 30 && m_options[lastref].type >= ui_submenu::EMU)
 		{
 			mui.draw_text_full(container, m_options[lastref].entry->description(), 0.0f, 0.0f, 1.0f, JUSTIFY_CENTER, WRAP_TRUNCATE,
 					DRAW_NONE, ARGB_WHITE, ARGB_BLACK, &width, nullptr);
