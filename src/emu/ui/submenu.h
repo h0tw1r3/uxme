@@ -67,6 +67,8 @@ static std::vector<ui_submenu::option> perf_submenu_options = {
 	{ ui_submenu::EMU,   _("Sleep"),                                   OPTION_SLEEP },
 	{ ui_submenu::EMU,   _("Speed"),                                   OPTION_SPEED },
 	{ ui_submenu::EMU,   _("Refresh speed"),                           OPTION_REFRESHSPEED },
+	{ ui_submenu::EMU,   _("Fast start"),                              OPTION_FASTSTART },
+	{ ui_submenu::EMU,   _("Fast start skip"),                         OPTION_FASTSTART_SKIP },
 };
 
 static std::vector<ui_submenu::option> rotate_submenu_options = {
@@ -117,17 +119,21 @@ static std::vector<ui_submenu::option> input_submenu_options = {
 
 static std::vector<ui_submenu::option> misc_submenu_options = {
 	{ ui_submenu::HEADER,  _("Miscellaneous Options") },
-	{ ui_submenu::EMU,     _("Re-select last machine played"),                   OPTION_REMEMBER_LAST },
-	{ ui_submenu::EMU,     _("Enlarge images in the right panel"),               OPTION_ENLARGE_SNAPS },
-	{ ui_submenu::EMU,     _("DATs info"),                                       OPTION_DATS_ENABLED },
+	{ ui_submenu::UI,      _("Re-select last machine played"),                   OPTION_REMEMBER_LAST },
+	{ ui_submenu::UI,      _("Enlarge images in the right panel"),               OPTION_ENLARGE_SNAPS },
+	{ ui_submenu::UI,      _("DATs info"),                                       OPTION_DATS_ENABLED },
 	{ ui_submenu::EMU,     _("Cheats"),                                          OPTION_CHEAT },
 	{ ui_submenu::EMU,     _("Show mouse pointer"),                              OPTION_UI_MOUSE },
 	{ ui_submenu::EMU,     _("Confirm quit from machines"),                      OPTION_CONFIRM_QUIT },
-	{ ui_submenu::EMU,     _("Skip displaying information's screen at startup"), OPTION_SKIP_GAMEINFO },
-	{ ui_submenu::EMU,     _("Force 4:3 appearance for software snapshot"),      OPTION_FORCED4X3 },
-	{ ui_submenu::EMU,     _("Use image as background"),                         OPTION_USE_BACKGROUND },
-	{ ui_submenu::EMU,     _("Skip bios selection menu"),                        OPTION_SKIP_BIOS_MENU },
-	{ ui_submenu::EMU,     _("Skip software parts selection menu"),              OPTION_SKIP_PARTS_MENU },
+	{ ui_submenu::EMU,     _("Skip information screen at startup"),              OPTION_SKIP_GAMEINFO },
+	{ ui_submenu::EMU,     _("Skip warnings"),                                   OPTION_SKIP_WARNINGS },
+	{ ui_submenu::EMU,     _("Skip loading messages"),                           OPTION_SKIP_LOADING },
+	{ ui_submenu::UI,      _("Force 4:3 aspect for snapshot display"),           OPTION_FORCED4X3 },
+	{ ui_submenu::UI,      _("Use image as background"),                         OPTION_USE_BACKGROUND },
+	{ ui_submenu::UI,      _("Skip bios selection menu"),                        OPTION_SKIP_BIOS_MENU },
+	{ ui_submenu::UI,      _("Skip software parts selection menu"),              OPTION_SKIP_PARTS_MENU },
+	{ ui_submenu::UI,      _("Info auto audit"),                                 OPTION_INFO_AUTO_AUDIT },
+	{ ui_submenu::EMU,     _("Render border"),                                   OPTION_RENDER_BORDER },
 };
 
 static std::vector<ui_submenu::option> export_submenu_options = {
