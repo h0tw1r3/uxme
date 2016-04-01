@@ -84,6 +84,7 @@
 #include "image.h"
 #include "luaengine.h"
 #include "network.h"
+#include "faststart.h"
 #include <time.h>
 
 #if defined(EMSCRIPTEN)
@@ -343,6 +344,8 @@ int running_machine::run(bool firstrun)
 
 		// load the configuration settings and NVRAM
 		m_configuration->load_settings();
+
+		faststart_init(*this);
 
 		// disallow save state registrations starting here.
 		// Don't do it earlier, config load can create network

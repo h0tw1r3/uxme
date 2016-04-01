@@ -134,6 +134,8 @@ files {
 	MAME_DIR .. "src/emu/emuopts.h",
 	MAME_DIR .. "src/emu/emupal.cpp",
 	MAME_DIR .. "src/emu/emupal.h",
+	MAME_DIR .. "src/emu/faststart.cpp",
+	MAME_DIR .. "src/emu/faststart.h",
 	MAME_DIR .. "src/emu/fileio.cpp",
 	MAME_DIR .. "src/emu/fileio.h",
 	MAME_DIR .. "src/emu/hash.cpp",
