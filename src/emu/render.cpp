@@ -1312,6 +1312,11 @@ void render_target::compute_minimum_size(INT32 &minwidth, INT32 &minheight)
 
 render_primitive_list &render_target::get_primitives()
 {
+	return get_primitives(false);
+}
+
+render_primitive_list &render_target::get_primitives(bool include_ui)
+{
 	// remember the base values if this is the first frame
 	if (m_base_view == nullptr)
 		m_base_view = m_curview;
@@ -1377,7 +1382,7 @@ render_primitive_list &render_target::get_primitives()
 		}
 
 	// if we are not in the running stage, draw an outer box
-	else
+	else if (m_draw_outer_box)
 	{
 		render_primitive *prim = list.alloc(render_primitive::QUAD);
 		set_render_bounds_xy(&prim->bounds, 0.0f, 0.0f, (float)m_width, (float)m_height);
@@ -1415,7 +1420,7 @@ render_primitive_list &render_target::get_primitives()
 	}
 
 	// process the UI if we are the UI target
-	if (is_ui_target())
+	if (is_ui_target() || include_ui)
 	{
 		// compute the transform for the UI
 		object_transform ui_xform;
@@ -1529,6 +1534,9 @@ void render_target::resolve_tags()
 			view->resolve_tags();
 		}
 	}
+
+	// white box
+	m_draw_outer_box = m_manager.machine().options().render_border();
 }
 
 

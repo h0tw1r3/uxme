@@ -390,11 +390,12 @@ void ui_manager::display_startup_screens(bool first_time)
 			case 0:
 				if (show_warnings && warnings_string(messagebox_text).length() > 0)
 				{
-					set_handler(handler_messagebox_anykey, 0);
 					if (machine().system().flags & (MACHINE_WRONG_COLORS | MACHINE_IMPERFECT_COLORS | MACHINE_REQUIRES_ARTWORK | MACHINE_IMPERFECT_GRAPHICS | MACHINE_IMPERFECT_SOUND | MACHINE_IMPERFECT_KEYBOARD | MACHINE_NO_SOUND))
 						messagebox_backcolor = UI_YELLOW_COLOR;
 					if (machine().system().flags & (MACHINE_NOT_WORKING | MACHINE_UNEMULATED_PROTECTION | MACHINE_MECHANICAL))
 						messagebox_backcolor = UI_RED_COLOR;
+					if (messagebox_backcolor == UI_RED_COLOR || !machine().options().skip_warnings())
+						set_handler(handler_messagebox_anykey, 0);
 				}
 				break;
 

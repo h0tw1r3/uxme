@@ -282,7 +282,8 @@ void running_machine::start()
 	// call the game driver's init function
 	// this is where decryption is done and memory maps are altered
 	// so this location in the init order is important
-	ui().set_startup_text("Initializing...", true);
+	if (!options().skip_loading())
+		ui().set_startup_text("Initializing...", true);
 
 	// register callbacks for the devices, then start them
 	add_notifier(MACHINE_NOTIFY_RESET, machine_notify_delegate(FUNC(running_machine::reset_all_devices), this));

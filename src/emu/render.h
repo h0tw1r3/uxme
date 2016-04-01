@@ -947,6 +947,7 @@ public:
 
 	// get a primitive list
 	render_primitive_list &get_primitives();
+	render_primitive_list &get_primitives(bool include_ui);
 
 	// hit testing
 	bool map_point_container(INT32 target_x, INT32 target_y, render_container &container, float &container_x, float &container_y);
@@ -1012,6 +1013,7 @@ private:
 	layout_view *           m_base_view;                // the view at the time of first frame
 	int                     m_base_orientation;         // the orientation at the time of first frame
 	render_layer_config     m_base_layerconfig;         // the layer configuration at the time of first frame
+	bool                    m_draw_outer_box;           // white box
 	int                     m_maxtexwidth;              // maximum width of a texture
 	int                     m_maxtexheight;             // maximum height of a texture
 	simple_list<render_container> m_debug_containers;   // list of debug containers

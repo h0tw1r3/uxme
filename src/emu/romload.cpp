@@ -463,6 +463,9 @@ void rom_load_manager::display_loading_rom_message(const char *name, bool from_l
 {
 	char buffer[200];
 
+	if (machine().options().skip_loading())
+		return;
+
 	if (name != nullptr)
 		sprintf(buffer, "%s (%d%%)", from_list ? "Loading Software" : "Loading Machine", (UINT32)(100 * (UINT64)m_romsloadedsize / (UINT64)m_romstotalsize));
 	else
