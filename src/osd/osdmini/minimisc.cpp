@@ -107,3 +107,11 @@ void osd_subst_env(std::string &dst, const std::string &src)
 {
 	dst = src;
 }
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(const char *path)
+{
+	return chdir(path);
+}

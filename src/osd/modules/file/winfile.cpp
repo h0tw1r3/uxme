@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#include <direct.h>
 
 namespace {
 //============================================================
@@ -460,6 +461,17 @@ const char *osd_get_volume_name(int idx)
 	return p;
 }
 
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(std::string const &path)
+{
+	std::string path_expanded;
+	osd_subst_env(path_expanded, path);
+	int retval = _chdir(path_expanded.c_str());
+	return retval;
+}
 
 
 //============================================================
