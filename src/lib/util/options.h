@@ -131,6 +131,7 @@ public:
 	// getters
 	entry *first() const { return m_entrylist.first(); }
 	const char *command() const { return m_command.c_str(); }
+	entry *get_entry(const char *option) { return (m_entrymap.find(option) != m_entrymap.end()) ? m_entrymap.find(option)->second : nullptr; }
 
 	// configuration
 	void add_entry(const char *name, const char *description, UINT32 flags = 0, const char *defvalue = nullptr, bool override_existing = false);
