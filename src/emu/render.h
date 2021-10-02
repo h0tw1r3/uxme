@@ -503,6 +503,7 @@ public:
 	u32 height() const { return m_height; }
 	float pixel_aspect() const { return m_pixel_aspect; }
 	bool keepaspect() const { return m_keepaspect; }
+	bool renderborder() const { return m_renderborder; }
 	int scale_mode() const { return m_scale_mode; }
 	float max_update_rate() const { return m_max_refresh; }
 	int orientation() const { return m_orientation; }
@@ -609,6 +610,7 @@ private:
 	s32                     m_height;                   // height in pixels
 	render_bounds           m_bounds;                   // bounds of the target
 	bool                    m_keepaspect;               // constrain aspect ratio
+	bool                    m_renderborder;             // draw ui borders
 	bool                    m_int_overscan;             // allow overscan on integer scaled targets
 	float                   m_pixel_aspect;             // aspect ratio of individual pixels
 	int                     m_scale_mode;               // type of scale to apply

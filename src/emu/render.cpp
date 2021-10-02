@@ -899,6 +899,7 @@ template <typename T> render_target::render_target(render_manager &manager, T &&
 	, m_width(640)
 	, m_height(480)
 	, m_keepaspect(false)
+	, m_renderborder(false)
 	, m_int_overscan(false)
 	, m_pixel_aspect(0.0f)
 	, m_int_scale_x(0)
@@ -919,6 +920,7 @@ template <typename T> render_target::render_target(render_manager &manager, T &&
 	if (!(flags & RENDER_CREATE_HIDDEN))
 	{
 		m_keepaspect = manager.machine().options().keep_aspect();
+		m_renderborder = manager.machine().options().render_border();
 		m_int_overscan = manager.machine().options().int_overscan();
 		m_int_scale_x = manager.machine().options().int_scale_x();
 		m_int_scale_y = manager.machine().options().int_scale_y();
@@ -1428,7 +1430,7 @@ render_primitive_list &render_target::get_primitives()
 				add_element_primitives(list, item_xform, curitem);
 		}
 	}
-	else
+	else if (m_renderborder)
 	{
 		// if we are not in the running stage, draw an outer box
 		render_primitive *prim = list.alloc(render_primitive::QUAD);

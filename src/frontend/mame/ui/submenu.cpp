@@ -31,6 +31,7 @@ std::vector<submenu::option> submenu::misc_options()
 {
 	return std::vector<option>{
 			{ option_type::HEAD, N_("Miscellaneous Options") },
+			{ option_type::EMU,  N_("Render UI borders"),                       OPTION_RENDER_BORDER },
 			{ option_type::UI,   N_("Skip imperfect emulation warnings"),       OPTION_SKIP_WARNINGS },
 			{ option_type::UI,   N_("Re-select last machine launched"),         OPTION_REMEMBER_LAST },
 			{ option_type::UI,   N_("Enlarge images in the right panel"),       OPTION_ENLARGE_SNAPS },
