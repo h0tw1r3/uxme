@@ -89,6 +89,8 @@ video_manager::video_manager(running_machine &machine)
 	, m_throttled(true)
 	, m_throttle_rate(1.0f)
 	, m_fastforward(false)
+	, m_faststart(false)
+	, m_faststart_skip(machine.options().faststart_skip())
 	, m_seconds_to_run(machine.options().seconds_to_run())
 	, m_auto_frameskip(machine.options().auto_frameskip())
 	, m_speed(original_speed_setting())
@@ -210,7 +212,7 @@ void video_manager::frame_update(bool from_debugger)
 	machine_phase const phase = machine().phase();
 	bool skipped_it = m_skipping_this_frame;
 	bool const update_screens = (phase == machine_phase::RUNNING) && (!machine().paused() || machine().options().update_in_pause());
-	bool anything_changed = update_screens && finish_screen_updates();
+	bool anything_changed = update_screens && ((m_faststart && m_faststart_skip) || finish_screen_updates());
 
 	// draw the user interface
 	emulator_info::draw_user_interface(machine());

@@ -59,6 +59,8 @@ std::vector<submenu::option> submenu::advanced_options()
 			{ option_type::EMU,  N_("Speed"),                                   OPTION_SPEED },
 			{ option_type::EMU,  N_("Adjust speed to match refresh rate"),      OPTION_REFRESHSPEED },
 			{ option_type::EMU,  N_("Low latency"),                             OPTION_LOWLATENCY },
+			{ option_type::EMU,  N_("Fast start"),                              OPTION_FASTSTART },
+			{ option_type::EMU,  N_("Fast start skip"),                         OPTION_FASTSTART_SKIP },
 
 			{ option_type::HEAD, N_("Rotation Options") },
 			{ option_type::EMU,  N_("Rotate"),                                  OPTION_ROTATE },

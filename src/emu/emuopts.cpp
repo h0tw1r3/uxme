@@ -91,6 +91,8 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_SPEED "(0.01-100)",                         "1.0",       OPTION_FLOAT,      "controls the speed of gameplay, relative to realtime; smaller numbers are slower" },
 	{ OPTION_REFRESHSPEED ";rs",                         "0",         OPTION_BOOLEAN,    "automatically adjust emulation speed to keep the emulated refresh rate slower than the host screen" },
 	{ OPTION_LOWLATENCY ";lolat",                        "0",         OPTION_BOOLEAN,    "draws new frame before throttling to reduce input latency" },
+	{ OPTION_FASTSTART ";fas(0-2)",                      "1",         OPTION_INTEGER,    "disable throttling during startup. 0=Off, 1=On, 2=Extended" },
+	{ OPTION_FASTSTART_SKIP ";fss",                      "1",         OPTION_BOOLEAN,    "skip rendering frames during fast start" },
 
 	// render options
 	{ nullptr,                                           nullptr,     OPTION_HEADER,     "CORE RENDER OPTIONS" },

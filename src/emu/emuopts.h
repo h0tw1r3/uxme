@@ -76,6 +76,8 @@
 #define OPTION_SPEED                "speed"
 #define OPTION_REFRESHSPEED         "refreshspeed"
 #define OPTION_LOWLATENCY           "lowlatency"
+#define OPTION_FASTSTART            "faststart"
+#define OPTION_FASTSTART_SKIP       "faststart_skip"
 
 // core render options
 #define OPTION_KEEPASPECT           "keepaspect"
@@ -361,6 +363,8 @@ public:
 	float speed() const { return float_value(OPTION_SPEED); }
 	bool refresh_speed() const { return m_refresh_speed; }
 	bool low_latency() const { return bool_value(OPTION_LOWLATENCY); }
+	int faststart() const { return int_value(OPTION_FASTSTART); }
+	bool faststart_skip() const { return bool_value(OPTION_FASTSTART_SKIP); }
 
 	// core render options
 	bool keep_aspect() const { return bool_value(OPTION_KEEPASPECT); }

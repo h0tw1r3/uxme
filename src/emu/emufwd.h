@@ -152,6 +152,9 @@ class memory_view;
 // declared in emuopts.h
 class emu_options;
 
+// declared in faststart.h
+class fast_start;
+
 // declared in http.h
 class http_manager;
 

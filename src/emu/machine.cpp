@@ -20,6 +20,7 @@
 #include "debug/debugvw.h"
 #include "debug/debugcpu.h"
 #include "dirtc.h"
+#include "faststart.h"
 #include "image.h"
 #include "network.h"
 #include "romload.h"
@@ -164,6 +165,9 @@ void running_machine::start()
 	// initialize natural keyboard support after ports have been initialized
 	m_natkeyboard = std::make_unique<natural_keyboard>(*this);
 
+        // initialize fast start support
+        m_faststart = std::make_unique<fast_start>(*this);
+
 	// initialize the streams engine before the sound devices start
 	m_sound = std::make_unique<sound_manager>(*this);
 
@@ -280,6 +284,8 @@ int running_machine::run(bool quiet)
 		// load the configuration settings
 		manager().before_load_settings(*this);
 		m_configuration->load_settings();
+
+                faststart().run();
 
 		// disallow save state registrations starting here.
 		// Don't do it earlier, config load can create network

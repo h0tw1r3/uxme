@@ -1406,7 +1406,7 @@ uint32_t mame_ui_manager::handler_ingame(render_container &container)
 		machine().video().set_fastforward(true);
 		show_fps_temp(0.5);
 	}
-	else
+	else if (!machine().video().faststart())
 		machine().video().set_fastforward(false);
 
 	return 0;
