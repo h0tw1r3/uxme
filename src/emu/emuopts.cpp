@@ -202,6 +202,7 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_BIOS,                                       nullptr,     OPTION_STRING,     "select the system BIOS to use" },
 	{ OPTION_CHEAT ";c",                                 "0",         OPTION_BOOLEAN,    "enable cheat subsystem" },
 	{ OPTION_SKIP_GAMEINFO,                              "0",         OPTION_BOOLEAN,    "skip displaying the system information screen at startup" },
+	{ OPTION_SKIP_LOADING,                               "0",         OPTION_BOOLEAN,    "skip displaying loading and initialization messages" },
 	{ OPTION_UI_FONT,                                    "default",   OPTION_STRING,     "specify a font to use" },
 	{ OPTION_UI,                                         "cabinet",   OPTION_STRING,     "type of UI (simple|cabinet)" },
 	{ OPTION_RAMSIZE ";ram",                             nullptr,     OPTION_STRING,     "size of RAM (if supported by driver)" },

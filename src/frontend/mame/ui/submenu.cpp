@@ -38,6 +38,7 @@ std::vector<submenu::option> submenu::misc_options()
 			{ option_type::EMU,  N_("Show mouse pointer"),                      OPTION_UI_MOUSE },
 			{ option_type::EMU,  N_("Confirm quit from emulation"),             OPTION_CONFIRM_QUIT },
 			{ option_type::EMU,  N_("Skip system information screen"),          OPTION_SKIP_GAMEINFO },
+			{ option_type::EMU,  N_("Skip loading information at startup"),     OPTION_SKIP_LOADING },
 			{ option_type::UI,   N_("Force 4:3 aspect for snapshot display"),   OPTION_FORCED4X3 },
 			{ option_type::UI,   N_("Use image as background"),                 OPTION_USE_BACKGROUND },
 			{ option_type::UI,   N_("Skip BIOS selection menu"),                OPTION_SKIP_BIOS_MENU },
