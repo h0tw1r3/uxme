@@ -10,10 +10,10 @@
 
 #include "emu.h"
 
-#define APPNAME                 "MESS"
-#define APPNAME_LOWER           "mess"
-#define CONFIGNAME              "mess"
-#define COPYRIGHT               "Copyright Nicola Salmoria\nand the MAME team\nhttps://mamedev.org"
+#define APPNAME                 "UXSS"
+#define APPNAME_LOWER           "uxss"
+#define CONFIGNAME              "uxss"
+#define COPYRIGHT               "Copyright Nicola Salmoria\nand the MAME team\nhttps://github.com/h0tw1r3/uxme"
 #define COPYRIGHT_INFO          "Copyright Nicola Salmoria and the MAME team"
 
 const char * emulator_info::get_appname() { return APPNAME;}

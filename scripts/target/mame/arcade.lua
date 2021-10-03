@@ -875,6 +875,9 @@ FORMATS["TZX_CAS"] = true
 --------------------------------------------------
 
 function linkProjects_mame_arcade(_target, _subtarget)
+	configuration { }
+		targetname("uxme" .. _subtarget)
+
 	links {
 		"acorn",
 		"adp",

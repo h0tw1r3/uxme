@@ -1196,6 +1196,9 @@ FORMATS["FS_COCO_OS9"] = true
 -- the list of drivers
 --------------------------------------------------
 function linkProjects_mame_mess(_target, _subtarget)
+	configuration { }
+		targetname("uxme" .. _subtarget)
+
 	links {
 		"access",
 		"aci",
