@@ -605,6 +605,9 @@ configuration { "Release" }
 	}
 
 configuration { }
+	defines {
+		"SUBTARGETNAME='\"" .. _OPTIONS["subtarget"] .. "\"'"
+	}
 
 -- CR/LF setup: use on win32, CR only on everything else
 if _OPTIONS["targetos"]=="windows" then
