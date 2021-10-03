@@ -1187,7 +1187,7 @@ void sound_manager::set_attenuation(float attenuation)
 {
 	// currently OSD only supports integral attenuation
 	m_attenuation = int(attenuation);
-	machine().osd().set_mastervolume(m_muted ? -32 : m_attenuation);
+	machine().osd().set_mastervolume(m_muted ? -48 : m_attenuation);
 }
 
 

@@ -293,6 +293,8 @@ enum ioport_type : osd::u32
 		IPT_UI_TAPE_STOP,
 		IPT_UI_FOCUS_NEXT,
 		IPT_UI_FOCUS_PREV,
+                IPT_UI_SHOW_CLOCK,
+                IPT_UI_MUTE,
 		IPT_UI_DATS,
 		IPT_UI_FAVORITES,
 		IPT_UI_EXPORT,
