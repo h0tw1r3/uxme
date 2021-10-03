@@ -174,6 +174,8 @@ public:
 	void set_show_fps(bool show);
 	bool show_fps() const;
 	bool show_fps_counter();
+	void set_show_clock(bool show);
+	bool show_clock() const;
 	void set_show_profiler(bool show);
 	bool show_profiler() const;
 	void show_menu();
@@ -186,6 +188,7 @@ public:
 	void decrease_frameskip();
 	void request_quit();
 	void draw_fps_counter(render_container &container);
+	void draw_clock(render_container &container);
 	void draw_profiler(render_container &container);
 	void start_save_state();
 	void start_load_state();
@@ -237,6 +240,7 @@ private:
 	bool                    m_single_step;
 	bool                    m_showfps;
 	osd_ticks_t             m_showfps_end;
+	bool                    m_show_clock;
 	bool                    m_show_profiler;
 	osd_ticks_t             m_popup_text_end;
 	std::unique_ptr<uint8_t []> m_non_char_keys_down;

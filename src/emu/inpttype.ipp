@@ -917,6 +917,8 @@ namespace {
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_LOAD_STATE,        N_p("input-name", "Load State"),             input_seq(KEYCODE_F7, input_seq::not_code, KEYCODE_LSHIFT, input_seq::not_code, KEYCODE_RSHIFT) ) \
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_TAPE_START,        N_p("input-name", "UI (First) Tape Start"),  input_seq(KEYCODE_F2, input_seq::not_code, KEYCODE_LSHIFT, input_seq::not_code, KEYCODE_RSHIFT) ) \
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_TAPE_STOP,         N_p("input-name", "UI (First) Tape Stop"),   input_seq(KEYCODE_F2, KEYCODE_LSHIFT) ) \
+		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_SHOW_CLOCK,        N_p("input-name", "Show Current Time"),      input_seq(KEYCODE_G, KEYCODE_LSHIFT) ) \
+		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_MUTE,              N_p("input-name", "Toggle Mute"),            input_seq(KEYCODE_LCONTROL, KEYCODE_M) ) \
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_DATS,              N_p("input-name", "UI External DAT View"),   input_seq(KEYCODE_LALT, KEYCODE_D) ) \
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_FAVORITES,         N_p("input-name", "UI Add/Remove favorite"), input_seq(KEYCODE_LALT, KEYCODE_F) ) \
 		INPUT_PORT_DIGITAL_TYPE( 0, UI,       UI_EXPORT,            N_p("input-name", "UI Export List"),         input_seq(KEYCODE_LALT, KEYCODE_E) ) \

@@ -174,6 +174,7 @@ mame_ui_manager::mame_ui_manager(running_machine &machine)
 	, m_single_step(false)
 	, m_showfps(false)
 	, m_showfps_end(0)
+	, m_show_clock(false)
 	, m_show_profiler(false)
 	, m_popup_text_end(0)
 	, m_mouse_bitmap(32, 32)
@@ -974,6 +975,38 @@ bool mame_ui_manager::show_fps_counter()
 
 
 //-------------------------------------------------
+//  set_show_clock - show/hide the clock
+//-------------------------------------------------
+
+void mame_ui_manager::set_show_clock(bool show)
+{
+	m_show_clock = show;
+}
+
+
+//-------------------------------------------------
+//  show_clock
+//-------------------------------------------------
+
+bool mame_ui_manager::show_clock() const
+{
+	return m_show_clock;
+}
+
+
+void mame_ui_manager::draw_clock(render_container &container)
+{
+        float line_height = get_line_height();
+
+	char time_string[12];
+	auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	std::strftime(time_string, sizeof(time_string), "%H:%M:%S", std::localtime(&now));
+
+	draw_text_full(container, time_string, 0.0f, 1.0f - line_height, 1.0f,
+		ui::text_layout::text_justify::RIGHT, ui::text_layout::word_wrapping::WORD, OPAQUE_, rgb_t::white(), rgb_t::black(), nullptr, nullptr);
+}
+
+//-------------------------------------------------
 //  set_show_profiler - show/hide the profiler
 //-------------------------------------------------
 
@@ -1224,6 +1257,10 @@ uint32_t mame_ui_manager::handler_ingame(render_container &container)
 	if (show_fps_counter())
 		draw_fps_counter(container);
 
+        // Show the clock
+	if (show_clock())
+		draw_clock(container);
+
 	// draw the profiler if visible
 	if (show_profiler())
 		draw_profiler(container);
@@ -1387,6 +1424,19 @@ uint32_t mame_ui_manager::handler_ingame(render_container &container)
 	// toggle FPS display
 	if (machine().ui_input().pressed(IPT_UI_SHOW_FPS))
 		set_show_fps(!show_fps());
+
+	// toggle clock display
+	if (machine().ui_input().pressed(IPT_UI_SHOW_CLOCK))
+		set_show_clock(!show_clock());
+
+	// toggle mute
+	if (machine().ui_input().pressed(IPT_UI_MUTE))
+        {
+            static bool muted = true;
+            machine().sound().system_mute(muted);
+            machine().popmessage("Mute %s", muted ? "Enabled" : "Disabled");
+            muted = !muted;
+	}
 
 	// increment frameskip?
 	if (machine().ui_input().pressed(IPT_UI_FRAMESKIP_INC))
