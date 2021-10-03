@@ -396,6 +396,11 @@ void osd_list_network_adapters();
 -----------------------------------------------------------------------------*/
 void osd_subst_env(std::string &dst, std::string const &src);
 
+
+/* change working directory */
+int osd_chdir(std::string const &path);
+
+
 class osd_gpu
 {
 public:

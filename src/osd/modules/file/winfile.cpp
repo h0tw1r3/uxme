@@ -26,6 +26,7 @@
 #include <winioctl.h>
 #include <tchar.h>
 #include <shlwapi.h>
+#include <direct.h>
 #include <cstdlib>
 #include <cctype>
 
@@ -155,6 +156,17 @@ DWORD create_path_recursive(TCHAR *path)
 
 } // anonymous namespace
 
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(std::string const &path)
+{
+	std::string path_expanded;
+	osd_subst_env(path_expanded, path);
+	int retval = _chdir(path_expanded.c_str());
+	return retval;
+}
 
 
 //============================================================

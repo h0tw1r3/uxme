@@ -539,3 +539,15 @@ bool osd_is_valid_filepath_char(char32_t uchar) noexcept
 #endif
 		&& uchar_isvalid(uchar);
 }
+
+
+//============================================================
+//  osd_chdir
+//============================================================
+int osd_chdir(std::string const &path)
+{
+	std::string path_expanded;
+	osd_subst_env(path_expanded, path);
+	int retval = chdir(path_expanded.c_str());
+	return retval;
+}

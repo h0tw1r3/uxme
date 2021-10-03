@@ -79,6 +79,7 @@
 
 // command options
 #define CLIOPTION_DTD                   "dtd"
+#define CLIOPTION_CHDIR                 "chdir"
 
 
 namespace {
@@ -93,6 +94,7 @@ const options_entry cli_option_entries[] =
 	{ nullptr,                              nullptr,   OPTION_HEADER,     "CORE COMMANDS" },
 	{ CLICOMMAND_HELP           ";h;?",     "0",       OPTION_COMMAND,    "show help message" },
 	{ CLICOMMAND_VALIDATE       ";valid",   "0",       OPTION_COMMAND,    "perform validation on system drivers and devices" },
+	{ CLIOPTION_CHDIR           ";cd",      nullptr,   OPTION_STRING,     "change to directory on startup" },
 
 	/* configuration commands */
 	{ nullptr,                              nullptr,   OPTION_HEADER,     "CONFIGURATION COMMANDS" },
@@ -236,6 +238,8 @@ void cli_frontend::start_execution(mame_machine_manager *manager, const std::vec
 		throw emu_fatalerror(EMU_ERR_INVALID_CONFIG, "%s", ex.message());
 	}
 	m_osd.set_verbose(m_options.verbose());
+
+	change_working_directory();
 
 	// determine the base name of the EXE
 	std::string_view exename = core_filename_extract_base(args[0], true);
@@ -1773,7 +1777,7 @@ void cli_frontend::display_help(std::string_view exename)
 			"of machines. But hardware is useless without software, so images of the ROMs and\n"
 			"other media which run on that hardware are also required.\n"
 			"\n"
-			"Usage:  %1$s [machine] [media] [software] [options]\n"
+			"Usage:  %1$s [-chdir PATH] [machine] [media] [software] [options]\n"
 			"\n"
 			"        %1$s -showusage    for a list of options\n"
 			"        %1$s -showconfig   to show current configuration in %4$s.ini format\n"
@@ -1786,4 +1790,22 @@ void cli_frontend::display_help(std::string_view exename)
 			emulator_info::get_appname(),
 			emulator_info::get_configname(),
 			emulator_info::get_copyright_info());
+}
+
+
+//-------------------------------------------------
+//  change_working_directory
+//  helper for initial startup (cli_frontend::execute)
+//-------------------------------------------------
+
+void cli_frontend::change_working_directory()
+{
+	if (*(m_options.value(CLIOPTION_CHDIR)) != 0)
+	{
+		if (osd_chdir(m_options.value(CLIOPTION_CHDIR)) != 0)
+			throw emu_fatalerror(EMU_ERR_FATALERROR, "Failed to change working directory '%s'", m_options.value(CLIOPTION_CHDIR));
+
+	        // never save option
+                m_options.set_value(CLIOPTION_CHDIR, "", OPTION_PRIORITY_MAXIMUM);
+	}
 }
