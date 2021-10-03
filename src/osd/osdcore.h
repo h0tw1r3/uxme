@@ -365,6 +365,11 @@ void osd_break_into_debugger(const char *message);
 -----------------------------------------------------------------------------*/
 std::string osd_subst_env(std::string_view src);
 
+
+/* change working directory */
+int osd_chdir(std::string const &path);
+
+
 class osd_gpu
 {
 public:
