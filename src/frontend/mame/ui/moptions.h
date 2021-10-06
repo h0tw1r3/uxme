@@ -40,6 +40,7 @@
 // core misc options
 #define OPTION_SYSTEM_NAMES           "system_names"
 #define OPTION_SKIP_WARNINGS          "skip_warnings"
+#define OPTION_SKIP_ALL_WARNINGS      "skip_all_warnings"
 #define OPTION_UNTHROTTLE_MUTE        "unthrottle_mute"
 
 
@@ -111,7 +112,8 @@ public:
 
 	// Misc options
 	const char *system_names() const { return value(OPTION_SYSTEM_NAMES); }
-	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS); }
+	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS) || bool_value(OPTION_SKIP_ALL_WARNINGS); }
+	bool skip_all_warnings() const { return bool_value(OPTION_SKIP_ALL_WARNINGS); }
 	bool enlarge_snaps() const { return bool_value(OPTION_ENLARGE_SNAPS); }
 	bool forced_4x3_snapshot() const { return bool_value(OPTION_FORCED4X3); }
 	bool unthrottle_mute() const { return bool_value(OPTION_UNTHROTTLE_MUTE); }

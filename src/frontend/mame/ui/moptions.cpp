@@ -46,6 +46,7 @@ const options_entry ui_options::s_option_entries[] =
 	{ nullptr,                              nullptr,    option_type::HEADER,      "UI MISC OPTIONS" },
 	{ OPTION_SYSTEM_NAMES,                  "",         option_type::MULTIPATH,   "translated system names file" },
 	{ OPTION_SKIP_WARNINGS,                 "0",        option_type::BOOLEAN,     "display fewer repeated warnings about imperfect emulation" },
+	{ OPTION_SKIP_ALL_WARNINGS,             "0",        option_type::BOOLEAN,     "skip all repeated warnings about imperfect emulation" },
 	{ OPTION_UNTHROTTLE_MUTE ";utm",        "0",        option_type::BOOLEAN,     "mute audio when running unthrottled" },
 
 	// UI options
