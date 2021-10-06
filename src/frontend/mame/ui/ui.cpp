@@ -466,7 +466,7 @@ void mame_ui_manager::display_startup_screens(bool first_time)
 		case 0:
 			if (show_gameinfo)
 				warning_text = machine_info().game_info_string();
-			if (!warning_text.empty())
+			if (!warning_text.empty() && !options().skip_all_warnings())
 			{
 				warning_text.append(_("\n\nPress any key to continue"));
 				set_handler(ui_callback_type::MODAL, handler_callback_func(handler_messagebox_anykey));
@@ -539,7 +539,7 @@ void mame_ui_manager::display_startup_screens(bool first_time)
 					if (need_warning)
 						m_last_warning_time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 				}
-				if (need_warning)
+				if (need_warning && !options().skip_all_warnings())
 				{
 					warning_text.append(_("\n\nPress any key to continue"));
 					set_handler(ui_callback_type::MODAL, handler_callback_func(handler_messagebox_anykey));

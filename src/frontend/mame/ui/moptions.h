@@ -40,6 +40,7 @@
 // core misc options
 #define OPTION_SYSTEM_NAMES           "system_names"
 #define OPTION_SKIP_WARNINGS          "skip_warnings"
+#define OPTION_SKIP_ALL_WARNINGS      "skip_all_warnings"
 #define OPTION_REMEMBER_LAST          "remember_last"
 #define OPTION_ENLARGE_SNAPS          "enlarge_snaps"
 #define OPTION_FORCED4X3              "forced4x3"
@@ -106,7 +107,8 @@ public:
 
 	// Misc options
 	const char *system_names() const { return value(OPTION_SYSTEM_NAMES); }
-	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS); }
+	bool skip_warnings() const { return bool_value(OPTION_SKIP_WARNINGS) || bool_value(OPTION_SKIP_ALL_WARNINGS); }
+	bool skip_all_warnings() const { return bool_value(OPTION_SKIP_ALL_WARNINGS); }
 	bool remember_last() const { return bool_value(OPTION_REMEMBER_LAST); }
 	bool enlarge_snaps() const { return bool_value(OPTION_ENLARGE_SNAPS); }
 	bool forced_4x3_snapshot() const { return bool_value(OPTION_FORCED4X3); }
