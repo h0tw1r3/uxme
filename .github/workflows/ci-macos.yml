@@ -31,8 +31,8 @@ jobs:
           TOOLS: 1
         run: make -j2
       - name: Validate
-        run: ./mame -validate
+        run: ./uxme -validate
       - uses: actions/upload-artifact@master
         with:
-          name: mame-macos-${{ github.sha }}
-          path: mame
+          name: uxme-macos-${{ github.sha }}
+          path: uxme

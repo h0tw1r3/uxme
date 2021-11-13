@@ -19,5 +19,5 @@ jobs:
       run: for x in language/*/*.po ; do python scripts/build/msgfmt.py --output-file "`dirname "$x"`/`basename "$x" .po`.mo" "$x" ; done
     - uses: actions/upload-artifact@master
       with:
-        name: mame-language-${{ github.sha }}
+        name: uxme-language-${{ github.sha }}
         path: language/*/*.mo

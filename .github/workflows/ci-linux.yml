@@ -51,10 +51,10 @@ jobs:
           TOOLS: 1
         run: make -j2
       - name: Validate
-        run: ./mame -validate
+        run: ./uxme -validate
       - name: ORM check
-        run: python scripts/minimaws/minimaws.py load --executable ./mame --softwarepath hash
+        run: python scripts/minimaws/minimaws.py load --executable ./uxme --softwarepath hash
       - uses: actions/upload-artifact@master
         with:
-          name: mame-linux-${{ matrix.compiler }}-${{ github.sha }}
-          path: mame
+          name: uxme-linux-${{ matrix.compiler }}-${{ github.sha }}
+          path: uxme

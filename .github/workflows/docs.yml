@@ -26,7 +26,7 @@ jobs:
       run: make -C docs latexpdf
     - uses: actions/upload-artifact@master
       with:
-        name: mame-docs-${{ github.sha }}
+        name: uxme-docs-${{ github.sha }}
         path: |
           docs/build/html
           docs/build/latex/MAME.pdf
