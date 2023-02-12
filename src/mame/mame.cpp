@@ -11,10 +11,10 @@
 #include "emu.h"
 #include "main.h"
 
-#define APPNAME                 "MAME"
-#define APPNAME_LOWER           "mame"
+#define APPNAME                 "UXME"
+#define APPNAME_LOWER           "uxme"
 #define CONFIGNAME              "mame"
-#define COPYRIGHT               "Copyright MAMEdev and contributors\nhttps://mamedev.org"
+#define COPYRIGHT               "Copyright MAMEdev and contributors\nhttps://github.com/h0tw1r3/uxme"
 #define COPYRIGHT_INFO          "Copyright MAMEdev and contributors"
 
 const char * emulator_info::get_appname() { return APPNAME;}

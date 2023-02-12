@@ -41,7 +41,7 @@ jobs:
             cc: clang
             cxx: clang++
             subtarget: tiny
-            executable: mametiny
+            executable: uxmetiny
     steps:
     - uses: msys2/setup-msys2@v2
       with:
