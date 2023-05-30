@@ -1,0 +1,10 @@
+{
+    "plugin": {
+        "name": "faststart",
+        "description": "Fast Start",
+        "version": "0.0.1",
+        "author": "Jeff Clark",
+        "type": "plugin",
+        "start": "false"
+    }
+}
